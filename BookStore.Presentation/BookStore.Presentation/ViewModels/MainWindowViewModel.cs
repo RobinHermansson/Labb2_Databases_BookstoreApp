@@ -1,4 +1,5 @@
-﻿using CompanyDemo.Presentation.ViewModel;
+﻿using Bookstore.Infrastructure.Data.Model;
+using CompanyDemo.Presentation.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,13 +12,13 @@ namespace BookStore.Presentation.ViewModels;
 internal class MainWindowViewModel : ViewModelBase
 {
 
-	private ObservableCollection<Book> _test;
+	private ObservableCollection<Book> _books;
 
-	public ObservableCollection<Book> Test
+	public ObservableCollection<Book> Books
 	{
-		get { return _test; }
+		get { return _books; }
 		set { 
-			_test = value;
+			_books = value;
 			RaisePropertyChanged();
 		}
 	}
@@ -25,17 +26,10 @@ internal class MainWindowViewModel : ViewModelBase
 	public MainWindowViewModel()
     {
 
-		Test = new ObservableCollection<Book>() 
-		{ 
-			new Book() { Id=1, Name="Test book" },
-			new Book() { Id=2, Name="Second test book"}
-		};
+		using var db = new BookstoreDBContext();
+		
+		Books = new ObservableCollection<Book>(db.Books.ToList());
         
     }
 }
 
-public class Book
-{
-    public int Id { get; set; }
-	public string Name { get; set; }
-}

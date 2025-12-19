@@ -11,7 +11,7 @@
             <RowDefinition Height="50"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Test}">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Books}">
         </DataGrid>
     </Grid>
 </Window>
