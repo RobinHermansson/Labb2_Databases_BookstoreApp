@@ -42,7 +42,8 @@
                       Grid.Column="1" 
                       Grid.ColumnSpan="2" 
                       ItemsSource="{Binding Books}"
-                      Background="#272537">
+                      Background="#272537"
+                      Margin="20 0 20 20">
             </DataGrid>
             <StackPanel Grid.Row="1">
                 <RadioButton Content="Books"
@@ -79,6 +80,23 @@
 
 
 
+            </StackPanel>
+            <StackPanel Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="20 0 0 0"
+                        Orientation="Horizontal">
+                <TextBlock Text="Select shop:" 
+                           Foreground="White"
+                           VerticalAlignment="Center"/>
+
+                <ComboBox ItemsSource="{Binding Stores}"
+                          DisplayMemberPath="StoreName" 
+                          Height="20"
+                          Width="180"
+                          Margin="5 0 0 0"
+                          VerticalAlignment="Center"
+                          SelectedItem="{Binding SelectedStore}"/>
+                
             </StackPanel>
         </Grid>
     </Border>
