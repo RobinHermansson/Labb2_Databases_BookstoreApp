@@ -5,13 +5,45 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BookStore.Presentation"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Books}">
-        </DataGrid>
-    </Grid>
+        Height="600" Width="920"
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True">
+    <Border Background="#272537"
+            CornerRadius="20"
+            MouseLeftButtonDown="Border_MouseLeftButtonDown">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="70"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Text="BookStore"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"
+                       Margin="20,0,0,0"
+                       Foreground="White"
+                       FontSize="22"/>
+            <Button Content="✕" 
+                    Grid.Column="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="15" 
+                    BorderThickness="0"
+                    Background="Transparent"
+                    Foreground="IndianRed"
+                    Click="CloseButton_Click"/>
+            <DataGrid Grid.Row="1" 
+                      Grid.Column="1" 
+                      Grid.ColumnSpan="2" 
+                      ItemsSource="{Binding Books}"
+                      Background="#272537">
+            </DataGrid>
+        </Grid>
+    </Border>
 </Window>

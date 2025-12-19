@@ -1,4 +1,5 @@
 ﻿using BookStore.Presentation.ViewModels;
+using System.Security.Policy;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,6 +23,17 @@ namespace BookStore.Presentation
         {
             InitializeComponent();
             DataContext = _mainWindowViewModel = new MainWindowViewModel();
+        }
+
+        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+                this.DragMove();
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
     }
 }
