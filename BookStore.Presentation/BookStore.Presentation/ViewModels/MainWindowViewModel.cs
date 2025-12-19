@@ -1,5 +1,6 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
 using CompanyDemo.Presentation.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -115,6 +116,27 @@ internal class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private bool _isLoading;
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set
+        {
+            _isLoading = value;
+            RaisePropertyChanged();
+        }
+    }
+    private string? _errorMessage;
+    public string? ErrorMessage
+    {
+        get => _errorMessage;
+        set
+        {
+            _errorMessage = value;
+            RaisePropertyChanged();
+        }
+    }
+
 	private ObservableCollection<Book> _books;
 
 	public ObservableCollection<Book> Books
@@ -155,18 +177,47 @@ internal class MainWindowViewModel : ViewModelBase
 	public MainWindowViewModel()
     {
 
+        _ = InitializeAsync();
+
 		using var db = new BookstoreDBContext();
 		
-		Stores = new ObservableCollection<Store>(db.Stores.ToList());
-
-
 		_booksViewModel = new BooksViewModel();
-
-		SelectedStore = Stores.FirstOrDefault();
 
         // Books is selected by default
         IsBooksSelected = true;
         
+    }
+    private async Task InitializeAsync()
+    {
+        try
+        {
+            IsLoading = true;
+            ErrorMessage = null;
+
+            // Load stores
+            await LoadStoresAsync();
+
+            // Set default selection and load initial books
+            if (Stores.Count > 0)
+            {
+                SelectedStore = Stores.First();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Failed to initialize: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task LoadStoresAsync()
+    {
+        using var db = new BookstoreDBContext();
+        var storesList = await db.Stores.ToListAsync();
+        Stores = new ObservableCollection<Store>(storesList);
     }
 }
 
