@@ -23,6 +23,97 @@ internal class MainWindowViewModel : ViewModelBase
 			RaisePropertyChanged();
 		}
 	}
+	private bool _isBooksSelected = true;
+    public bool IsBooksSelected
+    {
+        get => _isBooksSelected;
+        set
+        {
+            _isBooksSelected = value;
+            RaisePropertyChanged();
+            if (value) CurrentView = _booksViewModel;
+        }
+    }
+
+    private bool _isAuthorsSelected;
+    public bool IsAuthorsSelected
+    {
+        get => _isAuthorsSelected;
+        set
+        {
+            _isAuthorsSelected = value;
+            RaisePropertyChanged();
+            if (value) 
+            {
+                // TODO: Create AuthorsViewModel and set it
+                // CurrentView = _authorsViewModel;
+            }
+        }
+    }
+
+    private bool _isCustomersSelected;
+    public bool IsCustomersSelected
+    {
+        get => _isCustomersSelected;
+        set
+        {
+            _isCustomersSelected = value;
+            RaisePropertyChanged();
+            if (value) 
+            {
+                // TODO: Create CustomersViewModel and set it
+                // CurrentView = _customersViewModel;
+            }
+        }
+    }
+
+    private bool _isOrdersSelected;
+    public bool IsOrdersSelected
+    {
+        get => _isOrdersSelected;
+        set
+        {
+            _isOrdersSelected = value;
+            RaisePropertyChanged();
+            if (value) 
+            {
+                // TODO: Create OrdersViewModel and set it
+                // CurrentView = _ordersViewModel;
+            }
+        }
+    }
+
+    private bool _isPublishersSelected;
+    public bool IsPublishersSelected
+    {
+        get => _isPublishersSelected;
+        set
+        {
+            _isPublishersSelected = value;
+            RaisePropertyChanged();
+            if (value) 
+            {
+                // TODO: Create PublishersViewModel and set it
+                // CurrentView = _publishersViewModel;
+            }
+        }
+    }
+
+    private bool _isStoresSelected;
+    public bool IsStoresSelected
+    {
+        get => _isStoresSelected;
+        set
+        {
+            _isStoresSelected = value;
+            RaisePropertyChanged();
+            if (value) 
+            {
+                // TODO: Create StoresViewModel and set it
+                // CurrentView = _storesViewModel;
+            }
+        }
+    }
 
 	private ObservableCollection<Book> _books;
 
@@ -72,7 +163,9 @@ internal class MainWindowViewModel : ViewModelBase
 		_booksViewModel = new BooksViewModel();
 
 		SelectedStore = Stores.FirstOrDefault();
-		CurrentView = _booksViewModel;
+
+        // Books is selected by default
+        IsBooksSelected = true;
         
     }
 }
