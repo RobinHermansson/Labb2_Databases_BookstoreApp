@@ -44,6 +44,42 @@
                       ItemsSource="{Binding Books}"
                       Background="#272537">
             </DataGrid>
+            <StackPanel Grid.Row="1">
+                <RadioButton Content="Books"
+                             Height="50"
+                             Foreground="White"
+                             FontSize="14"
+                             Style="{StaticResource MenuButtonTheme}" />
+                <RadioButton Content="Authors"
+                             Height="50"
+                             Foreground="White"
+                             FontSize="14"
+                             Style="{StaticResource MenuButtonTheme}" />
+                <RadioButton Content="Customers"
+                             Height="50"
+                             Foreground="White"
+                             FontSize="14"
+                             Style="{StaticResource MenuButtonTheme}" />
+                <RadioButton Content="Orders"
+                             Height="50"
+                             Foreground="White"
+                             FontSize="14"
+                             Style="{StaticResource MenuButtonTheme}" />
+                <RadioButton Content="Publishers"
+                             Height="50"
+                             Foreground="White"
+                             FontSize="14"
+                             Style="{StaticResource MenuButtonTheme}" />
+                <RadioButton Content="Stores"
+                             Height="50"
+                             Foreground="White"
+                             FontSize="14"
+                             Style="{StaticResource MenuButtonTheme}" />
+
+
+
+
+            </StackPanel>
         </Grid>
     </Border>
 </Window>
