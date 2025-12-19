@@ -13,6 +13,17 @@ namespace BookStore.Presentation.ViewModels;
 internal class MainWindowViewModel : ViewModelBase
 {
 
+	public BooksViewModel _booksViewModel;
+	private object _currentView;
+
+	public object CurrentView
+	{
+		get { return _currentView; }
+		set { _currentView = value;
+			RaisePropertyChanged();
+		}
+	}
+
 	private ObservableCollection<Book> _books;
 
 	public ObservableCollection<Book> Books
@@ -33,6 +44,7 @@ internal class MainWindowViewModel : ViewModelBase
 		{
 			_selectedStore = value;
 			RaisePropertyChanged();
+            _ = _booksViewModel.LoadBooksForSelectedStore(SelectedStore.Id); // awaits but discards it
 		}
 	}
 
@@ -54,10 +66,13 @@ internal class MainWindowViewModel : ViewModelBase
 
 		using var db = new BookstoreDBContext();
 		
-		Books = new ObservableCollection<Book>(db.Books.ToList());
 		Stores = new ObservableCollection<Store>(db.Stores.ToList());
 
+
+		_booksViewModel = new BooksViewModel();
+
 		SelectedStore = Stores.FirstOrDefault();
+		CurrentView = _booksViewModel;
         
     }
 }

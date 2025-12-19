@@ -4,11 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BookStore.Presentation"
+        xmlns:viewModel="clr-namespace:BookStore.Presentation.ViewModels"
         mc:Ignorable="d"
         Height="600" Width="920"
         Background="Transparent"
         WindowStyle="None"
         AllowsTransparency="True">
+    <Window.DataContext>
+        <viewModel:MainWindowViewModel></viewModel:MainWindowViewModel>
+        <!--/viewModel:BooksViewModel></viewModel:BooksViewModel-->
+        
+    </Window.DataContext>
     <Border Background="#272537"
             CornerRadius="20"
             MouseLeftButtonDown="Border_MouseLeftButtonDown">
@@ -38,13 +44,6 @@
                     Background="Transparent"
                     Foreground="IndianRed"
                     Click="CloseButton_Click"/>
-            <DataGrid Grid.Row="1" 
-                      Grid.Column="1" 
-                      Grid.ColumnSpan="2" 
-                      ItemsSource="{Binding Books}"
-                      Background="#272537"
-                      Margin="20 0 20 20">
-            </DataGrid>
             <StackPanel Grid.Row="1">
                 <RadioButton Content="Books"
                              Height="50"
@@ -98,6 +97,9 @@
                           SelectedItem="{Binding SelectedStore}"/>
                 
             </StackPanel>
+            <ContentControl Grid.Row="1" 
+                            Grid.Column="1"
+                            Content="{Binding CurrentView}"></ContentControl>
         </Grid>
     </Border>
 </Window>

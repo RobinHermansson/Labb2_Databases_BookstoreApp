@@ -2,13 +2,20 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:BookStore.Presentation"
+             xmlns:viewModel="clr-namespace:BookStore.Presentation.ViewModels"
+             xmlns:view="clr-namespace:BookStore.Presentation.View"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Theme/MenuButtonTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+        <DataTemplate DataType="{x:Type viewModel:BooksViewModel}">
+                <view:BooksView/>
+
+            </DataTemplate>
         </ResourceDictionary>
-         
+
+
     </Application.Resources>
 </Application>
