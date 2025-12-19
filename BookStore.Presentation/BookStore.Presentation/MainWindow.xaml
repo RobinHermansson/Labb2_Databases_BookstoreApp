@@ -10,11 +10,6 @@
         Background="Transparent"
         WindowStyle="None"
         AllowsTransparency="True">
-    <Window.DataContext>
-        <viewModel:MainWindowViewModel></viewModel:MainWindowViewModel>
-        <!--/viewModel:BooksViewModel></viewModel:BooksViewModel-->
-        
-    </Window.DataContext>
     <Border Background="#272537"
             CornerRadius="20"
             MouseLeftButtonDown="Border_MouseLeftButtonDown">
@@ -46,6 +41,7 @@
                     Click="CloseButton_Click"/>
             <StackPanel Grid.Row="1">
                 <RadioButton Content="Books"
+                             IsChecked="True"
                              Height="50"
                              Foreground="White"
                              FontSize="14"
