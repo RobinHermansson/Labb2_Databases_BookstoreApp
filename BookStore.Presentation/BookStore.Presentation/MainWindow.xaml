@@ -4,12 +4,23 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BookStore.Presentation"
-        xmlns:viewModel="clr-namespace:BookStore.Presentation.ViewModels"
+        xmlns:viewModels="clr-namespace:BookStore.Presentation.ViewModels"
+        xmlns:views="clr-namespace:BookStore.Presentation.View"
         mc:Ignorable="d"
         Height="600" Width="920"
         Background="Transparent"
         WindowStyle="None"
         AllowsTransparency="True">
+        <Window.Resources>
+        <DataTemplate DataType="{x:Type viewModels:BooksViewModel}">
+            <views:BooksView />
+        </DataTemplate>
+        
+        <DataTemplate DataType="{x:Type viewModels:AuthorsViewModel}">
+            <views:AuthorsView />
+        </DataTemplate>
+        
+    </Window.Resources>
     <Border Background="#272537"
             CornerRadius="20"
             MouseLeftButtonDown="Border_MouseLeftButtonDown">
