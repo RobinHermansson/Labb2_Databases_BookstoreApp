@@ -15,6 +15,7 @@ internal class MainWindowViewModel : ViewModelBase
 {
 
 	public BooksViewModel _booksViewModel;
+    public AuthorsViewModel _authorsViewModel;
 	private object _currentView;
 
 	public object CurrentView
@@ -43,12 +44,10 @@ internal class MainWindowViewModel : ViewModelBase
         set
         {
             _isAuthorsSelected = value;
+            if (value) CurrentView = _authorsViewModel;
+            _ = _authorsViewModel.LoadAuthorDetailsAsync();
             RaisePropertyChanged();
-            if (value) 
-            {
-                // TODO: Create AuthorsViewModel and set it
-                // CurrentView = _authorsViewModel;
-            }
+
         }
     }
 
@@ -182,6 +181,7 @@ internal class MainWindowViewModel : ViewModelBase
 		using var db = new BookstoreDBContext();
 		
 		_booksViewModel = new BooksViewModel();
+        _authorsViewModel = new AuthorsViewModel();
 
         // Books is selected by default
         IsBooksSelected = true;
@@ -219,5 +219,12 @@ internal class MainWindowViewModel : ViewModelBase
         var storesList = await db.Stores.ToListAsync();
         Stores = new ObservableCollection<Store>(storesList);
     }
+    //private async Task LoadAuthorsAsync()
+    //{
+    //    using var db = new BookstoreDBContext();
+     //   var storesList = await db.Stores.ToListAsync();
+      //  Stores = new ObservableCollection<Store>(storesList);
+    //}
+
 }
 

@@ -1,0 +1,260 @@
+﻿using Bookstore.Infrastructure.Data.Model;
+using CompanyDemo.Presentation.ViewModel;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
+namespace BookStore.Presentation.ViewModels;
+
+internal class AuthorsViewModel : ViewModelBase
+{
+    private ObservableCollection<AuthorDetails> _displayAuthorDetails;
+    public List<Author> OriginalListOfAuthors;
+    private AuthorDetails _selectedAuthor;
+    public DelegateCommand SaveChangesCommand { get; set; }
+    public DelegateCommand CancelChangesCommand { get; set; }
+
+    private bool _hasChanges = false;
+
+    public bool HasChanges
+    {
+        get { return _hasChanges; }
+        set
+        {
+            _hasChanges = value;
+            RaisePropertyChanged();
+            SaveChangesCommand?.RaiseCanExecuteChanged();
+            CancelChangesCommand?.RaiseCanExecuteChanged();
+        }
+    }
+
+    public AuthorDetails SelectedAuthor
+    {
+        get { return _selectedAuthor; }
+        set
+        {
+            _selectedAuthor = value;
+            RaisePropertyChanged();
+            //	RaisePropertyChanged("DisplayAuthorDetails");
+
+        }
+    }
+
+
+    public AuthorsViewModel()
+    {
+
+        SaveChangesCommand = new DelegateCommand(SaveChangesAsync, CanSaveChanges);
+        CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
+    }
+
+    private bool CanCancelChanges(object? sender)
+    {
+        return HasChanges;
+    }
+    private void CancelChanges(object obj)
+    {
+        Debug.WriteLine("Cancel.");
+        _ = LoadAuthorDetailsAsync();
+    }
+
+    public ObservableCollection<AuthorDetails> DisplayAuthorDetails
+    {
+        get { return _displayAuthorDetails; }
+        set
+        {
+
+            // Unsubscribe from old collection
+            if (_displayAuthorDetails != null)
+            {
+                foreach (var author in _displayAuthorDetails)
+                {
+                    author.PropertyChanged -= AuthorDetails_PropertyChanged;
+                }
+            }
+
+            _displayAuthorDetails = value;
+            RaisePropertyChanged();
+
+            // Subscribe to new collection
+            if (_displayAuthorDetails != null)
+            {
+                foreach (var author in _displayAuthorDetails)
+                {
+                    author.PropertyChanged += AuthorDetails_PropertyChanged;
+                }
+            }
+        }
+    }
+    private void AuthorDetails_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        // Only check for changes on properties that matter
+        if (e.PropertyName == nameof(AuthorDetails.FirstName) ||
+            e.PropertyName == nameof(AuthorDetails.LastName) ||
+            e.PropertyName == nameof(AuthorDetails.BirthDate) ||
+            e.PropertyName == nameof(AuthorDetails.DeathDate))
+        {
+            CheckForChanges();
+        }
+    }
+
+    private void CheckForChanges()
+    {
+        bool hasAnyChanges = false;
+
+        foreach (var displayAuthor in DisplayAuthorDetails)
+        {
+            var originalAuthor = OriginalListOfAuthors.FirstOrDefault(a => a.Id == displayAuthor.Id);
+            if (originalAuthor != null)
+            {
+                if (originalAuthor.FirstName != displayAuthor.FirstName ||
+                    originalAuthor.LastName != displayAuthor.LastName ||
+                    originalAuthor.BirthDate != displayAuthor.BirthDate ||
+                    originalAuthor.DeathDate != displayAuthor.DeathDate)
+                {
+                    hasAnyChanges = true;
+                    break;
+                }
+            }
+        }
+
+        HasChanges = hasAnyChanges;
+    }
+
+    public async Task LoadAuthorDetailsAsync()
+    {
+        using var db = new BookstoreDBContext();
+
+        var tempList = await db.Authors
+            .Include(b => b.BookIsbn13s)
+            .Select(a => new AuthorDetails()
+            {
+                Id = a.Id,
+                FirstName = a.FirstName,
+                LastName = a.LastName,
+                BirthDate = a.BirthDate ?? new DateOnly(),
+                DeathDate = a.DeathDate ?? new DateOnly(),
+                BooksIsbn13 = string.Join(", ", a.BookIsbn13s.Select(b => b.Isbn13)),
+                BookTitles = string.Join(", ", a.BookIsbn13s.Select(b => b.Title))
+            }
+            ).ToListAsync();
+        OriginalListOfAuthors = await db.Authors.ToListAsync();
+        DisplayAuthorDetails = new ObservableCollection<AuthorDetails>(tempList);
+        HasChanges = false;
+    }
+
+    private bool CanSaveChanges(object? sender)
+    {
+        return HasChanges;
+    }
+
+    private async void SaveChangesAsync(object sender)
+    {
+        try
+        {
+
+            using var db = new BookstoreDBContext();
+
+            var changedAuthors = new List<AuthorDetails>();
+            foreach (var displayAuthor in DisplayAuthorDetails)
+            {
+                var originalAuthor = OriginalListOfAuthors.FirstOrDefault(a => a.Id == displayAuthor.Id);
+                if (originalAuthor != null)
+                {
+                    if (originalAuthor.FirstName != displayAuthor.FirstName ||
+                        originalAuthor.LastName != displayAuthor.LastName ||
+                        originalAuthor.BirthDate != displayAuthor.BirthDate ||
+                        originalAuthor.DeathDate != displayAuthor.DeathDate)
+                    {
+                        changedAuthors.Add(displayAuthor);
+                    }
+                }
+            }
+            foreach (var changedAuthor in changedAuthors)
+            {
+                var dbAuthor = await db.Authors.FindAsync(changedAuthor.Id);
+
+                if (dbAuthor != null)
+                {
+                    dbAuthor.FirstName = changedAuthor.FirstName;
+                    dbAuthor.LastName = changedAuthor.LastName;
+                    dbAuthor.BirthDate = changedAuthor.BirthDate;
+                    dbAuthor.DeathDate = changedAuthor.DeathDate;
+                }
+            }
+
+            await db.SaveChangesAsync();
+
+            // Refresh states and the list according to new changes.
+            HasChanges = false;
+            _ = LoadAuthorDetailsAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error saving changes {ex}");
+        }
+    }
+
+}
+
+public class AuthorDetails : INotifyPropertyChanged
+{
+    private string _firstName;
+    private string _lastName;
+    private DateOnly _birthDate;
+    private DateOnly? _deathDate;
+
+    public int Id { get; set; }
+
+    public string FirstName
+    {
+        get => _firstName;
+        set
+        {
+            _firstName = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string LastName
+    {
+        get => _lastName;
+        set
+        {
+            _lastName = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public DateOnly BirthDate
+    {
+        get => _birthDate;
+        set
+        {
+            _birthDate = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public DateOnly? DeathDate
+    {
+        get => _deathDate;
+        set
+        {
+            _deathDate = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string BooksIsbn13 { get; set; }
+    public string BookTitles { get; set; }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
