@@ -182,7 +182,7 @@ internal class MainWindowViewModel : ViewModelBase
 		using var db = new BookstoreDBContext();
 
 		_booksViewModel = new BooksViewModel();
-        _authorsViewModel = new AuthorsViewModel();
+        _authorsViewModel = new AuthorsViewModel(this);
 
 
         // Books is selected by default

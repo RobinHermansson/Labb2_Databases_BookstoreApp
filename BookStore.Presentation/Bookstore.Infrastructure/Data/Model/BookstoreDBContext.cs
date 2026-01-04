@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Bookstore.Infrastructure.Data.Model;
 
@@ -48,7 +51,19 @@ public partial class BookstoreDBContext : DbContext
     {
         var config = new ConfigurationBuilder().AddUserSecrets<BookstoreDBContext>().Build();
         var connectionString = config["ConnectionString"];
-        optionsBuilder.UseSqlServer(connectionString);
+        optionsBuilder.UseSqlServer(connectionString)
+            .LogTo(message => DatabaseLogger(message),
+                new[] { DbLoggerCategory.Database.Name },
+                LogLevel.Information,
+                DbContextLoggerOptions.Level | DbContextLoggerOptions.LocalTime
+            )
+            .EnableSensitiveDataLogging();
+    }
+
+    private void DatabaseLogger(string message)
+    {
+        Console.WriteLine(message);
+        Debug.WriteLine(message);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
