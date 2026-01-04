@@ -22,6 +22,7 @@
                   SelectionMode="Single"
                   CanUserAddRows="True"
                   CanUserDeleteRows="True"
+                  IsSynchronizedWithCurrentItem="False"
                   SelectedItem="{Binding SelectedAuthor}"
                   ItemsSource="{Binding DisplayAuthorDetails}">
             <DataGrid.Columns>

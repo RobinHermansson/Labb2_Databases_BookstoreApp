@@ -2,6 +2,7 @@
 using CompanyDemo.Presentation.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -15,6 +16,9 @@ internal class AuthorsViewModel : ViewModelBase
     private AuthorDetails _selectedAuthor;
     public DelegateCommand SaveChangesCommand { get; set; }
     public DelegateCommand CancelChangesCommand { get; set; }
+
+    private List<AuthorDetails> _newAuthors = new List<AuthorDetails>();
+    private List<AuthorDetails> _deletedAuthors = new List<AuthorDetails>();
 
     private bool _hasChanges = false;
 
@@ -37,8 +41,6 @@ internal class AuthorsViewModel : ViewModelBase
         {
             _selectedAuthor = value;
             RaisePropertyChanged();
-            //	RaisePropertyChanged("DisplayAuthorDetails");
-
         }
     }
 
@@ -69,6 +71,7 @@ internal class AuthorsViewModel : ViewModelBase
             // Unsubscribe from old collection
             if (_displayAuthorDetails != null)
             {
+                _displayAuthorDetails.CollectionChanged -= DisplayAuthorDetails_CollectionChanged;
                 foreach (var author in _displayAuthorDetails)
                 {
                     author.PropertyChanged -= AuthorDetails_PropertyChanged;
@@ -81,12 +84,49 @@ internal class AuthorsViewModel : ViewModelBase
             // Subscribe to new collection
             if (_displayAuthorDetails != null)
             {
+                _displayAuthorDetails.CollectionChanged += DisplayAuthorDetails_CollectionChanged;
                 foreach (var author in _displayAuthorDetails)
                 {
                     author.PropertyChanged += AuthorDetails_PropertyChanged;
                 }
             }
         }
+    }
+    private void DisplayAuthorDetails_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems != null)
+        {
+            foreach (AuthorDetails newAuthor in e.NewItems)
+            {
+                newAuthor.PropertyChanged += AuthorDetails_PropertyChanged;
+                
+                if (newAuthor.Id <= 0)
+                {
+                    _newAuthors.Add(newAuthor);
+                    Debug.WriteLine($"New author added: {newAuthor.FirstName} {newAuthor.LastName}");
+                }
+            }
+        }
+
+        if (e.OldItems != null)
+        {
+            foreach (AuthorDetails removedAuthor in e.OldItems)
+            {
+                removedAuthor.PropertyChanged -= AuthorDetails_PropertyChanged;
+                
+                if (_newAuthors.Contains(removedAuthor))
+                {
+                    _newAuthors.Remove(removedAuthor);
+                }
+                else if (removedAuthor.Id > 0)
+                {
+                    _deletedAuthors.Add(removedAuthor);
+                    Debug.WriteLine($"Author marked for deletion: {removedAuthor.FirstName} {removedAuthor.LastName}");
+                }
+            }
+        }
+
+        CheckForChanges();
     }
     private void AuthorDetails_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
@@ -103,6 +143,16 @@ internal class AuthorsViewModel : ViewModelBase
     private void CheckForChanges()
     {
         bool hasAnyChanges = false;
+
+        if (_newAuthors.Any())
+        {
+            hasAnyChanges = true;
+        }
+
+        if (_deletedAuthors.Any())
+        {
+            hasAnyChanges = true;
+        }
 
         foreach (var displayAuthor in DisplayAuthorDetails)
         {
@@ -142,6 +192,8 @@ internal class AuthorsViewModel : ViewModelBase
             ).ToListAsync();
         OriginalListOfAuthors = await db.Authors.ToListAsync();
         DisplayAuthorDetails = new ObservableCollection<AuthorDetails>(tempList);
+        _newAuthors.Clear();
+        _deletedAuthors.Clear();
         HasChanges = false;
     }
 
@@ -157,6 +209,37 @@ internal class AuthorsViewModel : ViewModelBase
 
             using var db = new BookstoreDBContext();
 
+            // Handle new authors
+            foreach (var newAuthor in _newAuthors)
+            {
+                var dbAuthor = new Author
+                {
+                    FirstName = newAuthor.FirstName,
+                    LastName = newAuthor.LastName,
+                    BirthDate = newAuthor.BirthDate,
+                    DeathDate = newAuthor.DeathDate
+                };
+                
+                db.Authors.Add(dbAuthor);
+                Debug.WriteLine($"Adding new author: {newAuthor.FirstName} {newAuthor.LastName}");
+            }
+
+            // Handle deleted authors
+            foreach (var deletedAuthor in _deletedAuthors)
+            {
+                var dbAuthor = await db.Authors
+                .Include(a => a.BookIsbn13s) 
+                .FirstOrDefaultAsync(a => a.Id == deletedAuthor.Id);
+                if (dbAuthor != null)
+                {
+                    dbAuthor.BookIsbn13s.Clear();
+                    Debug.WriteLine($"Removing book authorships for author: {deletedAuthor.FirstName} {deletedAuthor.LastName}");
+                    db.Authors.Remove(dbAuthor);
+                    Debug.WriteLine($"Deleting author: {deletedAuthor.FirstName} {deletedAuthor.LastName}");
+                }
+            }
+            
+            //Handling modified existing authors
             var changedAuthors = new List<AuthorDetails>();
             foreach (var displayAuthor in DisplayAuthorDetails)
             {
