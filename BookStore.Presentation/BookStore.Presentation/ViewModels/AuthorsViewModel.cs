@@ -1,5 +1,4 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
-using CompanyDemo.Presentation.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
