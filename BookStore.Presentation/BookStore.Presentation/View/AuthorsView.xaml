@@ -11,14 +11,44 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
     <TextBlock Text="All authors" 
                Foreground="White"
                FontSize="24"/>
         <DataGrid Grid.Row="1"
                   Margin="0 20 20 20"
-                  ItemsSource="{Binding Authors}">
-        </DataGrid>    
-</Grid>
+                  AutoGenerateColumns="False"
+                  SelectionMode="Single"
+                  CanUserAddRows="True"
+                  CanUserDeleteRows="True"
+                  IsSynchronizedWithCurrentItem="False"
+                  SelectedItem="{Binding SelectedAuthor}"
+                  ItemsSource="{Binding DisplayAuthorDetails}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="First name" Binding="{Binding FirstName}"/>
+                <DataGridTextColumn Header="Last name" Binding="{Binding LastName}"/>
+                <DataGridTextColumn Header="Birth Date" Binding="{Binding BirthDate}"/>
+                <DataGridTextColumn Header="Death Date" Binding="{Binding DeathDate}"/>
+                <DataGridTextColumn Header="Books (ISBN13)" Binding="{Binding BooksIsbn13}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Books (Titles)" Binding="{Binding BookTitles}" IsReadOnly="True"/>
+                
+            </DataGrid.Columns>
             
-</UserControl>
+        </DataGrid>    
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+            <Button Content="Save Changes" 
+                    Command="{Binding SaveChangesCommand}"
+                    IsEnabled="{Binding HasChanges}"
+                    Margin="0,0,10,0"
+                    Padding="10,5"
+                    />
+            <Button Content="Cancel Changes" 
+                    Command="{Binding CancelChangesCommand}"
+                    IsEnabled="{Binding HasChanges}"
+                    Padding="10,5"
+                    />
+        </StackPanel>
+            </Grid>
+                
+    </UserControl>

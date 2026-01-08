@@ -43,12 +43,10 @@ internal class MainWindowViewModel : ViewModelBase
         set
         {
             _isAuthorsSelected = value;
+            if (value) CurrentView = _authorsViewModel;
+            _ = _authorsViewModel.LoadAuthorDetailsAsync();
             RaisePropertyChanged();
-            if (value) 
-            {
-                _ = LoadAuthorsDataAsync();
-                 CurrentView = _authorsViewModel;
-            }
+
         }
     }
 
@@ -137,17 +135,6 @@ internal class MainWindowViewModel : ViewModelBase
         }
     }
 
-	private ObservableCollection<Book> _books;
-
-	public ObservableCollection<Book> Books
-	{
-		get { return _books; }
-		set { 
-			_books = value;
-			RaisePropertyChanged();
-		}
-	}
-
 	private Store? _selectedStore;
     public Store? SelectedStore 
 	{
@@ -180,10 +167,9 @@ internal class MainWindowViewModel : ViewModelBase
         _ = InitializeAsync();
 
 		using var db = new BookstoreDBContext();
-
-		_booksViewModel = new BooksViewModel();
+		
+		_booksViewModel = new BooksViewModel(this);
         _authorsViewModel = new AuthorsViewModel();
-
 
         // Books is selected by default
         IsBooksSelected = true;
