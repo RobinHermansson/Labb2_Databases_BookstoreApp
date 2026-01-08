@@ -14,6 +14,7 @@ internal class CustomersViewModel : ViewModelBase
     private bool _hasChanges;
     private List<CustomerDetails> _newCustomers = new List<CustomerDetails>();
     private List<CustomerDetails> _deletedCustomers = new List<CustomerDetails>();
+    private List<CustomerDetails> _changedCustomers = new List<CustomerDetails>();
 
     public List<Customer> OriginalListOfCustomers;
 
@@ -155,6 +156,7 @@ internal class CustomersViewModel : ViewModelBase
                     originalCustomer.Phone != displayCustomer.Phone)
                 {
                     hasAnyChanges = true;
+                    _changedCustomers.Add(displayCustomer);
                     break;
                 }
             }
@@ -185,13 +187,61 @@ internal class CustomersViewModel : ViewModelBase
     public void CancelChanges(object? sender)
     {
         Debug.WriteLine("Cancelling changes");
+        _newCustomers.Clear();
+        _changedCustomers.Clear();
+        _deletedCustomers.Clear();
         _ = LoadAllCustomersAsync();
     }
     public bool CanSaveChanges(object? sender) => HasChanges;
 
     public void SaveChanges(object? sender)
     {
-        Debug.WriteLine("Not yet implemented.");
+        using var db = new BookstoreDBContext();
+        if (_newCustomers.Count != 0)
+        {
+            foreach (var newCustomer in _newCustomers)
+            {
+                db.Customers.Add(new Customer() 
+                {
+                    FirstName = newCustomer.FirstName,
+                    LastName = newCustomer.LastName,
+                    Email = newCustomer.Email,
+                    Phone = newCustomer.Phone
+                });
+            }
+        }
+        if (_deletedCustomers.Count != 0)
+        {
+            foreach (var deletedCustomer in _deletedCustomers)
+            {
+                var toBeDeleted = db.Customers.FirstOrDefault(c => c.Id == deletedCustomer.Id);
+                if (toBeDeleted is not null)
+                {
+                    db.Customers.Remove(toBeDeleted);
+                }
+             }
+        }
+        if (_changedCustomers.Count != 0)
+        {
+            foreach(var changedCustomer in _changedCustomers)
+            {
+                var toBeUpdated = db.Customers.FirstOrDefault(c => c.Id == changedCustomer.Id);
+                if (toBeUpdated is not null)
+                {
+                    toBeUpdated.FirstName = changedCustomer.FirstName;
+                    toBeUpdated.LastName = changedCustomer.LastName;
+                    toBeUpdated.Email = changedCustomer.Email;
+                    toBeUpdated.Phone = changedCustomer.Phone;
+                }
+            }
+        }
+
+        db.SaveChanges();
+        _newCustomers.Clear();
+        _deletedCustomers.Clear();
+        _changedCustomers.Clear();
+        HasChanges = false;
+        _ = LoadAllCustomersAsync();
     }
 
 
