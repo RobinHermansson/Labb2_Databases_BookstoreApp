@@ -201,18 +201,5 @@ internal class MainWindowViewModel : ViewModelBase
         var storesList = await db.Stores.ToListAsync();
         Stores = new ObservableCollection<Store>(storesList);
     }
-    /*
-    private async Task LoadAuthorsDataAsync()
-    {
-        try
-        {
-            await _authorsViewModel.LoadAuthorDetailsAsync();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to load authors: {ex.Message}";
-        }
-    }
-    */
 }
 
