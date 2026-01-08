@@ -136,17 +136,6 @@ internal class MainWindowViewModel : ViewModelBase
         }
     }
 
-	private ObservableCollection<Book> _books;
-
-	public ObservableCollection<Book> Books
-	{
-		get { return _books; }
-		set { 
-			_books = value;
-			RaisePropertyChanged();
-		}
-	}
-
 	private Store? _selectedStore;
     public Store? SelectedStore 
 	{
@@ -180,7 +169,7 @@ internal class MainWindowViewModel : ViewModelBase
 
 		using var db = new BookstoreDBContext();
 		
-		_booksViewModel = new BooksViewModel();
+		_booksViewModel = new BooksViewModel(this);
         _authorsViewModel = new AuthorsViewModel();
 
         // Books is selected by default
@@ -219,12 +208,5 @@ internal class MainWindowViewModel : ViewModelBase
         var storesList = await db.Stores.ToListAsync();
         Stores = new ObservableCollection<Store>(storesList);
     }
-    //private async Task LoadAuthorsAsync()
-    //{
-    //    using var db = new BookstoreDBContext();
-     //   var storesList = await db.Stores.ToListAsync();
-      //  Stores = new ObservableCollection<Store>(storesList);
-    //}
-
 }
 
