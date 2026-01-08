@@ -1,5 +1,4 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
-using CompanyDemo.Presentation.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -207,6 +206,17 @@ internal class MainWindowViewModel : ViewModelBase
         using var db = new BookstoreDBContext();
         var storesList = await db.Stores.ToListAsync();
         Stores = new ObservableCollection<Store>(storesList);
+    }
+    private async Task LoadAuthorsDataAsync()
+    {
+        try
+        {
+            await _authorsViewModel.LoadAllAuthors();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Failed to load authors: {ex.Message}";
+        }
     }
 }
 

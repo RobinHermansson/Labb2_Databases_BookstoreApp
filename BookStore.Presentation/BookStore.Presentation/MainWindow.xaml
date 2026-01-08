@@ -6,18 +6,20 @@
         xmlns:local="clr-namespace:BookStore.Presentation"
         xmlns:viewModels="clr-namespace:BookStore.Presentation.ViewModels"
         xmlns:views="clr-namespace:BookStore.Presentation.View"
-    mc:Ignorable="d"
+        mc:Ignorable="d"
         Height="600" Width="920"
         Background="Transparent"
         WindowStyle="None"
         AllowsTransparency="True">
-    <Window.Resources>
+        <Window.Resources>
         <DataTemplate DataType="{x:Type viewModels:BooksViewModel}">
-            <views:BooksView/>
+            <views:BooksView />
         </DataTemplate>
+        
         <DataTemplate DataType="{x:Type viewModels:AuthorsViewModel}">
-            <views:AuthorsView/>
+            <views:AuthorsView />
         </DataTemplate>
+        
     </Window.Resources>
     <Border Background="#272537"
             CornerRadius="20"
