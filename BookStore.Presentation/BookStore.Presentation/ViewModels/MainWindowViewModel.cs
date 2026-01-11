@@ -67,8 +67,12 @@ internal class MainWindowViewModel : ViewModelBase
         set
         {
             _isOrdersSelected = value;
-            if (value) CurrentView = _ordersViewModel;
             RaisePropertyChanged();
+            if (value)
+            {
+                CurrentView = _ordersViewModel;
+                _ = _ordersViewModel.LoadOrdersAsync();
+            }
         }
     }
 
@@ -161,7 +165,7 @@ internal class MainWindowViewModel : ViewModelBase
 		_booksViewModel = new BooksViewModel(this);
         _authorsViewModel = new AuthorsViewModel();
         _customersViewModel = new CustomersViewModel();
-        _ordersViewModel = new OrdersViewModel();
+        _ordersViewModel = new OrdersViewModel(this);
 
         // Books is selected by default
         IsBooksSelected = true;

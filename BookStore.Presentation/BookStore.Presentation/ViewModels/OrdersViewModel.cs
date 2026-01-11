@@ -1,14 +1,68 @@
-﻿using System.Collections.ObjectModel;
+﻿using Bookstore.Infrastructure.Data.Model;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace BookStore.Presentation.ViewModels;
 
 internal class OrdersViewModel: ViewModelBase
 {
-	private DisplayOrderDetails _selectedOrder;
+	private readonly MainWindowViewModel _mainWindowViewModel;
+	private OrderDetails _selectedOrder;
+	public DelegateCommand SaveChangesCommand { get; set; }
+	public DelegateCommand CancelChangesCommand { get; set; }
+	private List<OrderDetails> _deletedOrders = new List<OrderDetails>();
+	private List<OrderDetails> _changedOrders = new List<OrderDetails>();
+	private List<OrderDetails> OriginalListOfOrderDetails = new List<OrderDetails>();
 
-	public DisplayOrderDetails SelectedOrder
+
+	private bool _hasChanges = false;
+
+	public bool HasChanges
+	{
+		get => _hasChanges;
+		set 
+		{ 
+			_hasChanges = value;
+			RaisePropertyChanged();
+			SaveChangesCommand?.RaiseCanExecuteChanged();
+			CancelChangesCommand?.RaiseCanExecuteChanged();
+		}
+	}
+		
+	public OrdersViewModel(MainWindowViewModel mainWindowViewModel)
+    {
+		SaveChangesCommand = new DelegateCommand(SaveChangesAsync, CanSaveChanges);
+		CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
+		_mainWindowViewModel = mainWindowViewModel;
+    }
+
+	private async void SaveChangesAsync(object? sender)
+	{
+		using var db = new BookstoreDBContext();
+		Debug.WriteLine("Save changes.");
+	}
+	private bool CanSaveChanges(object? sender)
+	{
+		return HasChanges;
+	}
+
+	private void CancelChanges(object? sender)
+	{
+		Debug.WriteLine("Cancel changes.");
+		_ = LoadOrdersAsync();
+		_deletedOrders.Clear();
+		_changedOrders.Clear();
+		HasChanges = false;
+	}
+	private bool CanCancelChanges(object? sender)
+	{
+		return HasChanges;
+	}
+    public OrderDetails SelectedOrder
 	{
 		get => _selectedOrder; 
 		set 
@@ -19,38 +73,173 @@ internal class OrdersViewModel: ViewModelBase
 	}
 
 
-	private ObservableCollection<DisplayOrderDetails> _displayOrderDetails;
+	private ObservableCollection<OrderDetails> _displayOrderDetails;
 
-	public ObservableCollection<DisplayOrderDetails> DisplayOrderDetails
+	public ObservableCollection<OrderDetails> DisplayOrderDetails
 	{
 		get => _displayOrderDetails;
 		set 
 		{ 
-			_displayOrderDetails = value;
-			RaisePropertyChanged();
+			// Unsubscribe from old collection
+            if (_displayOrderDetails != null)
+            {
+                _displayOrderDetails.CollectionChanged -= DisplayOrderDetails_CollectionChanged;
+                foreach (var order in _displayOrderDetails)
+                {
+                    order.PropertyChanged -= OrderDetails_PropertyChanged;
+                }
+            }
+
+            _displayOrderDetails = value;
+            RaisePropertyChanged();
+
+            // Subscribe to new collection
+            if (_displayOrderDetails != null)
+            {
+                _displayOrderDetails.CollectionChanged += DisplayOrderDetails_CollectionChanged;
+                foreach (var order in _displayOrderDetails)
+                {
+                    order.PropertyChanged += OrderDetails_PropertyChanged;
+                }
+            }
+
 		}
 	}
+	private void DisplayOrderDetails_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems != null)
+        {
+            foreach (OrderDetails newOrder in e.NewItems)
+            {
+                newOrder.PropertyChanged += OrderDetails_PropertyChanged;
+                
+            }
+        }
 
+        if (e.OldItems != null)
+        {
+            foreach (OrderDetails removedOrder in e.OldItems)
+            {
+                removedOrder.PropertyChanged -= OrderDetails_PropertyChanged;
+                
+                if (removedOrder.OrderId > 0)
+                {
+                    _deletedOrders.Add(removedOrder);
+                    Debug.WriteLine($"Order marked for deletion: {removedOrder.OrderId}");
+                }
+            }
+        }
 
+        CheckForChanges();
+    }
+    private void OrderDetails_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        // Only check for changes on properties that matter
+        if (
+			e.PropertyName == nameof(OrderDetails.CustomerFirstName) ||
+			e.PropertyName == nameof(OrderDetails.CustomerLastName) ||
+            e.PropertyName == nameof(OrderDetails.StoreName) ||
+            e.PropertyName == nameof(OrderDetails.OrderDate))
+        {
+            CheckForChanges();
+        }
+    }
+
+    private void CheckForChanges()
+    {
+        bool hasAnyChanges = false;
+
+        if (_deletedOrders.Any())
+        {
+            hasAnyChanges = true;
+        }
+
+        foreach (var displayOrder in DisplayOrderDetails)
+        {
+            var originalOrder = OriginalListOfOrderDetails.FirstOrDefault(o => o.OrderId == displayOrder.OrderId);
+            if (originalOrder != null)
+            {
+                if (
+					originalOrder.CustomerFirstName != displayOrder.CustomerFirstName ||
+					originalOrder.CustomerLastName != displayOrder.CustomerLastName ||
+                    originalOrder.BooksInOrder != displayOrder.BooksInOrder ||
+                    originalOrder.OrderDate != displayOrder.OrderDate ||
+                    originalOrder.StoreName != displayOrder.StoreName)
+                {
+					_changedOrders.Add(displayOrder);
+                    hasAnyChanges = true;
+                    break;
+                }
+            }
+        }
+
+		Debug.WriteLine($"Any changes? : {hasAnyChanges}");
+        HasChanges = hasAnyChanges;
+    }
+
+	public async Task LoadOrdersAsync()
+	{
+		using var db = new BookstoreDBContext();
+
+		var tempOrderDetails = await db.Orders
+			.Where(o => o.Customer != null && o.Store != null)
+			.Select(o => new OrderDetails()
+			{
+				CustomerId = o.CustomerId, 
+				CustomerFirstName = o.Customer.FirstName,
+				CustomerLastName = o.Customer.LastName,
+				BooksInOrder = string.Join(", ", o.OrderItems.Select(o => o.Isbn13)),
+                OrderDate = o.OrderDate ?? new DateTime(),
+				StoreName = o.Store.StoreName,
+				TotalOrderPrice = o.OrderItems.Sum(oi => oi.UnitPrice)
+			}).ToListAsync();
+
+		OriginalListOfOrderDetails = tempOrderDetails;
+		DisplayOrderDetails = new ObservableCollection<OrderDetails>(tempOrderDetails);
+	}
 }
 
-public class DisplayOrderDetails : INotifyPropertyChanged
+public class OrderDetails : INotifyPropertyChanged
 {
-	private string _customerFullName;
-
-	public string CustomerFullName
+	private int _orderId;
+	public int OrderId
 	{
-		get => _customerFullName; 
+		get => _orderId;
+		set
+		{
+			_orderId = value;
+			OnPropertyChanged();
+		}
+	}
+	public int CustomerId { get; set; }
+
+	private string _customerFirstName;
+
+	public string CustomerFirstName
+	{
+		get => _customerFirstName; 
 		set 
 		{
-			CustomerFullName = value;
+			_customerFirstName = value;
 			OnPropertyChanged();
 			
 		}
 	}
-	private List<string> _booksInOrder;
+	private string _customerLastName;
 
-	public List<string> BooksInOrder
+	public string CustomerLastName
+	{
+		get => _customerLastName; 
+		set 
+		{
+			_customerLastName = value;
+			OnPropertyChanged();
+			
+		}
+	}
+	private string _booksInOrder;
+
+	public string BooksInOrder
 	{
 		get => _booksInOrder;
 		set 
@@ -59,8 +248,8 @@ public class DisplayOrderDetails : INotifyPropertyChanged
 			OnPropertyChanged();
 		}
 	}
-    private DateOnly _orderDate;
-	public DateOnly OrderDate
+    private DateTime _orderDate;
+	public DateTime OrderDate
 	{
 
         get => _orderDate;
@@ -91,10 +280,6 @@ public class DisplayOrderDetails : INotifyPropertyChanged
 			_totalOrderPrice = value;
 		}
 	}
-
-
-
-
 	public event PropertyChangedEventHandler? PropertyChanged;
 
 	protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

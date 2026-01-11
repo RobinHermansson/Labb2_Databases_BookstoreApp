@@ -12,23 +12,25 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-    <TextBlock Text="All authors" 
+    <TextBlock Text="All Orders (locked for manual changes)" 
                Foreground="White"
                FontSize="24"/>
         <DataGrid Grid.Row="1"
                   Margin="0 20 20 20"
                   AutoGenerateColumns="False"
                   SelectionMode="Single"
-                  CanUserAddRows="True"
-                  CanUserDeleteRows="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
                   IsSynchronizedWithCurrentItem="False"
                   SelectedItem="{Binding SelectedOrder}"
                   ItemsSource="{Binding DisplayOrderDetails}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Customer's Fullname" Binding="{Binding CustomerFullname}"/>
-                <DataGridTextColumn Header="Books In Order" Binding="{Binding BooksInOrder}"/>
-                <DataGridTextColumn Header="Order Date" Binding="{Binding OrderDate}"/>
-                <DataGridTextColumn Header="Store" Binding="{Binding StoreName}"/>
+                <DataGridTextColumn Header="Customer Id" Binding ="{Binding CustomerId}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Customer's First Name" Binding="{Binding CustomerFirstName}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Customer's Last name" Binding="{Binding CustomerLastName}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Books In Order" Binding="{Binding BooksInOrder}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Order Date" Binding="{Binding OrderDate}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Store" Binding="{Binding StoreName}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Total order price" Binding="{Binding TotalOrderPrice}" IsReadOnly="True"/>
             </DataGrid.Columns>
             
