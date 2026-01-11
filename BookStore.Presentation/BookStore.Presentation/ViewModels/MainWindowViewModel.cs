@@ -10,6 +10,7 @@ internal class MainWindowViewModel : ViewModelBase
 	public BooksViewModel _booksViewModel;
     public AuthorsViewModel _authorsViewModel;
     public CustomersViewModel _customersViewModel;
+    public OrdersViewModel _ordersViewModel;
 	private object _currentView;
 
 	public object CurrentView
@@ -66,12 +67,8 @@ internal class MainWindowViewModel : ViewModelBase
         set
         {
             _isOrdersSelected = value;
+            if (value) CurrentView = _ordersViewModel;
             RaisePropertyChanged();
-            if (value) 
-            {
-                // TODO: Create OrdersViewModel and set it
-                // CurrentView = _ordersViewModel;
-            }
         }
     }
 
@@ -164,6 +161,7 @@ internal class MainWindowViewModel : ViewModelBase
 		_booksViewModel = new BooksViewModel(this);
         _authorsViewModel = new AuthorsViewModel();
         _customersViewModel = new CustomersViewModel();
+        _ordersViewModel = new OrdersViewModel();
 
         // Books is selected by default
         IsBooksSelected = true;

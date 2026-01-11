@@ -22,6 +22,10 @@
         <DataTemplate DataType="{x:Type viewModels:CustomersViewModel}">
             <views:CustomersView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:OrdersViewModel}">
+            <views:OrdersView />
+        </DataTemplate>
+
         
     </Window.Resources>
     <Border Background="#272537"
