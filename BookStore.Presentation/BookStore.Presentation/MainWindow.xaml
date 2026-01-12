@@ -25,6 +25,10 @@
         <DataTemplate DataType="{x:Type viewModels:OrdersViewModel}">
             <views:OrdersView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:PublishersViewModel}">
+            <views:PublishersView />
+        </DataTemplate>
+
 
         
     </Window.Resources>

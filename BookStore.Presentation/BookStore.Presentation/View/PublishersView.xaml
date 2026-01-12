@@ -12,7 +12,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-    <TextBlock Text="All publishers" 
+    <TextBlock Text="All publishers (change/add only)" 
                Foreground="White"
                FontSize="24"/>
         <DataGrid Grid.Row="1"
@@ -20,7 +20,7 @@
                   AutoGenerateColumns="False"
                   SelectionMode="Single"
                   CanUserAddRows="True"
-                  CanUserDeleteRows="True"
+                  CanUserDeleteRows="False"
                   IsSynchronizedWithCurrentItem="False"
                   SelectedItem="{Binding SelectedPublisher}"
                   ItemsSource="{Binding DisplayPublisherDetails}">
