@@ -106,26 +106,9 @@
                      Style="{StaticResource MenuButtonTheme}"
                      GroupName="MenuNavigation"/> 
             </StackPanel>
-            <StackPanel Grid.Row="0"
-                        Grid.Column="1"
-                        Margin="20 0 0 0"
-                        Orientation="Horizontal">
-                <TextBlock Text="Select shop:" 
-                           Foreground="White"
-                           VerticalAlignment="Center"/>
-
-                <ComboBox ItemsSource="{Binding Stores}"
-                          DisplayMemberPath="StoreName" 
-                          Height="20"
-                          Width="180"
-                          Margin="5 0 0 0"
-                          VerticalAlignment="Center"
-                          SelectedItem="{Binding SelectedStore}"/>
-                
-            </StackPanel>
             <ContentControl Grid.Row="1" 
-                            Grid.Column="1"
-                            Content="{Binding CurrentView}"></ContentControl>
+                Grid.Column="1"
+                Content="{Binding CurrentView}"></ContentControl>
         </Grid>
     </Border>
 </Window>

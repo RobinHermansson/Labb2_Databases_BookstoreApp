@@ -29,8 +29,10 @@ internal class MainWindowViewModel : ViewModelBase
         set
         {
             _isBooksSelected = value;
-            RaisePropertyChanged();
             if (value) CurrentView = _booksViewModel;
+            _ = _booksViewModel.LoadStoresAsync();
+            RaisePropertyChanged();
+            //_booksViewModel?.RaisePropertyChanged("Stores");
         }
     }
 
@@ -125,40 +127,12 @@ internal class MainWindowViewModel : ViewModelBase
         }
     }
 
-	private Store? _selectedStore;
-    public Store? SelectedStore 
-	{
-		get => _selectedStore;
-
-		set
-		{
-			_selectedStore = value;
-			RaisePropertyChanged();
-            _ = _booksViewModel.LoadBooksForSelectedStore(SelectedStore.Id); // awaits but discards it
-		}
-	}
-
-    private ObservableCollection<Store> _stores;
-
-	public ObservableCollection<Store> Stores
-	{
-		get { return _stores; }
-		set 
-		{ 
-			_stores = value;
-			RaisePropertyChanged();
-		}
-	}
-
-
 	public MainWindowViewModel()
     {
 
-        _ = InitializeAsync();
-
 		using var db = new BookstoreDBContext();
 		
-		_booksViewModel = new BooksViewModel(this);
+		_booksViewModel = new BooksViewModel();
         _authorsViewModel = new AuthorsViewModel();
         _customersViewModel = new CustomersViewModel();
         _ordersViewModel = new OrdersViewModel(this);
@@ -168,38 +142,6 @@ internal class MainWindowViewModel : ViewModelBase
         // Books is selected by default
         IsBooksSelected = true;
         
-    }
-    private async Task InitializeAsync()
-    {
-        try
-        {
-            IsLoading = true;
-            ErrorMessage = null;
-
-            // Load stores
-            await LoadStoresAsync();
-
-            // Set default selection and load initial books
-            if (Stores.Count > 0)
-            {
-                SelectedStore = Stores.First();
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to initialize: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    private async Task LoadStoresAsync()
-    {
-        using var db = new BookstoreDBContext();
-        var storesList = await db.Stores.ToListAsync();
-        Stores = new ObservableCollection<Store>(storesList);
     }
 }
 

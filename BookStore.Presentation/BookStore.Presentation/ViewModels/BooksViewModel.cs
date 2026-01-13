@@ -5,13 +5,15 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 
 namespace BookStore.Presentation.ViewModels;
 
 internal class BooksViewModel : ViewModelBase
 {
 	private ObservableCollection<BookDetails> _books;
-    private readonly MainWindowViewModel _mainViewModel;
+    private ObservableCollection<Store> _stores;
+    private Store _selectedStore;
     public List<Book> OriginalListOfBooks;
 
     private List<BookDetails> _newBooks = new List<BookDetails>();
@@ -32,6 +34,28 @@ internal class BooksViewModel : ViewModelBase
         set 
         { 
             _selectedBook = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    public Store SelectedStore
+    {
+        get => _selectedStore;
+        set
+        {
+            _selectedStore = value;
+            RaisePropertyChanged();
+            if (value != null)
+                _ = LoadBooksForSelectedStore(value.Id); 
+        }
+    }
+
+    public ObservableCollection<Store> Stores
+    {
+        get => _stores;
+        set
+        {
+            _stores = value;
             RaisePropertyChanged();
         }
     }
@@ -81,9 +105,6 @@ internal class BooksViewModel : ViewModelBase
                     book.PropertyChanged += Books_PropertyChanged;
                 }
             }
-
-			_books = value;
-			RaisePropertyChanged();
 		}
 	}
 	 private void Books_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -93,8 +114,11 @@ internal class BooksViewModel : ViewModelBase
             foreach (BookDetails newBook in e.NewItems)
             {
                 newBook.PropertyChanged += Books_PropertyChanged;
-                _newBooks.Add(newBook);
-                Debug.WriteLine($"New Book added: {newBook.ISBN13} {newBook.Title}");
+                if (!OriginalListOfBooks.Any(b => b.Isbn13 == newBook.ISBN13))
+                {
+                    _newBooks.Add(newBook);
+                    Debug.WriteLine($"New Book added: {newBook.ISBN13} {newBook.Title}");
+                }
             }
         }
 
@@ -153,7 +177,6 @@ internal class BooksViewModel : ViewModelBase
                 {
                     _changedBooks.Add(book);
                     hasAnyChanges = true;
-                    break;
                 }
             }
         }
@@ -161,27 +184,16 @@ internal class BooksViewModel : ViewModelBase
         HasChanges = hasAnyChanges;
     }
 
-
-
-
 	public string StoreAtInstantiation { get; set; }
 
-    public BooksViewModel(MainWindowViewModel mainViewModel)
+    public BooksViewModel()
     {
-        _mainViewModel = mainViewModel;
         Debug.WriteLine("Empty init called.");
         SaveChangesCommand = new DelegateCommand(SaveChanges, CanSaveChanges);
         CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
 
  
     }
-
-    /*public BooksViewModel(string storeName)
-    {
-        Debug.WriteLine($"Storename called.");
-		StoreAtInstantiation = storeName;
-                
-    }*/
 
     private bool CanCancelChanges(object? sender)
     {
@@ -211,7 +223,7 @@ internal class BooksViewModel : ViewModelBase
 
             db.InventoryBalances.Add(new InventoryBalance()
             {
-                StoreId = _mainViewModel.SelectedStore.Id,
+                StoreId = SelectedStore.Id,
                 Isbn13 = newBook.ISBN13,
                 Quantity = newBook.Quantity
             });
@@ -220,17 +232,16 @@ internal class BooksViewModel : ViewModelBase
         {
             Debug.WriteLine($"Attempting to delete book. {deletedBook.ISBN13}");
             var bookToDelete = db.Books.FirstOrDefault(b => b.Isbn13 == deletedBook.ISBN13);
-            var relatedInventoryBalance = db.InventoryBalances.FirstOrDefault(ib => ib.Isbn13 == bookToDelete.Isbn13);
-            if (relatedInventoryBalance is not null)
+            if (bookToDelete is not null)
             {
-                if (bookToDelete is not null)
+
+                var relatedInventoryBalance = db.InventoryBalances.FirstOrDefault(ib => ib.Isbn13 == bookToDelete.Isbn13);
+                if (relatedInventoryBalance is not null)
                 {
                     db.InventoryBalances.Remove(relatedInventoryBalance);
-                    db.Books.Remove(bookToDelete);
                 }
+                db.Books.Remove(bookToDelete);
             }
-
-
         } 
         
         foreach (BookDetails changedBook in _changedBooks)
@@ -252,7 +263,7 @@ internal class BooksViewModel : ViewModelBase
         _newBooks.Clear();
         _deletedBooks.Clear();
         _changedBooks.Clear();
-        _ = LoadBooksForSelectedStore(_mainViewModel.SelectedStore.Id);
+        _ = LoadBooksForSelectedStore(SelectedStore.Id);
 
         HasChanges = false;
     }
@@ -262,13 +273,12 @@ internal class BooksViewModel : ViewModelBase
     private void CancelChanges(object obj)
     {
         Debug.WriteLine("Cancel.");
-        _ = LoadBooksForSelectedStore(_mainViewModel.SelectedStore.Id);
+        _ = LoadBooksForSelectedStore(SelectedStore.Id);
     }
 
 
 	public async Task LoadBooksForSelectedStore(int storeId = 1)
 	{
-        Debug.WriteLine("Load books called.");
 		using var db = new BookstoreDBContext();
 
 		var bookDetailsList = await db.InventoryBalances
@@ -278,6 +288,25 @@ internal class BooksViewModel : ViewModelBase
         OriginalListOfBooks = await db.Books.ToListAsync();
         Books = new ObservableCollection<BookDetails>(bookDetailsList);
 	}
+
+    public async Task LoadStoresAsync()
+    {
+        int? selectedStoreId = SelectedStore?.Id;
+
+        using var db = new BookstoreDBContext();
+        var tempList = await db.Stores.ToListAsync();
+        Stores = new ObservableCollection<Store>(tempList);
+
+        if (selectedStoreId.HasValue)
+        {
+            SelectedStore = Stores.FirstOrDefault(s => s.Id == selectedStoreId.Value);
+        }
+
+        if (SelectedStore is null)
+        {
+            SelectedStore = Stores.FirstOrDefault();
+        }
+    }
 }
 
 public class BookDetails : INotifyPropertyChanged
@@ -357,5 +386,4 @@ public class BookDetails : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-
 }

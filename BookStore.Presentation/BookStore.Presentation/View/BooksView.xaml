@@ -13,10 +13,29 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-    <TextBlock Text="Books at selected location" 
-               Foreground="White"
-               FontSize="24"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+    <StackPanel Grid.Row="0"
+                Grid.Column="0"
+                Margin="0 0 0 0"
+                Orientation="Horizontal">
+                <TextBlock Text="Books at: " 
+                           FontSize="24"
+                           Foreground="White"
+                           VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding Stores}"
+                          DisplayMemberPath="StoreName" 
+                          Height="20"
+                          Width="180"
+                          Margin="5 0 0 0"
+                          VerticalAlignment="Center"
+                          SelectedItem="{Binding SelectedStore}"/>
+                
+            </StackPanel>
         <DataGrid Grid.Row="1"
+                  Grid.ColumnSpan="2"
                   Margin="0 20 20 20"
                   AutoGenerateColumns="False"
                   SelectionMode="Single"
