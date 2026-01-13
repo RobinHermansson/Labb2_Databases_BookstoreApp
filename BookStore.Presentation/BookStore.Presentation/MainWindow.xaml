@@ -28,8 +28,9 @@
         <DataTemplate DataType="{x:Type viewModels:PublishersViewModel}">
             <views:PublishersView />
         </DataTemplate>
-
-
+        <DataTemplate DataType="{x:Type viewModels:StoresViewModel}">
+            <views:StoresView />
+        </DataTemplate>
         
     </Window.Resources>
     <Border Background="#272537"

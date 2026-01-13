@@ -12,6 +12,7 @@ internal class MainWindowViewModel : ViewModelBase
     public CustomersViewModel _customersViewModel;
     public OrdersViewModel _ordersViewModel;
     public PublishersViewModel _publisherViewModel;
+    public StoresViewModel _storesViewModel;
 	private object _currentView;
 
 	public object CurrentView
@@ -87,10 +88,6 @@ internal class MainWindowViewModel : ViewModelBase
             RaisePropertyChanged();
             if (value) CurrentView = _publisherViewModel;
             _ = _publisherViewModel.LoadPublishersAsync();
-            {
-                // TODO: Create PublishersViewModel and set it
-                // CurrentView = _publishersViewModel;
-            }
         }
     }
 
@@ -102,11 +99,8 @@ internal class MainWindowViewModel : ViewModelBase
         {
             _isStoresSelected = value;
             RaisePropertyChanged();
-            if (value) 
-            {
-                // TODO: Create StoresViewModel and set it
-                // CurrentView = _storesViewModel;
-            }
+            if (value) CurrentView = _storesViewModel;
+            _ = _storesViewModel.LoadStoresAsync();
         }
     }
 
@@ -169,6 +163,7 @@ internal class MainWindowViewModel : ViewModelBase
         _customersViewModel = new CustomersViewModel();
         _ordersViewModel = new OrdersViewModel(this);
         _publisherViewModel = new PublishersViewModel();
+        _storesViewModel = new StoresViewModel();
 
         // Books is selected by default
         IsBooksSelected = true;
