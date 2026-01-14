@@ -2,6 +2,7 @@
 using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
+using System.Windows.Controls;
 using System.Windows.Navigation;
 using NavigationService = BookStore.Presentation.Services.NavigationService;
 
@@ -18,6 +19,30 @@ public class MainWindowViewModel : ViewModelBase
     public PublishersViewModel _publisherViewModel;
     public StoresViewModel _storesViewModel;
 	private object _currentView;
+
+    private readonly IDialogService _dialogService;
+    private bool _isDialogOpen;
+    private UserControl _dialogContent;
+
+    public bool IsDialogOpen
+    {
+        get => _isDialogOpen;
+        set
+        {
+            _isDialogOpen = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    public UserControl DialogContent
+    {
+        get => _dialogContent;
+        set
+        {
+            _dialogContent = value;
+            RaisePropertyChanged();
+        }
+    }
 
 	public object CurrentView
 	{
@@ -135,7 +160,8 @@ public class MainWindowViewModel : ViewModelBase
     {
 
 		using var db = new BookstoreDBContext();
-        _navigationService = new NavigationService(this);
+        _dialogService = new DialogService(this);
+        _navigationService = new NavigationService(this, _dialogService);
 		
 		_booksViewModel = new BooksViewModel(_navigationService);
         _authorsViewModel = new AuthorsViewModel();

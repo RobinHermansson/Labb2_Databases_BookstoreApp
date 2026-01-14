@@ -112,6 +112,10 @@
             <ContentControl Grid.Row="1" 
                 Grid.Column="1"
                 Content="{Binding CurrentView}"></ContentControl>
+            <ContentControl Content="{Binding DialogContent}"
+                            Grid.Column="1"
+                            Grid.Row="1"
+                Visibility="{Binding IsDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </Grid>
     </Border>
 </Window>

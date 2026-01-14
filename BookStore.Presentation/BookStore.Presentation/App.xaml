@@ -14,8 +14,11 @@
                 <view:BooksView/>
 
             </DataTemplate>
+
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
         <!-- Button Styles -->
-        <Style x:Key="DarkButton" TargetType="Button">
+            <Style x:Key="DarkButton" TargetType="Button">
             <Setter Property="Background" Value="#2D2D30"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="#3F3F46"/>

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace BookStore.Presentation.ViewModels;
 
@@ -11,7 +12,9 @@ public class BookAdministrationViewModel : ViewModelBase
 {
 
     private BookDetails _bookToAdmin;
+
     private INavigationService _navigationService;
+    private IDialogService _dialogService;
     private string _isbn13;
     private string _title;
     private decimal _priceInSek;
@@ -237,10 +240,11 @@ public class BookAdministrationViewModel : ViewModelBase
         }
     }
 
-    public BookAdministrationViewModel(BookDetails bookToAdmin, INavigationService navigationService)
+    public BookAdministrationViewModel(BookDetails bookToAdmin, INavigationService navigationService, IDialogService dialogService)
     {
         _bookToAdmin = bookToAdmin;
         _navigationService = navigationService;
+        _dialogService = dialogService;
 
         if (bookToAdmin.ISBN13 is null)
         {
@@ -466,8 +470,18 @@ public class BookAdministrationViewModel : ViewModelBase
         StatusText = "Cancelled whatever you were doing.";
     }
 
-    public void GoBack(object? sender)
+    public async void GoBack(object? sender)
     {
+        if (HasChanges)
+        {
+            bool shouldContinue = await _dialogService.ShowConfirmationDialogAsync("You have unsaved changes. Are you sure you want to go back without saving?", 
+            "Unsaved Changes");
+
+            if (!shouldContinue)
+            {
+                return;
+            }
+        }
         _navigationService.NavigateBack();
     }
     public bool CanGoBack(object? sender)
