@@ -8,8 +8,8 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="30"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -18,9 +18,12 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Button Content="Go back" 
+        <Button Content="← Go back" 
                 Grid.Row="0"
-                Command="{Binding BackToBooksCommand}"></Button>
+                Command="{Binding BackToBooksCommand}"
+                HorizontalAlignment="Left"
+                Margin="0 0 0 10"
+                Style="{StaticResource DarkButton}"/>
         <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" 
             BorderBrush="LightGray" BorderThickness="1" 
             CornerRadius="5" Margin="5" Padding="10"
@@ -150,11 +153,13 @@
                     IsEnabled="{Binding HasChanges}"
                     Margin="0,0,10,0"
                     Padding="10,5"
+                    Style="{StaticResource PrimaryDarkButton}"
                     />
             <Button Content="Cancel" 
                     Command="{Binding CancelChangesCommand}"
                     IsEnabled="{Binding HasChanges}"
                     Padding="10,5"
+                    Style="{StaticResource DarkButton}"
                     />
             <Label Content="{Binding StatusText}"
                    Foreground="Green"

@@ -29,8 +29,10 @@
                           DisplayMemberPath="StoreName" 
                           Height="20"
                           Width="180"
-                          Margin="5 0 0 0"
+                          Margin="10 0 0 0"
                           VerticalAlignment="Center"
+                          Style="{StaticResource DarkComboBox}"
+                          ItemContainerStyle="{StaticResource DarkComboBoxItem}"
                           SelectedItem="{Binding SelectedStore}"/>
                 
             </StackPanel>
@@ -42,31 +44,38 @@
                   CanUserAddRows="True"
                   CanUserDeleteRows="True"
                   SelectedItem="{Binding SelectedBook}"
-                  ItemsSource="{Binding Books}">
+                  ItemsSource="{Binding Books}"
+                  Style="{StaticResource DarkDataGrid}"
+                  ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeader}"
+                  RowStyle="{StaticResource DarkDataGridRow}"
+                  CellStyle="{StaticResource DarkDataGridCell}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ISBN13" Binding="{Binding ISBN13}"/>
-                <DataGridTextColumn Header="Title" Binding="{Binding Title}"/>
-                <DataGridTextColumn Header="Price in SEK" Binding="{Binding PriceInSek}"/>
-                <DataGridTextColumn Header="Publication date" Binding="{Binding PublicationDate}"/>
-                <DataGridTextColumn Header="Language" Binding="{Binding Language}"/>
-                <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}"/>
+                <DataGridTextColumn Header="ISBN13" Binding="{Binding ISBN13}" Width="Auto"/>
+                <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="Auto"/>
+                <DataGridTextColumn Header="Price in SEK" Binding="{Binding PriceInSek}" Width="Auto"/>
+                <DataGridTextColumn Header="Publication date" Binding="{Binding PublicationDate}" Width="Auto"/>
+                <DataGridTextColumn Header="Language" Binding="{Binding Language}" Width="Auto"/>
+                <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="Auto"/>
             </DataGrid.Columns>
         </DataGrid>
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
             <Button Content="Save Changes" 
                     Command="{Binding SaveChangesCommand}"
                     IsEnabled="{Binding HasChanges}"
+                    Style="{StaticResource PrimaryDarkButton}"
                     Margin="0,0,10,0"
                     Padding="10,5"
                     />
             <Button Content="Cancel Changes" 
                     Command="{Binding CancelChangesCommand}"
                     IsEnabled="{Binding HasChanges}"
+                    Style="{StaticResource DarkButton}"
                     Padding="10,5"
                     />
             <Button Content="Deep Edit" 
                     Command="{Binding EditBookCommand}"
                     IsEnabled="{Binding SelectedBook}"
+                    Style="{StaticResource DarkButton}"
                     Margin="10 0 0 0"
                     Padding="10,5"
                     />
