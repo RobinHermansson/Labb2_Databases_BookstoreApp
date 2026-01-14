@@ -193,13 +193,10 @@ public class BooksViewModel : ViewModelBase
 
     public BooksViewModel(INavigationService navigationService)
     {
-        Debug.WriteLine("Empty init called.");
         _navigationService = navigationService;
         SaveChangesCommand = new DelegateCommand(SaveChanges, CanSaveChanges);
         CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
         EditBookCommand = new DelegateCommand(EditBook, CanEditBook);
-
- 
     }
 
     private bool CanCancelChanges(object? sender)
@@ -221,11 +218,9 @@ public class BooksViewModel : ViewModelBase
     }
     private void SaveChanges(object? sender)
     {
-        Debug.WriteLine("Save changes called.");
         using var db = new BookstoreDBContext();
         foreach (BookDetails newBook in _newBooks)
         {
-            Debug.WriteLine($"Attempting to save new book with isbn: {newBook.ISBN13}");
             db.Books.Add(
             new Book()
             {
@@ -246,7 +241,6 @@ public class BooksViewModel : ViewModelBase
         }
         foreach (BookDetails deletedBook in _deletedBooks)
         {
-            Debug.WriteLine($"Attempting to delete book. {deletedBook.ISBN13}");
             var bookToDelete = db.Books.FirstOrDefault(b => b.Isbn13 == deletedBook.ISBN13);
             if (bookToDelete is not null)
             {
@@ -262,7 +256,6 @@ public class BooksViewModel : ViewModelBase
         
         foreach (BookDetails changedBook in _changedBooks)
         {
-            Debug.WriteLine($"Attempting to save changed book with isbn13: {changedBook.ISBN13}");
             var bookToChange = db.Books.FirstOrDefault(b => b.Isbn13 == changedBook.ISBN13);
             if (bookToChange is not null)
             {
@@ -299,7 +292,7 @@ public class BooksViewModel : ViewModelBase
 
 		var bookDetailsList = await db.InventoryBalances
 			.Where(s => s.StoreId == storeId)
-			.Select(s => new BookDetails() { ISBN13 = s.Isbn13, Title = s.Isbn13Navigation.Title, PriceInSek = s.Isbn13Navigation.PriceInSek, PublicationDate = s.Isbn13Navigation.PublicationDate, Quantity = s.Quantity, Language = s.Isbn13Navigation.Language })
+			.Select(s => new BookDetails() { ISBN13 = s.Isbn13, BookStoreId=storeId, Title = s.Isbn13Navigation.Title, PriceInSek = s.Isbn13Navigation.PriceInSek, PublicationDate = s.Isbn13Navigation.PublicationDate, Quantity = s.Quantity, Language = s.Isbn13Navigation.Language })
 			.ToListAsync();
         OriginalListOfBooks = await db.Books.ToListAsync();
         Books = new ObservableCollection<BookDetails>(bookDetailsList);
@@ -337,6 +330,17 @@ public class BookDetails : INotifyPropertyChanged
 			OnPropertyChanged();
 		}
 	}
+
+    private int _bookStoreId;
+    public int BookStoreId
+    {
+        get => _bookStoreId;
+        set
+        {
+            _bookStoreId = value;
+            OnPropertyChanged();
+        }
+    }
 
 	private string _title;
 

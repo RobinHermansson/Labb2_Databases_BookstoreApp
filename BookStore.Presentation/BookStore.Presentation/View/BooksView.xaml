@@ -64,7 +64,7 @@
                     IsEnabled="{Binding HasChanges}"
                     Padding="10,5"
                     />
-            <Button Content="Edit" 
+            <Button Content="Deep Edit" 
                     Command="{Binding EditBookCommand}"
                     IsEnabled="{Binding SelectedBook}"
                     Margin="10 0 0 0"
