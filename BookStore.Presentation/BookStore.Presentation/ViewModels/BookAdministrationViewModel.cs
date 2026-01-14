@@ -35,6 +35,7 @@ public class BookAdministrationViewModel : ViewModelBase
 
     public DelegateCommand SaveChangesCommand { get; set; }
     public DelegateCommand CancelChangesCommand { get; set; }
+    public DelegateCommand BackToBooksCommand { get; set; }
     private bool CanSaveChanges(object parameter) => HasChanges && !IsLoading;
     private bool CanCancel(object parameter) => HasChanges && !IsLoading;
 
@@ -81,6 +82,7 @@ public class BookAdministrationViewModel : ViewModelBase
             _isLoading = value; RaisePropertyChanged();
             SaveChangesCommand?.RaiseCanExecuteChanged();
             CancelChangesCommand?.RaiseCanExecuteChanged();
+            BackToBooksCommand?.RaiseCanExecuteChanged();
         }
     }
 
@@ -247,6 +249,7 @@ public class BookAdministrationViewModel : ViewModelBase
 
         SaveChangesCommand = new DelegateCommand(SaveChanges, CanSaveChanges);
         CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancel);
+        BackToBooksCommand = new DelegateCommand(GoBack, CanGoBack);
 
     }
     public async Task InitializeAsync()
@@ -461,5 +464,14 @@ public class BookAdministrationViewModel : ViewModelBase
         await LoadRelatedDataAsync();
         HasChanges = false;
         StatusText = "Cancelled whatever you were doing.";
+    }
+
+    public void GoBack(object? sender)
+    {
+        _navigationService.NavigateBack();
+    }
+    public bool CanGoBack(object? sender)
+    {
+        return !IsLoading;
     }
 }
