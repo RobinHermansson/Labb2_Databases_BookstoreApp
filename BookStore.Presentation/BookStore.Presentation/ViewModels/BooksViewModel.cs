@@ -360,9 +360,9 @@ public class BookDetails : INotifyPropertyChanged
 			OnPropertyChanged();
 		}
 	}
-    private string _language;
+    private Language _language;
 
-    public string Language
+    public Language Language
     {
         get { return _language; }
         set 

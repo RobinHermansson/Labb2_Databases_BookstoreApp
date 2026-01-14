@@ -67,7 +67,9 @@ public partial class BookstoreDBContext : DbContext
                 .HasMaxLength(13)
                 .IsFixedLength()
                 .HasColumnName("ISBN13");
-            entity.Property(e => e.Language).HasMaxLength(50);
+            entity.Property(e => e.Language)
+                .HasConversion<string>()
+                .HasMaxLength(50);
             entity.Property(e => e.PriceInSek)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("PriceInSEK");

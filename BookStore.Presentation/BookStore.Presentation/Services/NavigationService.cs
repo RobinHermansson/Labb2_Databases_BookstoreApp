@@ -19,7 +19,9 @@ public class NavigationService : INavigationService
         switch (viewName)
         {
             case "BookAdministration":
-                _mainWindowViewModel.CurrentView = new BookAdministrationViewModel(parameter as BookDetails);
+                var bookAdminView =  new BookAdministrationViewModel(parameter as BookDetails);
+                _mainWindowViewModel.CurrentView = bookAdminView;
+                _ = bookAdminView.InitializeAsync();
                 break;
             case "BooksView":
                 _mainWindowViewModel.CurrentView = _mainWindowViewModel._booksViewModel;

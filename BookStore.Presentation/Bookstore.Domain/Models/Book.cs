@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
 namespace Bookstore.Infrastructure.Data.Model;
 
 public partial class Book
@@ -9,7 +8,7 @@ public partial class Book
 
     public string Title { get; set; } = null!;
 
-    public string Language { get; set; } = null!;
+    public Language Language { get; set; } = Language.English;
 
     public decimal PriceInSek { get; set; }
 
@@ -24,4 +23,12 @@ public partial class Book
     public virtual Publisher? Publisher { get; set; }
 
     public virtual ICollection<Author> Authors { get; set; } = new List<Author>();
+}
+
+public enum Language
+{
+    Swedish,
+    English,
+    Finnish,
+    Danish
 }

@@ -21,39 +21,46 @@
                 Margin="0 0 0 0"
                 Orientation="Horizontal">
             <TextBlock 
-                Text ="Test {Binding TitleText}" 
+                Text ="{Binding TitleText}" 
                 FontSize="24"
                 Foreground="White"
                 VerticalAlignment="Center"/>
         </StackPanel>
-        <StackPanel Grid.Row="1" Margin="0 0 0 0">
+        <StackPanel Grid.Row="1" 
+                    Margin="0 0 0 0">
             <Label Content="Isbn13"
                    Foreground="White"/>
-            <TextBox x:Name="Isn13Box"/>
+            <TextBox x:Name="Isn13Box"
+                     Text="{Binding ISBN13}"/>
             <Label Content="Title"
                    Foreground="White"></Label>
-            <TextBox x:Name="TitleBox"/>
+            <TextBox x:Name="TitleBox"
+                     Text="{Binding Title}"/>
             <Label Content="Language"
                    Foreground="White"></Label>
             <ComboBox x:Name="LanguageBox"
-                      ItemsSource="{Binding LanguagesList}"
-                      SelectedItem="{Binding Language}"/>
+                      ItemsSource="{Binding AvailableLanguages}"
+                      SelectedItem="{Binding SelectedLanguage}"/>
             <Label Content="Price in Sek"
                    Foreground="White"></Label>
-            <TextBox x:Name="PriceInSekBox"/>
+            <TextBox x:Name="PriceInSekBox"
+                     Text="{Binding PriceInSek}"/>
             <Label Content="Publication date"
                    Foreground="White"></Label>
-            <TextBox x:Name="PublicationDateBox"/>
+            <TextBox x:Name="PublicationDateBox"
+                     Text="{Binding PublicationDate}"/>
             <Label Content="Publisher"
                    Foreground="White"></Label>
             <ComboBox x:Name="PublisherBox"
-                      ItemsSource="{Binding PublisherList}"
-                      SelectedItem="{Binding SelectedPublisher}"/>
+                      ItemsSource="{Binding AvailablePublishers}"
+                      SelectedItem="{Binding SelectedPublisher}"
+                      DisplayMemberPath="Name"/>
             <Label Content="Author"
                    Foreground="White"></Label>
             <ComboBox x:Name="AuthorBox"
-                      ItemsSource="{Binding AuthorList}"
-                      SelectedItem="{Binding SelectedAuthor}"/>
+                      ItemsSource="{Binding AvailableAuthors}"
+                      SelectedItem="{Binding SelectedAuthor}"
+                      DisplayMemberPath="FullName"/>
         </StackPanel>
          
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
