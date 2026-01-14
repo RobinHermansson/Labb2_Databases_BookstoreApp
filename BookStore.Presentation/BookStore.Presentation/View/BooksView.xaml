@@ -64,6 +64,12 @@
                     IsEnabled="{Binding HasChanges}"
                     Padding="10,5"
                     />
+            <Button Content="Edit" 
+                    Command="{Binding EditBookCommand}"
+                    IsEnabled="{Binding SelectedBook}"
+                    Margin="10 0 0 0"
+                    Padding="10,5"
+                    />
         </StackPanel>
 
         

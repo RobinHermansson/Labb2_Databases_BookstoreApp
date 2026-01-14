@@ -1,0 +1,73 @@
+﻿<UserControl x:Class="BookStore.Presentation.View.BookAdministrationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BookStore.Presentation.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0"
+                Grid.Column="0"
+                Margin="0 0 0 0"
+                Orientation="Horizontal">
+            <TextBlock 
+                Text ="Test {Binding TitleText}" 
+                FontSize="24"
+                Foreground="White"
+                VerticalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Margin="0 0 0 0">
+            <Label Content="Isbn13"
+                   Foreground="White"/>
+            <TextBox x:Name="Isn13Box"/>
+            <Label Content="Title"
+                   Foreground="White"></Label>
+            <TextBox x:Name="TitleBox"/>
+            <Label Content="Language"
+                   Foreground="White"></Label>
+            <ComboBox x:Name="LanguageBox"
+                      ItemsSource="{Binding LanguagesList}"
+                      SelectedItem="{Binding Language}"/>
+            <Label Content="Price in Sek"
+                   Foreground="White"></Label>
+            <TextBox x:Name="PriceInSekBox"/>
+            <Label Content="Publication date"
+                   Foreground="White"></Label>
+            <TextBox x:Name="PublicationDateBox"/>
+            <Label Content="Publisher"
+                   Foreground="White"></Label>
+            <ComboBox x:Name="PublisherBox"
+                      ItemsSource="{Binding PublisherList}"
+                      SelectedItem="{Binding SelectedPublisher}"/>
+            <Label Content="Author"
+                   Foreground="White"></Label>
+            <ComboBox x:Name="AuthorBox"
+                      ItemsSource="{Binding AuthorList}"
+                      SelectedItem="{Binding SelectedAuthor}"/>
+        </StackPanel>
+         
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+            <Button Content="Save" 
+                    Command="{Binding SaveChangesCommand}"
+                    IsEnabled="{Binding HasChanges}"
+                    Margin="0,0,10,0"
+                    Padding="10,5"
+                    />
+            <Button Content="Cancel" 
+                    Command="{Binding CancelChangesCommand}"
+                    IsEnabled="{Binding HasChanges}"
+                    Padding="10,5"
+                    />
+        </StackPanel>
+    </Grid>
+</UserControl>

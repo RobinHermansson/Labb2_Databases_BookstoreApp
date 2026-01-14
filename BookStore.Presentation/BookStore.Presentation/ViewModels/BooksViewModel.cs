@@ -1,4 +1,5 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
+using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -9,8 +10,9 @@ using System.Windows.Controls;
 
 namespace BookStore.Presentation.ViewModels;
 
-internal class BooksViewModel : ViewModelBase
+public class BooksViewModel : ViewModelBase
 {
+    private readonly INavigationService _navigationService;
 	private ObservableCollection<BookDetails> _books;
     private ObservableCollection<Store> _stores;
     private Store _selectedStore;
@@ -23,6 +25,7 @@ internal class BooksViewModel : ViewModelBase
     
 
     public DelegateCommand SaveChangesCommand { get; set; }
+    public DelegateCommand EditBookCommand { get; set; }
     public DelegateCommand CancelChangesCommand { get; set; }
 
 
@@ -35,6 +38,8 @@ internal class BooksViewModel : ViewModelBase
         { 
             _selectedBook = value;
             RaisePropertyChanged();
+            EditBookCommand?.RaiseCanExecuteChanged();
+
         }
     }
 
@@ -186,11 +191,13 @@ internal class BooksViewModel : ViewModelBase
 
 	public string StoreAtInstantiation { get; set; }
 
-    public BooksViewModel()
+    public BooksViewModel(INavigationService navigationService)
     {
         Debug.WriteLine("Empty init called.");
+        _navigationService = navigationService;
         SaveChangesCommand = new DelegateCommand(SaveChanges, CanSaveChanges);
         CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
+        EditBookCommand = new DelegateCommand(EditBook, CanEditBook);
 
  
     }
@@ -199,6 +206,15 @@ internal class BooksViewModel : ViewModelBase
     {
         return HasChanges;
     }
+    private bool CanEditBook(object? sender)
+    {
+        return SelectedBook is not null;
+    }
+    private void EditBook(object? sender)
+    {
+        _navigationService.NavigateTo("BookAdministration", "BooksView", SelectedBook);
+    }
+
     private bool CanSaveChanges(object? sender)
     {
         return HasChanges;

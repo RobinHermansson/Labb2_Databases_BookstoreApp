@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace BookStore.Presentation.ViewModels;
 
-class StoresViewModel: ViewModelBase
+public class StoresViewModel: ViewModelBase
 {
 	public DelegateCommand SaveChangesCommand { get; set; }
 	public DelegateCommand CancelChangesCommand { get; set; }

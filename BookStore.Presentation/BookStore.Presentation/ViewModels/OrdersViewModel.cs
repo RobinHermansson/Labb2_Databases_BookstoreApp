@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace BookStore.Presentation.ViewModels;
 
-internal class OrdersViewModel: ViewModelBase
+public class OrdersViewModel: ViewModelBase
 {
 	private readonly MainWindowViewModel _mainWindowViewModel;
 	private OrderDetails _selectedOrder;

@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace BookStore.Presentation.ViewModels;
 
-class PublishersViewModel: ViewModelBase
+public class PublishersViewModel: ViewModelBase
 {
 	private PublisherDetails _selectedPublisher;
 	public DelegateCommand SaveChangesCommand { get; set; }

@@ -7,8 +7,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace BookStore.Presentation.ViewModels;
-
-internal class CustomersViewModel : ViewModelBase
+public class CustomersViewModel : ViewModelBase
 {
     private ObservableCollection<CustomerDetails> _displayCustomerDetails;
     private bool _hasChanges;

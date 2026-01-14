@@ -15,6 +15,9 @@
         <DataTemplate DataType="{x:Type viewModels:BooksViewModel}">
             <views:BooksView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:BookAdministrationViewModel}">
+            <views:BookAdministrationView />
+        </DataTemplate>
         
         <DataTemplate DataType="{x:Type viewModels:AuthorsViewModel}">
             <views:AuthorsView />

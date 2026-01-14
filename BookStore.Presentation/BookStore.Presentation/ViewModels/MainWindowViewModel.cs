@@ -1,11 +1,15 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
+using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
+using System.Windows.Navigation;
+using NavigationService = BookStore.Presentation.Services.NavigationService;
 
 namespace BookStore.Presentation.ViewModels;
 
-internal class MainWindowViewModel : ViewModelBase
+public class MainWindowViewModel : ViewModelBase
 {
+    private INavigationService _navigationService;
 
 	public BooksViewModel _booksViewModel;
     public AuthorsViewModel _authorsViewModel;
@@ -131,8 +135,9 @@ internal class MainWindowViewModel : ViewModelBase
     {
 
 		using var db = new BookstoreDBContext();
+        _navigationService = new NavigationService(this);
 		
-		_booksViewModel = new BooksViewModel();
+		_booksViewModel = new BooksViewModel(_navigationService);
         _authorsViewModel = new AuthorsViewModel();
         _customersViewModel = new CustomersViewModel();
         _ordersViewModel = new OrdersViewModel(this);

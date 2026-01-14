@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace BookStore.Presentation.ViewModels;
 
-internal class AuthorsViewModel : ViewModelBase
+public class AuthorsViewModel : ViewModelBase
 {
     private ObservableCollection<AuthorDetails> _displayAuthorDetails;
     public List<Author> OriginalListOfAuthors;
