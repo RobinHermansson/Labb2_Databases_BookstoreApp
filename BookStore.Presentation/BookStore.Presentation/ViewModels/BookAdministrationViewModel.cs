@@ -8,7 +8,7 @@ namespace BookStore.Presentation.ViewModels;
 public class BookAdministrationViewModel: ViewModelBase
 {
 
-	public string TitleText { get; set; } = "Editing book:";
+	public string TitleText { get; set; } = "Edit book:";
 	private string _isbn13;
 	private bool _isLoading;
 
@@ -24,7 +24,8 @@ public class BookAdministrationViewModel: ViewModelBase
 		get { return _isbn13; }
 		set 
 		{ 
-			_isbn13 = value; 
+			_isbn13 = value;
+			RaisePropertyChanged();
 		}
 	}
 	private string _title;
@@ -34,7 +35,8 @@ public class BookAdministrationViewModel: ViewModelBase
 		get { return _title; }
 		set 
 		{ 
-			_title = value; 
+			_title = value;
+			RaisePropertyChanged();
 		}
 	}
 	public IEnumerable<Language> AvailableLanguages => Enum.GetValues<Language>();
@@ -59,9 +61,19 @@ public class BookAdministrationViewModel: ViewModelBase
 		get { return _priceInSek; }
 		set 
 		{ 
-			_priceInSek = value; 
+			_priceInSek = value;
+			RaisePropertyChanged();
 		}
 	}
+
+	private int _quantity;
+
+	public int Quantity
+	{
+		get { return _quantity; }
+		set { _quantity = value; RaisePropertyChanged(); }
+	}
+
 	private DateOnly _publicationDate;
 
 	public DateOnly PublicationDate
@@ -69,7 +81,8 @@ public class BookAdministrationViewModel: ViewModelBase
 		get { return _publicationDate; }
 		set 
 		{ 
-			_publicationDate = value; 
+			_publicationDate = value;
+			RaisePropertyChanged();
 		}
 	}
 	private ObservableCollection<Publisher> _publisher;
@@ -93,23 +106,23 @@ public class BookAdministrationViewModel: ViewModelBase
 		}
 	}
 
-	private BookAdminAuthorDisplay _selectedAuthor;
+	private Author _selectedAuthor;
 
-	public BookAdminAuthorDisplay SelectedAuthor
+	public Author SelectedAuthor
 	{
 		get { return _selectedAuthor; }
 		set { _selectedAuthor = value; RaisePropertyChanged(); }
 	}
 
 
-	private ObservableCollection<BookAdminAuthorDisplay> _authorList;
+	private ObservableCollection<Author> _availableAuthors;
 
-	public ObservableCollection<BookAdminAuthorDisplay> AvailableAuthors
+	public ObservableCollection<Author> AvailableAuthors
 	{
-		get { return _authorList; }
+		get { return _availableAuthors; }
 		set 
 		{ 
-			_authorList = value;
+			_availableAuthors = value;
 			RaisePropertyChanged();
 		}
 	}
@@ -129,7 +142,7 @@ public class BookAdministrationViewModel: ViewModelBase
 	public BookAdministrationViewModel(BookDetails bookToAdmin)
     {
 		_bookToAdmin = bookToAdmin;
-		Debug.WriteLine($"Got a book: {_bookToAdmin.ISBN13}");
+		
 		if (bookToAdmin.ISBN13 is null)
 		{
 			TitleText = "Create a new book:";
@@ -157,15 +170,9 @@ public class BookAdministrationViewModel: ViewModelBase
         
 		var publishers= await db.Publishers.ToListAsync();
         var authors = await db.Authors.ToListAsync();
-		List<BookAdminAuthorDisplay> authorsAsDisplayAuthors = new List<BookAdminAuthorDisplay>();
-		foreach (Author author in authors)
-		{
-			authorsAsDisplayAuthors.Add(new BookAdminAuthorDisplay() { Id = author.Id, FullName = $"{author.FirstName} {author.LastName}" });
-		}
-
         
         AvailablePublishers = new ObservableCollection<Publisher>(publishers);
-        AvailableAuthors = new ObservableCollection<BookAdminAuthorDisplay>(authorsAsDisplayAuthors);
+        AvailableAuthors = new ObservableCollection<Author>(authors);
         
 		if (!string.IsNullOrEmpty(_bookToAdmin.ISBN13))       
 		{
@@ -185,13 +192,17 @@ public class BookAdministrationViewModel: ViewModelBase
                 {
                     SelectedAuthor = AvailableAuthors.FirstOrDefault(a => a.Id == bookAuthor.Id);
                 }
+
+				var bookQuantity = existingBook.InventoryBalances.FirstOrDefault();
+				if (bookQuantity != null)
+				{
+					var existingBooksInventoryBalance = existingBook.InventoryBalances.FirstOrDefault(ib => ib.Isbn13 == existingBook.Isbn13);
+					if (existingBooksInventoryBalance is not null)
+					{
+						Quantity = existingBooksInventoryBalance.Quantity;
+					}
+				}
             }			
         }
     }
-}
-
-public class BookAdminAuthorDisplay
-{
-	public int Id { get; set; }
-    public string FullName { get; set; }
 }
