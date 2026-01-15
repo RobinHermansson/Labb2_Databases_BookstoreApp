@@ -23,7 +23,11 @@
                   CanUserDeleteRows="False"
                   IsSynchronizedWithCurrentItem="False"
                   SelectedItem="{Binding SelectedOrder}"
-                  ItemsSource="{Binding DisplayOrderDetails}">
+                  ItemsSource="{Binding DisplayOrderDetails}"
+                  Style="{StaticResource DarkDataGrid}"
+                  ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeader}"
+                  RowStyle="{StaticResource DarkDataGridRow}"
+                  CellStyle="{StaticResource DarkDataGridCell}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Customer Id" Binding ="{Binding CustomerId}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Customer's First Name" Binding="{Binding CustomerFirstName}" IsReadOnly="True"/>
@@ -41,11 +45,13 @@
                     IsEnabled="{Binding HasChanges}"
                     Margin="0,0,10,0"
                     Padding="10,5"
+                    Style="{StaticResource PrimaryDarkButton}"
                     />
             <Button Content="Cancel Changes" 
                     Command="{Binding CancelChangesCommand}"
                     IsEnabled="{Binding HasChanges}"
                     Padding="10,5"
+                    Style="{StaticResource DarkButton}"
                     />
         </StackPanel>
             </Grid>
