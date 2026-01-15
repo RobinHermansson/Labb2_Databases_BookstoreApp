@@ -22,6 +22,8 @@
             <!-- Custom Converters -->
             <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
             <converters:BooleanOrConverter x:Key="BooleanOrConverter"/>
+            <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+            
             <!-- Dark textboxes -->
             <Style x:Key="DarkTextBox" TargetType="TextBox">
                 <Setter Property="Background" Value="#2D2D30"/>
