@@ -39,28 +39,34 @@
                    Foreground="White"/>
             <TextBox x:Name="Isn13Box"
                      Text="{Binding ISBN13}"
-                     IsEnabled="{Binding IsNewBook}"/>
+                     IsEnabled="{Binding IsNewBook}"
+                     Style="{StaticResource DarkTextBox}"/>
             <Label Content="Title"
                    Foreground="White"></Label>
             <TextBox x:Name="TitleBox"
-                     Text="{Binding Title}"/>
+                     Text="{Binding Title}"
+                     Style="{StaticResource DarkTextBox}"/>
             <Label Content="Language"
                    Foreground="White"></Label>
             <ComboBox x:Name="LanguageBox"
                       ItemsSource="{Binding AvailableLanguages}"
-                      SelectedItem="{Binding SelectedLanguage}"/>
+                      SelectedItem="{Binding SelectedLanguage}"
+                      Style="{StaticResource DarkComboBox}"/>
             <Label Content="Price in Sek"
                    Foreground="White"></Label>
             <TextBox x:Name="PriceInSekBox"
-                     Text="{Binding PriceInSek}"/>
+                     Text="{Binding PriceInSek}"
+                     Style="{StaticResource DarkTextBox}"/>
             <Label Content="Publication date"
                    Foreground="White"></Label>
             <TextBox x:Name="PublicationDateBox"
-                     Text="{Binding PublicationDate}"/>
+                     Text="{Binding PublicationDate}"
+                     Style="{StaticResource DarkTextBox}"/>
             <Label Content="Quantity at store"
                    Foreground="White"/>
             <TextBox x:Name="InventoryBalanceBox"
-                       Text="{Binding Quantity}"/>
+                     Text="{Binding Quantity}"
+                     Style="{StaticResource DarkTextBox}"/>
         </StackPanel>
         </Border>
         <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" 
@@ -81,7 +87,7 @@
                    Margin="0,0,0,8"/>
         
         <RadioButton x:Name="SelectExistingAuthorRadio"
-                     Content="Use existing author"
+                     Content="Keep or select an existing author"
                      GroupName="AuthorMode"
                      Foreground="White"
                      IsChecked="True"
@@ -181,27 +187,32 @@
                       ItemsSource="{Binding AvailablePublishers}"
                       SelectedItem="{Binding SelectedPublisher}"
                       DisplayMemberPath="Name"
-                      IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"/>
+                      IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"
+                      Style="{StaticResource DarkComboBox}"/>
                 <Label Content="Name"
                    Foreground="White"/>
                 <TextBox 
-                Text="{Binding SelectedPublisher.Name}"
-                IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"/>
+                    Text="{Binding SelectedPublisher.Name}"
+                    IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"
+                    Style="{StaticResource DarkTextBox}"/>
                 <Label Content="Address"
                    Foreground="White"/>
                 <TextBox 
-                Text="{Binding SelectedPublisher.Address}"
-                IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"/>
+                    Text="{Binding SelectedPublisher.Address}"
+                    IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"
+                    Style="{StaticResource DarkTextBox}"/>
                 <Label Content="Country"
                    Foreground="White"/>
                 <TextBox 
-                Text="{Binding SelectedPublisher.Country}"
-                IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"/>
+                    Text="{Binding SelectedPublisher.Country}"
+                    IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"
+                    Style="{StaticResource DarkTextBox}"/>
                 <Label Content="Email"
                    Foreground="White"/>
                 <TextBox 
-                Text="{Binding SelectedPublisher.Email}"
-                IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"/>
+                    Text="{Binding SelectedPublisher.Email}"
+                    IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"
+                    Style="{StaticResource DarkTextBox}"/>
             </StackPanel>
         </Border>
          
