@@ -37,9 +37,20 @@ public class DialogService : IDialogService
         
         return result;
     }
-
-    public void ShowMessageDialog(string message, string title = "Information")
+    public async Task ShowMessageDialogAsync(string message, string title = "Information")
     {
-        // Similar implementation for info dialogs
+        var dialogViewModel = new MessageDialogViewModel(message, title);
+        var dialog = new MessageDialog { DataContext = dialogViewModel };
+        
+        _currentDialog = dialog;
+        
+        _mainWindowViewModel.DialogContent = dialog;
+        _mainWindowViewModel.IsDialogOpen = true;
+        
+        await dialogViewModel.GetResult();
+        
+        _mainWindowViewModel.IsDialogOpen = false;
+        _mainWindowViewModel.DialogContent = null;
+        _currentDialog = null;
     }
 }
