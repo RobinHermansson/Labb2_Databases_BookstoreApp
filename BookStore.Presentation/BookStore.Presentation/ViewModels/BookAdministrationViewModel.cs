@@ -53,9 +53,9 @@ public class BookAdministrationViewModel : ViewModelBase
     private bool _isAuthorEditEnabled;
     private bool _isPublisherEditEnabled;
 
-    public DelegateCommand SaveChangesCommand { get; set; }
-    public DelegateCommand CancelChangesCommand { get; set; }
-    public DelegateCommand BackToBooksCommand { get; set; }
+    public AsyncDelegateCommand SaveChangesCommand { get; set; }
+    public AsyncDelegateCommand CancelChangesCommand { get; set; }
+    public AsyncDelegateCommand BackToBooksCommand { get; set; }
     private bool CanSaveChanges(object parameter) => HasChanges && !IsLoading && IsISBN13Valid;
 
     private string _validationErrorText = string.Empty;
@@ -342,9 +342,9 @@ public class BookAdministrationViewModel : ViewModelBase
             TitleText = "Create a new book:";
         }
 
-        SaveChangesCommand = new DelegateCommand(SaveChanges, CanSaveChanges);
-        CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancel);
-        BackToBooksCommand = new DelegateCommand(GoBack, CanGoBack);
+        SaveChangesCommand = new AsyncDelegateCommand(SaveChanges, CanSaveChanges);
+        CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancel);
+        BackToBooksCommand = new AsyncDelegateCommand(GoBack, CanGoBack);
 
     }
     public async Task InitializeAsync()
@@ -512,7 +512,7 @@ public class BookAdministrationViewModel : ViewModelBase
 
         HasChanges = hasAnyChanges;
     }
-    private async void SaveChanges(object parameter)
+    private async Task SaveChanges(object parameter)
     {
         IsLoading = true;
         try
@@ -691,7 +691,7 @@ public class BookAdministrationViewModel : ViewModelBase
 
         CheckForChanges();
     }
-    public async void CancelChanges(object? parameter)
+    public async Task CancelChanges(object? parameter)
     {
         await LoadRelatedDataAsync();
         HasChanges = false;
@@ -699,7 +699,7 @@ public class BookAdministrationViewModel : ViewModelBase
         await _dialogService.ShowMessageDialogAsync(StatusText);
     }
 
-    public async void GoBack(object? sender)
+    public async Task GoBack(object? sender)
     {
         if (HasChanges)
         {
