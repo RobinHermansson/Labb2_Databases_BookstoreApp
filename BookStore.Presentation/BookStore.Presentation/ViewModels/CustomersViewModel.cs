@@ -1,4 +1,5 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
+using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -32,8 +33,8 @@ public class CustomersViewModel : ViewModelBase
 
 
 
-    public DelegateCommand CancelChangesCommand { get; set; }
-    public DelegateCommand SaveChangesCommand { get; set; }
+    public AsyncDelegateCommand CancelChangesCommand { get; set; }
+    public AsyncDelegateCommand SaveChangesCommand { get; set; }
 
     public bool HasChanges
     {
@@ -49,8 +50,8 @@ public class CustomersViewModel : ViewModelBase
 
     public CustomersViewModel()
     {
-        CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
-        SaveChangesCommand = new DelegateCommand(SaveChanges, CanSaveChanges);
+        CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
+        SaveChangesCommand = new AsyncDelegateCommand(SaveChanges, CanSaveChanges);
     }
     public ObservableCollection<CustomerDetails> DisplayCustomerDetails
     {
@@ -93,7 +94,6 @@ public class CustomersViewModel : ViewModelBase
                 if (newCustomer.Id <= 0)
                 {
                     _newCustomers.Add(newCustomer);
-                    Debug.WriteLine($"New customer added: {newCustomer.FirstName} {newCustomer.LastName}");
                 }
             }
         }
@@ -111,7 +111,6 @@ public class CustomersViewModel : ViewModelBase
                 else if (removedCustomer.Id > 0)
                 {
                     _deletedCustomers.Add(removedCustomer);
-                    Debug.WriteLine($"Customer marked for deletion: {removedCustomer.FirstName} {removedCustomer.LastName}");
                 }
             }
         }
@@ -183,64 +182,85 @@ public class CustomersViewModel : ViewModelBase
     }
 
     public bool CanCancelChanges(object? sender) => HasChanges;
-    public void CancelChanges(object? sender)
+    public async Task CancelChanges(object? sender)
     {
-        Debug.WriteLine("Cancelling changes");
+        try
+        {
+            await LoadAllCustomersAsync();
+
+        } catch(Exception ex)
+        {
+            Debug.WriteLine($"Error when cancelling changes and loading customers: {ex.Message}");
+        }
         _newCustomers.Clear();
         _changedCustomers.Clear();
         _deletedCustomers.Clear();
-        _ = LoadAllCustomersAsync();
     }
     public bool CanSaveChanges(object? sender) => HasChanges;
 
-    public void SaveChanges(object? sender)
+    public async Task SaveChanges(object? sender)
     {
-        using var db = new BookstoreDBContext();
-        if (_newCustomers.Count != 0)
+        try
         {
-            foreach (var newCustomer in _newCustomers)
+            using var db = new BookstoreDBContext();
+            if (_newCustomers.Count != 0)
             {
-                db.Customers.Add(new Customer() 
+                foreach (var newCustomer in _newCustomers)
                 {
-                    FirstName = newCustomer.FirstName,
-                    LastName = newCustomer.LastName,
-                    Email = newCustomer.Email,
-                    Phone = newCustomer.Phone
-                });
-            }
-        }
-        if (_deletedCustomers.Count != 0)
-        {
-            foreach (var deletedCustomer in _deletedCustomers)
-            {
-                var toBeDeleted = db.Customers.FirstOrDefault(c => c.Id == deletedCustomer.Id);
-                if (toBeDeleted is not null)
-                {
-                    db.Customers.Remove(toBeDeleted);
-                }
-             }
-        }
-        if (_changedCustomers.Count != 0)
-        {
-            foreach(var changedCustomer in _changedCustomers)
-            {
-                var toBeUpdated = db.Customers.FirstOrDefault(c => c.Id == changedCustomer.Id);
-                if (toBeUpdated is not null)
-                {
-                    toBeUpdated.FirstName = changedCustomer.FirstName;
-                    toBeUpdated.LastName = changedCustomer.LastName;
-                    toBeUpdated.Email = changedCustomer.Email;
-                    toBeUpdated.Phone = changedCustomer.Phone;
+                    db.Customers.Add(new Customer() 
+                    {
+                        FirstName = newCustomer.FirstName,
+                        LastName = newCustomer.LastName,
+                        Email = newCustomer.Email,
+                        Phone = newCustomer.Phone
+                    });
                 }
             }
+            if (_deletedCustomers.Count != 0)
+            {
+                foreach (var deletedCustomer in _deletedCustomers)
+                {
+                    var toBeDeleted = db.Customers.FirstOrDefault(c => c.Id == deletedCustomer.Id);
+                    if (toBeDeleted is not null)
+                    {
+                        db.Customers.Remove(toBeDeleted);
+                    }
+                 }
+            }
+            if (_changedCustomers.Count != 0)
+            {
+                foreach(var changedCustomer in _changedCustomers)
+                {
+                    var toBeUpdated = db.Customers.FirstOrDefault(c => c.Id == changedCustomer.Id);
+                    if (toBeUpdated is not null)
+                    {
+                        toBeUpdated.FirstName = changedCustomer.FirstName;
+                        toBeUpdated.LastName = changedCustomer.LastName;
+                        toBeUpdated.Email = changedCustomer.Email;
+                        toBeUpdated.Phone = changedCustomer.Phone;
+                    }
+                }
+            }
+            
+            await db.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error when saving changes: {ex.Message}");
         }
 
-        db.SaveChanges();
         _newCustomers.Clear();
         _deletedCustomers.Clear();
         _changedCustomers.Clear();
         HasChanges = false;
-        _ = LoadAllCustomersAsync();
+        try
+        {
+            await LoadAllCustomersAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error when loading customers after saving: {ex.Message}");
+        }
     }
 
 
