@@ -32,6 +32,18 @@ public class BookAdministrationViewModel : ViewModelBase
     private bool _hasChanges;
     private bool _isLoading;
 
+    private bool _isNewBook;
+
+    public bool IsNewBook
+    {
+        get => _isNewBook;
+        set
+        {
+            _isNewBook = value;
+            RaisePropertyChanged();
+        }
+    }
+
     private BookDetails _originalBookDetails;
     private Author _selectedAuthor;
     private Author _originalAuthor;
@@ -314,7 +326,8 @@ public class BookAdministrationViewModel : ViewModelBase
         _navigationService = navigationService;
         _dialogService = dialogService;
 
-        if (bookToAdmin.ISBN13 is null)
+        IsNewBook = string.IsNullOrEmpty(bookToAdmin.ISBN13);
+        if (IsNewBook)
         {
             TitleText = "Create a new book:";
         }
