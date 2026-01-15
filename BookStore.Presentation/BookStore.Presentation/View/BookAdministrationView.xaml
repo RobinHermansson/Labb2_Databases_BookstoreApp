@@ -38,7 +38,8 @@
             <Label Content="Isbn13"
                    Foreground="White"/>
             <TextBox x:Name="Isn13Box"
-                     Text="{Binding ISBN13}"/>
+                     Text="{Binding ISBN13}"
+                     IsEnabled="False"/>
             <Label Content="Title"
                    Foreground="White"></Label>
             <TextBox x:Name="TitleBox"

@@ -70,7 +70,7 @@
                   RowStyle="{StaticResource DarkDataGridRow}"
                   CellStyle="{StaticResource DarkDataGridCell}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ISBN13" Binding="{Binding ISBN13}" Width="Auto"/>
+                <DataGridTextColumn Header="ISBN13" Binding="{Binding ISBN13}" Width="Auto" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="Auto"/>
                 <DataGridTextColumn Header="Price in SEK" Binding="{Binding PriceInSek}" Width="Auto"/>
                 <DataGridTextColumn Header="Publication date" Binding="{Binding PublicationDate}" Width="Auto"/>

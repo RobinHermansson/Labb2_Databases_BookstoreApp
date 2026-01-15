@@ -142,7 +142,6 @@ public class BooksViewModel : ViewModelBase
     private void CheckForChanges()
     {
         bool hasAnyChanges = false;
-        _changedBooks.Clear();
 
         if (_deletedBooks.Any())
         {
