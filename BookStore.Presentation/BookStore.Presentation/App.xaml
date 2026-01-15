@@ -23,6 +23,7 @@
             <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
             <converters:BooleanOrConverter x:Key="BooleanOrConverter"/>
             <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+            <converters:BooleanToVisibilityInverseConverter x:Key="BooleanToVisibilityInverseConverter"/>
             
             <!-- Dark textboxes -->
             <Style x:Key="DarkTextBox" TargetType="TextBox">

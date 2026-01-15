@@ -18,12 +18,20 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Button Content="← Go back" 
-                Grid.Row="0"
-                Command="{Binding BackToBooksCommand}"
-                HorizontalAlignment="Left"
-                Margin="0 0 0 10"
-                Style="{StaticResource DarkButton}"/>
+        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2">
+            <Button Content="← Go back" 
+                    Grid.Row="0"
+                    Command="{Binding BackToBooksCommand}"
+                    HorizontalAlignment="Left"
+                    Margin="0 0 0 10"
+                    Style="{StaticResource DarkButton}"/>
+            <TextBlock Text="{Binding ValidationErrorText}" 
+                       Foreground="Red"
+                       Visibility="{Binding IsISBN13Valid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Margin="15 0 0 10"/>
+        </StackPanel>
         <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" 
             BorderBrush="LightGray" BorderThickness="1" 
             CornerRadius="5" Margin="5" Padding="10"
@@ -38,7 +46,7 @@
             <Label Content="Isbn13"
                    Foreground="White"/>
             <TextBox x:Name="Isn13Box"
-                     Text="{Binding ISBN13}"
+                     Text="{Binding ISBN13, UpdateSourceTrigger=PropertyChanged}"
                      IsEnabled="{Binding IsNewBook}"
                      Style="{StaticResource DarkTextBox}"/>
             <Label Content="Title"
@@ -189,7 +197,8 @@
                       Content="Edit toggle"
                       FontSize="10"
                       Foreground="White"
-                      Margin="0 10 0 0"/>
+                      Margin="0 10 0 0"
+                      IsChecked="{Binding IsPublisherEditEnabled}"/>
                 <Label Foreground="White" Content="Current publisher: "></Label>
                 <ComboBox x:Name="PublisherBox"
                       ItemsSource="{Binding AvailablePublishers}"

@@ -56,7 +56,18 @@ public class BookAdministrationViewModel : ViewModelBase
     public DelegateCommand SaveChangesCommand { get; set; }
     public DelegateCommand CancelChangesCommand { get; set; }
     public DelegateCommand BackToBooksCommand { get; set; }
-    private bool CanSaveChanges(object parameter) => HasChanges && !IsLoading;
+    private bool CanSaveChanges(object parameter) => HasChanges && !IsLoading && IsISBN13Valid;
+
+    private string _validationErrorText = string.Empty;
+    public string ValidationErrorText
+    {
+        get => _validationErrorText;
+        set
+        {
+            _validationErrorText = value;
+            RaisePropertyChanged();
+        }
+    }
     private bool CanCancel(object parameter) => HasChanges && !IsLoading;
 
     public AuthorMode CurrentAuthorMode
@@ -107,6 +118,8 @@ public class BookAdministrationViewModel : ViewModelBase
     }
 
 
+    public bool IsISBN13Valid { get; private set; } = true;
+
     public string ISBN13
     {
         get { return _isbn13; }
@@ -115,6 +128,15 @@ public class BookAdministrationViewModel : ViewModelBase
             _isbn13 = value;
             RaisePropertyChanged();
             CheckForChanges();
+            
+            IsISBN13Valid = !string.IsNullOrEmpty(value) && value.Length == 13;
+            if (!IsISBN13Valid)
+            {
+                ValidationErrorText = "ISBN13 must be exactly 13 letters long.";
+            }
+            RaisePropertyChanged("IsISBN13Valid");
+            
+
         }
     }
 
