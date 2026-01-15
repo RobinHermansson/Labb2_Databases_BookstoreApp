@@ -50,7 +50,7 @@
                     Style="{StaticResource RemoveIconButton}"
                     Command="{Binding RemoveBookCommand}"
                     CommandParameter="{Binding SelectedBook}"
-                    IsEnabled="{Binding SelectedBook}"/>
+                    IsEnabled="{Binding SelectedBook, Converter={StaticResource NullToBooleanConverter}}"/>
                                  
         </StackPanel>
         <DataGrid Grid.Row="1"

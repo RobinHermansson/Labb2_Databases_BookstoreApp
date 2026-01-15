@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:BookStore.Presentation"
              xmlns:viewModel="clr-namespace:BookStore.Presentation.ViewModels"
              xmlns:view="clr-namespace:BookStore.Presentation.View"
+             xmlns:converters="clr-namespace:BookStore.Presentation.Converters"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -15,7 +16,8 @@
 
             </DataTemplate>
 
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/> <!-- built in-->
+            <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/> <!-- custom -->
         
         <!-- General Button Styles -->
             <Style x:Key="DarkButton" TargetType="Button">
