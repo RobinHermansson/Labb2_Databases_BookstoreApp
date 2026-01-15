@@ -25,6 +25,130 @@
             <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
             <converters:BooleanToVisibilityInverseConverter x:Key="BooleanToVisibilityInverseConverter"/>
             
+            <!-- Dark ScrollBar Styles -->
+            <Style x:Key="DarkScrollBarThumb" TargetType="Thumb">
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="OverridesDefaultStyle" Value="true"/>
+                <Setter Property="IsTabStop" Value="false"/>
+                <Setter Property="Focusable" Value="false"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Thumb">
+                            <Border Background="#3F3F46" 
+                                    BorderBrush="#2D2D30" 
+                                    BorderThickness="1" 
+                                    CornerRadius="2"/>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#4F4F56"/>
+                                </Trigger>
+                                <Trigger Property="IsDragging" Value="True">
+                                    <Setter Property="Background" Value="#0E4B99"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="DarkScrollBarButton" TargetType="RepeatButton">
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="OverridesDefaultStyle" Value="true"/>
+                <Setter Property="Focusable" Value="false"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RepeatButton">
+                            <Border Name="Border" 
+                                    Background="#2D2D30" 
+                                    BorderBrush="#3F3F46" 
+                                    BorderThickness="1">
+                                <Path HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center" 
+                                      Fill="White" 
+                                      Data="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Border" Property="Background" Value="#3E3E42"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Border" Property="Background" Value="#1E1E1E"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="DarkScrollBarPageButton" TargetType="RepeatButton">
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="OverridesDefaultStyle" Value="true"/>
+                <Setter Property="IsTabStop" Value="false"/>
+                <Setter Property="Focusable" Value="false"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RepeatButton">
+                            <Border Background="Transparent"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="DarkScrollBar" TargetType="ScrollBar">
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="OverridesDefaultStyle" Value="true"/>
+                <Style.Triggers>
+                    <Trigger Property="Orientation" Value="Horizontal">
+                        <Setter Property="Width" Value="Auto"/>
+                        <Setter Property="Height" Value="18"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ScrollBar">
+                                    <Grid>
+                                        <Border Background="#1E1E1E" BorderBrush="#3F3F46" BorderThickness="0,1,0,0"/>
+                                        <Track Name="PART_Track" IsDirectionReversed="False">
+                                            <Track.DecreaseRepeatButton>
+                                                <RepeatButton Style="{StaticResource DarkScrollBarPageButton}" Command="ScrollBar.PageLeftCommand"/>
+                                            </Track.DecreaseRepeatButton>
+                                            <Track.Thumb>
+                                                <Thumb Style="{StaticResource DarkScrollBarThumb}" Margin="0,1,0,1"/>
+                                            </Track.Thumb>
+                                            <Track.IncreaseRepeatButton>
+                                                <RepeatButton Style="{StaticResource DarkScrollBarPageButton}" Command="ScrollBar.PageRightCommand"/>
+                                            </Track.IncreaseRepeatButton>
+                                        </Track>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+                    <Trigger Property="Orientation" Value="Vertical">
+                        <Setter Property="Width" Value="18"/>
+                        <Setter Property="Height" Value="Auto"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ScrollBar">
+                                    <Grid>
+                                        <Border Background="#1E1E1E" BorderBrush="#3F3F46" BorderThickness="1,0,0,0"/>
+                                        <Track Name="PART_Track" IsDirectionReversed="true">
+                                            <Track.DecreaseRepeatButton>
+                                                <RepeatButton Style="{StaticResource DarkScrollBarPageButton}" Command="ScrollBar.PageUpCommand"/>
+                                            </Track.DecreaseRepeatButton>
+                                            <Track.Thumb>
+                                                <Thumb Style="{StaticResource DarkScrollBarThumb}" Margin="1,0,1,0"/>
+                                            </Track.Thumb>
+                                            <Track.IncreaseRepeatButton>
+                                                <RepeatButton Style="{StaticResource DarkScrollBarPageButton}" Command="ScrollBar.PageDownCommand"/>
+                                            </Track.IncreaseRepeatButton>
+                                        </Track>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            
             <!-- Dark textboxes -->
             <Style x:Key="DarkTextBox" TargetType="TextBox">
                 <Setter Property="Background" Value="#2D2D30"/>
@@ -40,6 +164,7 @@
                     </Trigger>
                 </Style.Triggers>
             </Style> 
+            
             <!-- General Button Styles -->
             <Style x:Key="DarkButton" TargetType="Button">
             <Setter Property="Background" Value="#2D2D30"/>
@@ -172,6 +297,63 @@
             <Setter Property="CanUserDeleteRows" Value="False"/>
             <Setter Property="AutoGenerateColumns" Value="False"/>
             <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGrid">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer Name="DG_ScrollViewer" 
+                                          Focusable="false">
+                                <ScrollViewer.Template>
+                                    <ControlTemplate TargetType="ScrollViewer">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <DataGridColumnHeadersPresenter Name="PART_ColumnHeadersPresenter"
+                                                                           Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Column}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                                           Grid.Column="1" Grid.Row="0"/>
+
+                                            <ScrollContentPresenter Name="PART_ScrollContentPresenter"
+                                                                  Grid.Column="1" Grid.Row="1"
+                                                                  CanContentScroll="{TemplateBinding CanContentScroll}"/>
+
+                                            <ScrollBar Name="PART_VerticalScrollBar"
+                                                     Grid.Column="2" Grid.Row="1"
+                                                     Orientation="Vertical"
+                                                     Value="{TemplateBinding VerticalOffset}"
+                                                     Maximum="{TemplateBinding ScrollableHeight}"
+                                                     ViewportSize="{TemplateBinding ViewportHeight}"
+                                                     Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                                     Style="{StaticResource DarkScrollBar}"/>
+
+                                            <ScrollBar Name="PART_HorizontalScrollBar"
+                                                     Grid.Column="1" Grid.Row="2"
+                                                     Orientation="Horizontal"
+                                                     Value="{TemplateBinding HorizontalOffset}"
+                                                     Maximum="{TemplateBinding ScrollableWidth}"
+                                                     ViewportSize="{TemplateBinding ViewportWidth}"
+                                                     Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+                                                     Style="{StaticResource DarkScrollBar}"/>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </ScrollViewer.Template>
+                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- Dark DataGrid Column Header Style -->
