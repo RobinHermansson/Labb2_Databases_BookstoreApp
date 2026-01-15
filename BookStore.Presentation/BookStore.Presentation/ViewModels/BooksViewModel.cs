@@ -24,9 +24,9 @@ public class BooksViewModel : ViewModelBase
 
     
 
-    public DelegateCommand SaveChangesCommand { get; set; }
+    public AsyncDelegateCommand SaveChangesCommand { get; set; }
     public DelegateCommand EditBookCommand { get; set; }
-    public DelegateCommand CancelChangesCommand { get; set; }
+    public AsyncDelegateCommand CancelChangesCommand { get; set; }
     public DelegateCommand RemoveBookCommand { get; set; }
     public DelegateCommand AddBookCommand { get; set; }
 
@@ -116,33 +116,12 @@ public class BooksViewModel : ViewModelBase
 	}
 	 private void Books_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        /*
-        if (e.NewItems != null)
-        {
-            foreach (BookDetails newBook in e.NewItems)
-            {
-                newBook.PropertyChanged += Books_PropertyChanged;
-                if (!OriginalListOfBooks.Any(b => b.Isbn13 == newBook.ISBN13))
-                {
-                    _newBooks.Add(newBook);
-                    Debug.WriteLine($"New Book added: {newBook.ISBN13} {newBook.Title}");
-                }
-            }
-        }
-        */
-
         if (e.OldItems != null)
         {
             foreach (BookDetails removedBook in e.OldItems)
             {
                 removedBook.PropertyChanged -= Books_PropertyChanged;
                 
-                /*
-                if (_newBooks.Contains(removedBook))
-                {
-                    _newBooks.Remove(removedBook);
-                }
-                */
                 _deletedBooks.Add(removedBook);
                 Debug.WriteLine($"Book marked for deletion: {removedBook.ISBN13} {removedBook.Title}");
             }
@@ -165,12 +144,6 @@ public class BooksViewModel : ViewModelBase
     {
         bool hasAnyChanges = false;
 
-        /*
-        if (_newBooks.Any())
-        {
-            hasAnyChanges = true;
-        }
-        */
         if (_deletedBooks.Any())
         {
             hasAnyChanges = true;
@@ -200,8 +173,8 @@ public class BooksViewModel : ViewModelBase
     public BooksViewModel(INavigationService navigationService)
     {
         _navigationService = navigationService;
-        SaveChangesCommand = new DelegateCommand(SaveChanges, CanSaveChanges);
-        CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
+        SaveChangesCommand = new AsyncDelegateCommand(SaveChanges, CanSaveChanges);
+        CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
         EditBookCommand = new DelegateCommand(EditBook, CanEditBook);
         AddBookCommand = new DelegateCommand(AddBook, CanAddBook);
     }
@@ -223,30 +196,9 @@ public class BooksViewModel : ViewModelBase
     {
         return HasChanges;
     }
-    private void SaveChanges(object? sender)
+    private async Task SaveChanges(object? sender)
     {
         using var db = new BookstoreDBContext();
-        /*foreach (BookDetails newBook in _newBooks)
-        {
-            db.Books.Add(
-            new Book()
-            {
-                Isbn13 = newBook.ISBN13,
-                Title = newBook.Title,
-                PriceInSek = newBook.PriceInSek,
-                PublicationDate = newBook.PublicationDate,
-                Language = newBook.Language
-            }
-            );
-
-            db.InventoryBalances.Add(new InventoryBalance()
-            {
-                StoreId = SelectedStore.Id,
-                Isbn13 = newBook.ISBN13,
-                Quantity = newBook.Quantity
-            });
-        }
-        */
         foreach (BookDetails deletedBook in _deletedBooks)
         {
             var bookToDelete = db.Books.FirstOrDefault(b => b.Isbn13 == deletedBook.ISBN13);
@@ -257,6 +209,21 @@ public class BooksViewModel : ViewModelBase
                 if (relatedInventoryBalance is not null)
                 {
                     db.InventoryBalances.Remove(relatedInventoryBalance);
+                }
+
+                var relatedOrderItems = db.OrderItems
+                    .Where(oi => oi.Isbn13 == bookToDelete.Isbn13);
+                if (relatedOrderItems != null)
+                {
+                    db.OrderItems.RemoveRange(relatedOrderItems);
+                }
+
+                var bookWithAuthors = db.Books
+                    .Include(b => b.Authors)
+                    .FirstOrDefault(b => b.Isbn13 == bookToDelete.Isbn13);
+                if (bookWithAuthors != null)
+                {
+                    bookWithAuthors.Authors.Clear();
                 }
                 db.Books.Remove(bookToDelete);
             }
@@ -276,26 +243,38 @@ public class BooksViewModel : ViewModelBase
 
         }
 
-        db.SaveChanges();
-        //_newBooks.Clear();
+        await db.SaveChangesAsync();
         _deletedBooks.Clear();
         _changedBooks.Clear();
-        _ = LoadBooksForSelectedStore(SelectedStore.Id);
+        try
+        {
+            _ = LoadBooksForSelectedStore(SelectedStore.Id);
+        }
+        catch(Exception ex)
+        {
+            Debug.WriteLine($"Error when trying to reload the books after saving. {ex.Message}");
+        }
 
         HasChanges = false;
     }
 
 
 
-    private void CancelChanges(object obj)
+    private async Task CancelChanges(object obj)
     {
-        Debug.WriteLine("Cancel.");
-        _ = LoadBooksForSelectedStore(SelectedStore.Id);
+        try
+        {
+            Task result = LoadBooksForSelectedStore(SelectedStore.Id);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error when cancelling changes and reloading. {ex.Message}");
+        }
     }
 
     private void AddBook(object? sender)
     {
-        _navigationService.NavigateTo("BookAdministration", "BooksView", new BookDetails());
+        _navigationService.NavigateTo("BookAdministration", "BooksView", new BookDetails() { BookStoreId = SelectedStore.Id});
     }
 
     private bool CanAddBook(object? sender)
@@ -308,12 +287,20 @@ public class BooksViewModel : ViewModelBase
 	{
 		using var db = new BookstoreDBContext();
 
-		var bookDetailsList = await db.InventoryBalances
-			.Where(s => s.StoreId == storeId)
-			.Select(s => new BookDetails() { ISBN13 = s.Isbn13, BookStoreId=storeId, Title = s.Isbn13Navigation.Title, PriceInSek = s.Isbn13Navigation.PriceInSek, PublicationDate = s.Isbn13Navigation.PublicationDate, Quantity = s.Quantity, Language = s.Isbn13Navigation.Language })
-			.ToListAsync();
-        OriginalListOfBooks = await db.Books.ToListAsync();
-        Books = new ObservableCollection<BookDetails>(bookDetailsList);
+        try
+        {
+
+            var bookDetailsList = await db.InventoryBalances
+                .Where(s => s.StoreId == storeId)
+                .Select(s => new BookDetails() { ISBN13 = s.Isbn13, BookStoreId=storeId, Title = s.Isbn13Navigation.Title, PriceInSek = s.Isbn13Navigation.PriceInSek, PublicationDate = s.Isbn13Navigation.PublicationDate, Quantity = s.Quantity, Language = s.Isbn13Navigation.Language })
+                .ToListAsync();
+            OriginalListOfBooks = await db.Books.ToListAsync();
+            Books = new ObservableCollection<BookDetails>(bookDetailsList);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error when running LoadBooksForSelectedStore. {ex.Message}");
+        }
 	}
 
     public async Task LoadStoresAsync()
@@ -321,17 +308,24 @@ public class BooksViewModel : ViewModelBase
         int? selectedStoreId = SelectedStore?.Id;
 
         using var db = new BookstoreDBContext();
-        var tempList = await db.Stores.ToListAsync();
-        Stores = new ObservableCollection<Store>(tempList);
-
-        if (selectedStoreId.HasValue)
+        try
         {
-            SelectedStore = Stores.FirstOrDefault(s => s.Id == selectedStoreId.Value);
+            var tempList = await db.Stores.ToListAsync();
+            Stores = new ObservableCollection<Store>(tempList);
+
+            if (selectedStoreId.HasValue)
+            {
+                SelectedStore = Stores.FirstOrDefault(s => s.Id == selectedStoreId.Value);
+            }
+
+            if (SelectedStore is null)
+            {
+                SelectedStore = Stores.FirstOrDefault();
+            }
         }
-
-        if (SelectedStore is null)
+        catch(Exception ex)
         {
-            SelectedStore = Stores.FirstOrDefault();
+            Debug.WriteLine($"Error when running 'LoadStoresAsync'. {ex.Message}");
         }
     }
 }
