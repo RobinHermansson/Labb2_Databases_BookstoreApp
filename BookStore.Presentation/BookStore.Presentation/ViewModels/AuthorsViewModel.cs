@@ -13,8 +13,8 @@ public class AuthorsViewModel : ViewModelBase
     private ObservableCollection<AuthorDetails> _displayAuthorDetails;
     public List<Author> OriginalListOfAuthors;
     private AuthorDetails _selectedAuthor;
-    public DelegateCommand SaveChangesCommand { get; set; }
-    public DelegateCommand CancelChangesCommand { get; set; }
+    public AsyncDelegateCommand SaveChangesCommand { get; set; }
+    public AsyncDelegateCommand CancelChangesCommand { get; set; }
 
     private List<AuthorDetails> _newAuthors = new List<AuthorDetails>();
     private List<AuthorDetails> _deletedAuthors = new List<AuthorDetails>();
@@ -47,18 +47,24 @@ public class AuthorsViewModel : ViewModelBase
     public AuthorsViewModel()
     {
 
-        SaveChangesCommand = new DelegateCommand(SaveChangesAsync, CanSaveChanges);
-        CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
+        SaveChangesCommand = new AsyncDelegateCommand(SaveChangesAsync, CanSaveChanges);
+        CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
     }
 
     private bool CanCancelChanges(object? sender)
     {
         return HasChanges;
     }
-    private void CancelChanges(object obj)
+    private async Task CancelChanges(object obj)
     {
-        Debug.WriteLine("Cancel.");
-        _ = LoadAuthorDetailsAsync();
+        try
+        {
+            await LoadAuthorDetailsAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error when loading authors details after cancelling changes. {ex.Message}");
+        }
     }
 
     public ObservableCollection<AuthorDetails> DisplayAuthorDetails
@@ -201,7 +207,7 @@ public class AuthorsViewModel : ViewModelBase
         return HasChanges;
     }
 
-    private async void SaveChangesAsync(object sender)
+    private async Task SaveChangesAsync(object sender)
     {
         try
         {
@@ -271,7 +277,7 @@ public class AuthorsViewModel : ViewModelBase
 
             // Refresh states and the list according to new changes.
             HasChanges = false;
-            _ = LoadAuthorDetailsAsync();
+            await LoadAuthorDetailsAsync();
         }
         catch (Exception ex)
         {
