@@ -31,12 +31,20 @@ public class NavigationService : INavigationService
         }
     }
     
-    public void NavigateBack()
+    public async Task NavigateBack()
     {
         switch (_previousView)
         {
             case "BooksView":
                 _mainWindowViewModel.CurrentView = _mainWindowViewModel._booksViewModel;
+                try
+                {
+                    await _mainWindowViewModel._booksViewModel.LoadStoresAsync();
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.ShowMessageDialogAsync($"Not able to fetch stores when navigating back from previous view to BooksView. {ex.Message}");
+                }
                 break;
         }
     }
