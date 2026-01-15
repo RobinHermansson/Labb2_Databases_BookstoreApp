@@ -13,6 +13,7 @@ namespace BookStore.Presentation.ViewModels;
 public class BooksViewModel : ViewModelBase
 {
     private readonly INavigationService _navigationService;
+    private readonly IDialogService _dialogService;
 	private ObservableCollection<BookDetails> _books;
     private ObservableCollection<Store> _stores;
     private Store _selectedStore;
@@ -170,9 +171,10 @@ public class BooksViewModel : ViewModelBase
 
 	public string StoreAtInstantiation { get; set; }
 
-    public BooksViewModel(INavigationService navigationService)
+    public BooksViewModel(INavigationService navigationService, IDialogService dialogService)
     {
         _navigationService = navigationService;
+        _dialogService = dialogService;
         SaveChangesCommand = new AsyncDelegateCommand(SaveChanges, CanSaveChanges);
         CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
         EditBookCommand = new DelegateCommand(EditBook, CanEditBook);

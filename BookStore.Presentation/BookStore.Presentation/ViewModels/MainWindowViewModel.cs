@@ -163,7 +163,7 @@ public class MainWindowViewModel : ViewModelBase
         _dialogService = new DialogService(this);
         _navigationService = new NavigationService(this, _dialogService);
 		
-		_booksViewModel = new BooksViewModel(_navigationService);
+		_booksViewModel = new BooksViewModel(_navigationService, _dialogService);
         _authorsViewModel = new AuthorsViewModel();
         _customersViewModel = new CustomersViewModel();
         _ordersViewModel = new OrdersViewModel(this);
