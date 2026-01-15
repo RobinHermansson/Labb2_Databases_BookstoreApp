@@ -166,7 +166,7 @@ public class MainWindowViewModel : ViewModelBase
 		_booksViewModel = new BooksViewModel(_navigationService, _dialogService);
         _authorsViewModel = new AuthorsViewModel();
         _customersViewModel = new CustomersViewModel();
-        _ordersViewModel = new OrdersViewModel(this);
+        _ordersViewModel = new OrdersViewModel();
         _publisherViewModel = new PublishersViewModel();
         _storesViewModel = new StoresViewModel();
 

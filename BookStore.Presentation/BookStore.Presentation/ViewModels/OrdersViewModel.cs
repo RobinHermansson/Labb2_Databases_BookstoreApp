@@ -10,7 +10,6 @@ namespace BookStore.Presentation.ViewModels;
 
 public class OrdersViewModel: ViewModelBase
 {
-	private readonly MainWindowViewModel _mainWindowViewModel;
 	private OrderDetails _selectedOrder;
 	public DelegateCommand SaveChangesCommand { get; set; }
 	public DelegateCommand CancelChangesCommand { get; set; }
@@ -33,11 +32,10 @@ public class OrdersViewModel: ViewModelBase
 		}
 	}
 		
-	public OrdersViewModel(MainWindowViewModel mainWindowViewModel)
+	public OrdersViewModel()
     {
 		SaveChangesCommand = new DelegateCommand(SaveChangesAsync, CanSaveChanges);
 		CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
-		_mainWindowViewModel = mainWindowViewModel;
     }
 
 	private async void SaveChangesAsync(object? sender)
