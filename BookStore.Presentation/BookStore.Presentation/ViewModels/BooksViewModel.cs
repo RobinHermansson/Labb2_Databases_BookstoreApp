@@ -18,7 +18,7 @@ public class BooksViewModel : ViewModelBase
     private Store _selectedStore;
     public List<Book> OriginalListOfBooks;
 
-    private List<BookDetails> _newBooks = new List<BookDetails>();
+    //private List<BookDetails> _newBooks = new List<BookDetails>();
     private List<BookDetails> _deletedBooks = new List<BookDetails>();
     private List<BookDetails> _changedBooks = new List<BookDetails>();
 
@@ -27,6 +27,8 @@ public class BooksViewModel : ViewModelBase
     public DelegateCommand SaveChangesCommand { get; set; }
     public DelegateCommand EditBookCommand { get; set; }
     public DelegateCommand CancelChangesCommand { get; set; }
+    public DelegateCommand RemoveBookCommand { get; set; }
+    public DelegateCommand AddBookCommand { get; set; }
 
 
     private BookDetails _selectedBook;
@@ -114,6 +116,7 @@ public class BooksViewModel : ViewModelBase
 	}
 	 private void Books_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
+        /*
         if (e.NewItems != null)
         {
             foreach (BookDetails newBook in e.NewItems)
@@ -126,6 +129,7 @@ public class BooksViewModel : ViewModelBase
                 }
             }
         }
+        */
 
         if (e.OldItems != null)
         {
@@ -133,11 +137,12 @@ public class BooksViewModel : ViewModelBase
             {
                 removedBook.PropertyChanged -= Books_PropertyChanged;
                 
+                /*
                 if (_newBooks.Contains(removedBook))
                 {
                     _newBooks.Remove(removedBook);
                 }
-                
+                */
                 _deletedBooks.Add(removedBook);
                 Debug.WriteLine($"Book marked for deletion: {removedBook.ISBN13} {removedBook.Title}");
             }
@@ -160,11 +165,12 @@ public class BooksViewModel : ViewModelBase
     {
         bool hasAnyChanges = false;
 
+        /*
         if (_newBooks.Any())
         {
             hasAnyChanges = true;
         }
-
+        */
         if (_deletedBooks.Any())
         {
             hasAnyChanges = true;
@@ -197,6 +203,7 @@ public class BooksViewModel : ViewModelBase
         SaveChangesCommand = new DelegateCommand(SaveChanges, CanSaveChanges);
         CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
         EditBookCommand = new DelegateCommand(EditBook, CanEditBook);
+        AddBookCommand = new DelegateCommand(AddBook, CanAddBook);
     }
 
     private bool CanCancelChanges(object? sender)
@@ -219,7 +226,7 @@ public class BooksViewModel : ViewModelBase
     private void SaveChanges(object? sender)
     {
         using var db = new BookstoreDBContext();
-        foreach (BookDetails newBook in _newBooks)
+        /*foreach (BookDetails newBook in _newBooks)
         {
             db.Books.Add(
             new Book()
@@ -239,6 +246,7 @@ public class BooksViewModel : ViewModelBase
                 Quantity = newBook.Quantity
             });
         }
+        */
         foreach (BookDetails deletedBook in _deletedBooks)
         {
             var bookToDelete = db.Books.FirstOrDefault(b => b.Isbn13 == deletedBook.ISBN13);
@@ -269,7 +277,7 @@ public class BooksViewModel : ViewModelBase
         }
 
         db.SaveChanges();
-        _newBooks.Clear();
+        //_newBooks.Clear();
         _deletedBooks.Clear();
         _changedBooks.Clear();
         _ = LoadBooksForSelectedStore(SelectedStore.Id);
@@ -283,6 +291,16 @@ public class BooksViewModel : ViewModelBase
     {
         Debug.WriteLine("Cancel.");
         _ = LoadBooksForSelectedStore(SelectedStore.Id);
+    }
+
+    private void AddBook(object? sender)
+    {
+        _navigationService.NavigateTo("BookAdministration", "BooksView", new BookDetails());
+    }
+
+    private bool CanAddBook(object? sender)
+    {
+        return true; //can always add a book
     }
 
 

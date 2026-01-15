@@ -43,7 +43,9 @@
             <Button VerticalAlignment="Center"
                     Content="+"
                     Margin="0 0 0 10"
-                    Style="{StaticResource AddIconButton}"/>
+                    Style="{StaticResource AddIconButton}"
+                    Command="{Binding AddBookCommand}"
+                    CommandParameter="{Binding SelectedBook}"/>
             <Button VerticalAlignment="Center"
                     Content="-"
                     Margin="0 10 0 0"
@@ -59,7 +61,7 @@
                   Margin="0 20 20 20"
                   AutoGenerateColumns="False"
                   SelectionMode="Single"
-                  CanUserAddRows="True"
+                  CanUserAddRows="False"
                   CanUserDeleteRows="True"
                   SelectedItem="{Binding SelectedBook}"
                   ItemsSource="{Binding Books}"
@@ -72,7 +74,7 @@
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="Auto"/>
                 <DataGridTextColumn Header="Price in SEK" Binding="{Binding PriceInSek}" Width="Auto"/>
                 <DataGridTextColumn Header="Publication date" Binding="{Binding PublicationDate}" Width="Auto"/>
-                <DataGridTextColumn Header="Language" Binding="{Binding Language}" Width="Auto"/>
+                <DataGridTextColumn Header="Language" Binding="{Binding Language}" Width="Auto" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="Auto"/>
             </DataGrid.Columns>
         </DataGrid>
