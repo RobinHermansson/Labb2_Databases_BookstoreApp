@@ -11,8 +11,8 @@ namespace BookStore.Presentation.ViewModels;
 public class OrdersViewModel: ViewModelBase
 {
 	private OrderDetails _selectedOrder;
-	public DelegateCommand SaveChangesCommand { get; set; }
-	public DelegateCommand CancelChangesCommand { get; set; }
+	public AsyncDelegateCommand SaveChangesCommand { get; set; }
+	public AsyncDelegateCommand CancelChangesCommand { get; set; }
 	private List<OrderDetails> _deletedOrders = new List<OrderDetails>();
 	private List<OrderDetails> _changedOrders = new List<OrderDetails>();
 	private List<OrderDetails> OriginalListOfOrderDetails = new List<OrderDetails>();
@@ -34,24 +34,30 @@ public class OrdersViewModel: ViewModelBase
 		
 	public OrdersViewModel()
     {
-		SaveChangesCommand = new DelegateCommand(SaveChangesAsync, CanSaveChanges);
-		CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
+		SaveChangesCommand = new AsyncDelegateCommand(SaveChangesAsync, CanSaveChanges);
+		CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
     }
 
-	private async void SaveChangesAsync(object? sender)
+	private async Task SaveChangesAsync(object? sender)
 	{
 		using var db = new BookstoreDBContext();
-		Debug.WriteLine("Save changes.");
+		Debug.WriteLine("Not in use, as we currently do not permit altering the Orders.");
 	}
 	private bool CanSaveChanges(object? sender)
 	{
 		return HasChanges;
 	}
 
-	private void CancelChanges(object? sender)
+	private async Task CancelChanges(object? sender)
 	{
-		Debug.WriteLine("Cancel changes.");
-		_ = LoadOrdersAsync();
+		try
+		{
+			await LoadOrdersAsync();
+		}
+		catch(Exception ex)
+		{
+			Debug.WriteLine($"Error when cancelling changes and awaiting the LoadOrdersAsync call. {ex.Message}");
+		}
 		_deletedOrders.Clear();
 		_changedOrders.Clear();
 		HasChanges = false;
@@ -171,29 +177,35 @@ public class OrdersViewModel: ViewModelBase
             }
         }
 
-		Debug.WriteLine($"Any changes? : {hasAnyChanges}");
         HasChanges = hasAnyChanges;
     }
 
 	public async Task LoadOrdersAsync()
 	{
-		using var db = new BookstoreDBContext();
+		try
+		{
+            using var db = new BookstoreDBContext();
 
-		var tempOrderDetails = await db.Orders
-			.Where(o => o.Customer != null && o.Store != null)
-			.Select(o => new OrderDetails()
-			{
-				CustomerId = o.CustomerId, 
-				CustomerFirstName = o.Customer.FirstName,
-				CustomerLastName = o.Customer.LastName,
-				BooksInOrder = string.Join(", ", o.OrderItems.Select(o => o.Isbn13)),
-                OrderDate = o.OrderDate ?? new DateTime(),
-				StoreName = o.Store.StoreName,
-				TotalOrderPrice = o.OrderItems.Sum(oi => oi.UnitPrice)
-			}).ToListAsync();
+            var tempOrderDetails = await db.Orders
+                .Where(o => o.Customer != null && o.Store != null)
+                .Select(o => new OrderDetails()
+                {
+                    CustomerId = o.CustomerId, 
+                    CustomerFirstName = o.Customer.FirstName,
+                    CustomerLastName = o.Customer.LastName,
+                    BooksInOrder = string.Join(", ", o.OrderItems.Select(o => o.Isbn13)),
+                    OrderDate = o.OrderDate ?? new DateTime(),
+                    StoreName = o.Store.StoreName,
+                    TotalOrderPrice = o.OrderItems.Sum(oi => oi.UnitPrice)
+                }).ToListAsync();
 
-		OriginalListOfOrderDetails = tempOrderDetails;
-		DisplayOrderDetails = new ObservableCollection<OrderDetails>(tempOrderDetails);
+            OriginalListOfOrderDetails = tempOrderDetails;
+            DisplayOrderDetails = new ObservableCollection<OrderDetails>(tempOrderDetails);
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine($"Error when loading orders: {ex.Message}");
+		}
 	}
 }
 
