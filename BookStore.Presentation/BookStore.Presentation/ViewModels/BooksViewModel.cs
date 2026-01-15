@@ -40,7 +40,7 @@ public class BooksViewModel : ViewModelBase
             _selectedBook = value;
             RaisePropertyChanged();
             EditBookCommand?.RaiseCanExecuteChanged();
-
+            RemoveBookCommand?.RaiseCanExecuteChanged();
         }
     }
 
@@ -177,6 +177,21 @@ public class BooksViewModel : ViewModelBase
         CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
         EditBookCommand = new DelegateCommand(EditBook, CanEditBook);
         AddBookCommand = new DelegateCommand(AddBook, CanAddBook);
+        RemoveBookCommand = new DelegateCommand(RemoveBook, CanRemoveBook);
+    }
+
+    private bool CanRemoveBook(object? sender)
+    {
+        return SelectedBook != null;
+    }
+
+    private void RemoveBook(object? sender)
+    {
+        if (SelectedBook == null) return;
+        
+        _deletedBooks.Add(SelectedBook);
+        Books.Remove(SelectedBook);
+        HasChanges = true;
     }
 
     private bool CanCancelChanges(object? sender)
@@ -242,6 +257,7 @@ public class BooksViewModel : ViewModelBase
                 }
                 else
                 {
+                     await _dialogService.ShowMessageDialogAsync($"Cancelled removal of books.");
                     _deletedBooks.Clear();
                 }
             }
@@ -266,6 +282,7 @@ public class BooksViewModel : ViewModelBase
             if (hasChangesToSave)
             {
                 await db.SaveChangesAsync();
+                await _dialogService.ShowMessageDialogAsync($"Successfully saved books.");
             }
 
             _deletedBooks.Clear();
@@ -274,14 +291,13 @@ public class BooksViewModel : ViewModelBase
             await LoadBooksForSelectedStore(SelectedStore.Id);
 
             HasChanges = false;
-            await _dialogService.ShowMessageDialogAsync($"Successfully saved books.");
+            
         }
         catch (Exception ex)
         {
             await _dialogService.ShowMessageDialogAsync($"Error saving changes: {ex.Message}", "ERROR");
             Debug.WriteLine($"Error in SaveChanges: {ex}");
         }
-
     }
 
 

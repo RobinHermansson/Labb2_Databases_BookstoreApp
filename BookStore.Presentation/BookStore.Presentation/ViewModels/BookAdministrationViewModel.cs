@@ -12,8 +12,8 @@ public class BookAdministrationViewModel : ViewModelBase
 
     private BookDetails _bookToAdmin;
 
-    private INavigationService _navigationService;
-    private IDialogService _dialogService;
+    private readonly INavigationService _navigationService;
+    private readonly IDialogService _dialogService;
     private string _isbn13;
     private string _title;
     private decimal _priceInSek;
