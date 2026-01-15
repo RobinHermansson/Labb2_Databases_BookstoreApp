@@ -87,24 +87,32 @@
                    Margin="0,0,0,8"/>
         
         <RadioButton x:Name="SelectExistingAuthorRadio"
-                     Content="Keep or select an existing author"
-                     GroupName="AuthorMode"
-                     Foreground="White"
-                     IsChecked="True"
-                     Margin="0,2"/>
-        
+             Content="Keep or select an existing author"
+             GroupName="AuthorMode"
+             Foreground="White"
+             IsChecked="{Binding CurrentAuthorMode, 
+                         Converter={StaticResource EnumToBooleanConverter}, 
+                         ConverterParameter=SelectExisting}"
+             Margin="0,2"/>
+
         <RadioButton x:Name="CreateNewAuthorRadio"
                      Content="Create new author"
                      GroupName="AuthorMode"
                      Foreground="White"
+                     IsChecked="{Binding CurrentAuthorMode, 
+                                 Converter={StaticResource EnumToBooleanConverter}, 
+                                 ConverterParameter=CreateNew}"
                      Margin="0,2"/>
-        
+
         <RadioButton x:Name="EditExistingAuthorRadio"
                      Content="Edit existing author"
                      GroupName="AuthorMode"
                      Foreground="White"
+                     IsChecked="{Binding CurrentAuthorMode, 
+                                 Converter={StaticResource EnumToBooleanConverter}, 
+                                 ConverterParameter=EditExisting}"
                      Margin="0,2,0,15"/>
-
+     
         <!-- Author Selection -->
         <Label Foreground="White" Content="Select Author:"/>
         <ComboBox x:Name="AuthorBox"

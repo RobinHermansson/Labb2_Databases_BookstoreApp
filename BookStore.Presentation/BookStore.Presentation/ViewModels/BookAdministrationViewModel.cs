@@ -70,18 +70,6 @@ public class BookAdministrationViewModel : ViewModelBase
         }
     }
 
-
-    public bool IsAuthorEditEnabled
-    {
-        get => _isAuthorEditEnabled;
-        set
-        {
-            _isAuthorEditEnabled = value;
-            RaisePropertyChanged();
-            CheckForChanges();
-        }
-    }
-
     public bool IsPublisherEditEnabled
     {
         get => _isPublisherEditEnabled;
@@ -453,15 +441,40 @@ public class BookAdministrationViewModel : ViewModelBase
                 hasAnyChanges = true;
             }
         }
-        if (IsAuthorEditEnabled && _originalAuthor != null && SelectedAuthor != null)
+        switch (CurrentAuthorMode)
         {
-            if (_originalAuthor.FirstName != SelectedAuthor.FirstName ||
-                _originalAuthor.LastName != SelectedAuthor.LastName ||
-                _originalAuthor.BirthDate != SelectedAuthor.BirthDate ||
-                _originalAuthor.DeathDate != SelectedAuthor.DeathDate)
-            {
-                hasAnyChanges = true;
-            }
+            case AuthorMode.SelectExisting:
+                // Check if selected author changed from original
+                int? currentAuthorId = SelectedAuthor?.Id;
+                int? originalAuthorId = _originalAuthor?.Id;
+                if (currentAuthorId != originalAuthorId)
+                {
+                    hasAnyChanges = true;
+                }
+                break;
+                
+            case AuthorMode.CreateNew:
+                // Any data in author fields indicates a change
+                if (!string.IsNullOrEmpty(AuthorFirstName) || 
+                    !string.IsNullOrEmpty(AuthorLastName) ||
+                    AuthorBirthDate.HasValue ||
+                    AuthorDeathDate.HasValue)
+                {
+                    hasAnyChanges = true;
+                }
+                break;
+                
+            case AuthorMode.EditExisting:
+                // Check if the author's properties have been modified
+                if (_originalAuthor != null && SelectedAuthor != null &&
+                    (_originalAuthor.FirstName != AuthorFirstName ||
+                     _originalAuthor.LastName != AuthorLastName ||
+                     _originalAuthor.BirthDate != AuthorBirthDate ||
+                     _originalAuthor.DeathDate != AuthorDeathDate))
+                {
+                    hasAnyChanges = true;
+                }
+                break;
         }
 
         if (IsPublisherEditEnabled && _originalPublisher != null && SelectedPublisher != null)
