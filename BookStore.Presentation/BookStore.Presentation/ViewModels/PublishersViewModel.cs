@@ -1,4 +1,5 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
+using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -10,6 +11,8 @@ namespace BookStore.Presentation.ViewModels;
 
 public class PublishersViewModel: ViewModelBase
 {
+    private readonly IDialogService _dialogService;
+ 
 	private PublisherDetails _selectedPublisher;
 	public AsyncDelegateCommand SaveChangesCommand { get; set; }
 	public AsyncDelegateCommand CancelChangesCommand { get; set; }
@@ -33,8 +36,9 @@ public class PublishersViewModel: ViewModelBase
 		}
 	}
 		
-	public PublishersViewModel()
+	public PublishersViewModel(IDialogService dialogService)
     {
+        _dialogService = dialogService;
 		SaveChangesCommand = new AsyncDelegateCommand(SaveChangesAsync, CanSaveChanges);
 		CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
     }

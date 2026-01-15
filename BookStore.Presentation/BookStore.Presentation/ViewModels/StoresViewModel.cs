@@ -1,4 +1,5 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
+using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -10,6 +11,7 @@ namespace BookStore.Presentation.ViewModels;
 
 public class StoresViewModel: ViewModelBase
 {
+    private readonly IDialogService _dialogService; 
 	public AsyncDelegateCommand SaveChangesCommand { get; set; }
 	public AsyncDelegateCommand CancelChangesCommand { get; set; }
 	private List<StoreDetails> _deletedStores = new List<StoreDetails>();
@@ -32,8 +34,9 @@ public class StoresViewModel: ViewModelBase
 		}
 	}
 		
-	public StoresViewModel()
+	public StoresViewModel(IDialogService dialogService)
     {
+        _dialogService = dialogService;
 		SaveChangesCommand = new AsyncDelegateCommand(SaveChangesAsync, CanSaveChanges);
 		CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
     }

@@ -164,11 +164,11 @@ public class MainWindowViewModel : ViewModelBase
         _navigationService = new NavigationService(this, _dialogService);
 		
 		_booksViewModel = new BooksViewModel(_navigationService, _dialogService);
-        _authorsViewModel = new AuthorsViewModel();
-        _customersViewModel = new CustomersViewModel();
-        _ordersViewModel = new OrdersViewModel();
-        _publisherViewModel = new PublishersViewModel();
-        _storesViewModel = new StoresViewModel();
+        _authorsViewModel = new AuthorsViewModel(_dialogService);
+        _customersViewModel = new CustomersViewModel(_dialogService);
+        _ordersViewModel = new OrdersViewModel(_dialogService);
+        _publisherViewModel = new PublishersViewModel(_dialogService);
+        _storesViewModel = new StoresViewModel(_dialogService);
 
         // Books is selected by default
         IsBooksSelected = true;

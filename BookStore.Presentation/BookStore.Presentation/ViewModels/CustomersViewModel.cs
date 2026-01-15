@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 namespace BookStore.Presentation.ViewModels;
 public class CustomersViewModel : ViewModelBase
 {
+    private readonly IDialogService _dialogService;
     private ObservableCollection<CustomerDetails> _displayCustomerDetails;
     private bool _hasChanges;
     private List<CustomerDetails> _newCustomers = new List<CustomerDetails>();
@@ -48,8 +49,9 @@ public class CustomersViewModel : ViewModelBase
         }
     }
 
-    public CustomersViewModel()
+    public CustomersViewModel(IDialogService dialogService)
     {
+        _dialogService = dialogService;
         CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
         SaveChangesCommand = new AsyncDelegateCommand(SaveChanges, CanSaveChanges);
     }
