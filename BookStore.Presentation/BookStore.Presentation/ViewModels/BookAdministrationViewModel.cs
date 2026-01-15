@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace BookStore.Presentation.ViewModels;
 
@@ -21,6 +20,12 @@ public class BookAdministrationViewModel : ViewModelBase
     private int _quantity;
 
     private string _statusText;
+
+    private AuthorMode _currentAuthorMode = AuthorMode.SelectExisting;
+    private string _authorFirstName;
+    private string _authorLastName;
+    private DateOnly? _authorBirthDate;
+    private DateOnly? _authorDeathDate;
 
     public string TitleText { get; set; } = "Edit book:";
 
@@ -41,6 +46,18 @@ public class BookAdministrationViewModel : ViewModelBase
     public DelegateCommand BackToBooksCommand { get; set; }
     private bool CanSaveChanges(object parameter) => HasChanges && !IsLoading;
     private bool CanCancel(object parameter) => HasChanges && !IsLoading;
+
+    public AuthorMode CurrentAuthorMode
+    {
+        get => _currentAuthorMode;
+        set
+        {
+            _currentAuthorMode = value;
+            RaisePropertyChanged();
+            OnAuthorModeChanged();
+        }
+    }
+
 
     public bool IsAuthorEditEnabled
     {
@@ -163,6 +180,50 @@ public class BookAdministrationViewModel : ViewModelBase
             CheckForChanges();
         }
     }
+
+    public string AuthorFirstName
+    {
+        get => _authorFirstName;
+        set
+        {
+            _authorFirstName = value;
+            RaisePropertyChanged();
+            CheckForChanges();
+        }
+    }
+
+    public string AuthorLastName
+    {
+        get => _authorLastName;
+        set
+        {
+            _authorLastName = value;
+            RaisePropertyChanged();
+            CheckForChanges();
+        }
+    }
+
+    public DateOnly? AuthorBirthDate
+    {
+        get => _authorBirthDate;
+        set
+        {
+            _authorBirthDate = value;
+            RaisePropertyChanged();
+            CheckForChanges();
+        }
+    }
+
+    public DateOnly? AuthorDeathDate
+    {
+        get => _authorDeathDate;
+        set
+        {
+            _authorDeathDate = value;
+            RaisePropertyChanged();
+            CheckForChanges();
+        }
+    }
     private ObservableCollection<Publisher> _publisher;
 
     private Publisher _selectedPublisher;
@@ -196,6 +257,13 @@ public class BookAdministrationViewModel : ViewModelBase
         {
             _selectedAuthor = value;
             RaisePropertyChanged();
+            if (value != null && CurrentAuthorMode == AuthorMode.EditExisting)
+            {
+                AuthorFirstName = value.FirstName;
+                AuthorLastName = value.LastName;
+                AuthorBirthDate = value.BirthDate;
+                AuthorDeathDate = value.DeathDate;
+            }
             CheckForChanges();
         }
     }
@@ -402,11 +470,13 @@ public class BookAdministrationViewModel : ViewModelBase
         try
         {
             using var db = new BookstoreDBContext();
+            Book bookToWorkWith; 
 
             var existingBook = await db.Books
                 .Include(b => b.Authors)
                 .Include(b => b.InventoryBalances)
                 .FirstOrDefaultAsync(b => b.Isbn13 == ISBN13);
+
 
             if (existingBook != null)
             {
@@ -414,6 +484,7 @@ public class BookAdministrationViewModel : ViewModelBase
                 existingBook.Language = SelectedLanguage;
                 existingBook.PriceInSek = PriceInSek;
                 existingBook.PublicationDate = PublicationDate;
+                existingBook.PublisherId = SelectedPublisher?.Id;
 
                 var inventoryBalance = existingBook.InventoryBalances.FirstOrDefault(ib => ib.StoreId == BookToAdmin.BookStoreId);
                 if (inventoryBalance != null)
@@ -421,47 +492,154 @@ public class BookAdministrationViewModel : ViewModelBase
                     inventoryBalance.Quantity = Quantity;
                 }
 
-                if (IsAuthorEditEnabled && SelectedAuthor != null)
-                {
-                    var existingAuthor = await db.Authors.FindAsync(SelectedAuthor.Id);
-                    if (existingAuthor != null)
-                    {
-                        existingAuthor.FirstName = SelectedAuthor.FirstName;
-                        existingAuthor.LastName = SelectedAuthor.LastName;
-                        existingAuthor.BirthDate = SelectedAuthor.BirthDate;
-                        existingAuthor.DeathDate = SelectedAuthor.DeathDate;
-                    }
-                }
-
-                if (IsPublisherEditEnabled && SelectedPublisher != null)
-                {
-                    var existingPublisher = await db.Publishers.FindAsync(SelectedPublisher.Id);
-                    if (existingPublisher != null)
-                    {
-                        existingPublisher.Name = SelectedPublisher.Name;
-                        existingPublisher.Address = SelectedPublisher.Address;
-                        existingPublisher.Country = SelectedPublisher.Country;
-                        existingPublisher.Email = SelectedPublisher.Email;
-                    }
-
-                    existingBook.PublisherId = SelectedPublisher.Id;
-                }
-
-                await db.SaveChangesAsync();
-
-                StatusText = "Saved successfully!";
-                HasChanges = false;
-                //_navigationService?.NavigateBack();
+                bookToWorkWith = existingBook;
             }
+            else
+            {
+                var newBook = new Book()
+                {
+                    Isbn13 = ISBN13,
+                    Title = Title,
+                    Language = SelectedLanguage,
+                    PriceInSek = PriceInSek,
+                    PublicationDate = PublicationDate,
+                    PublisherId = SelectedPublisher?.Id
+                };
+
+                db.Books.Add(newBook);
+
+                if (BookToAdmin.BookStoreId > 0)
+                {
+                    var inventoryBalance = new InventoryBalance()
+                    {
+                        Isbn13 = ISBN13,
+                        StoreId = BookToAdmin.BookStoreId,
+                        Quantity = Quantity
+                    };
+                    db.InventoryBalances.Add(inventoryBalance);
+                }
+
+                bookToWorkWith = newBook;
+            }
+
+            switch (CurrentAuthorMode)
+            {
+                case AuthorMode.SelectExisting:
+                    if (SelectedAuthor != null)
+                    {
+                        bookToWorkWith.Authors.Clear();
+
+                        var authorToAdd = await db.Authors.FindAsync(SelectedAuthor.Id);
+                        if (authorToAdd != null)
+                        {
+                            bookToWorkWith.Authors.Add(authorToAdd);
+                        }
+                    }
+                    break;
+
+                case AuthorMode.CreateNew:
+                    if (!string.IsNullOrEmpty(AuthorFirstName) && !string.IsNullOrEmpty(AuthorLastName))
+                    {
+                        var newAuthor = new Author
+                        {
+                            FirstName = AuthorFirstName,
+                            LastName = AuthorLastName,
+                            BirthDate = AuthorBirthDate,
+                            DeathDate = AuthorDeathDate
+                        };
+
+                        db.Authors.Add(newAuthor);
+
+                        bookToWorkWith.Authors.Clear();
+                        bookToWorkWith.Authors.Add(newAuthor);
+                    }
+                    break;
+
+                case AuthorMode.EditExisting:
+                    if (SelectedAuthor != null)
+                    {
+                        var existingAuthor = await db.Authors.FindAsync(SelectedAuthor.Id);
+                        if (existingAuthor != null)
+                        {
+                            existingAuthor.FirstName = AuthorFirstName;
+                            existingAuthor.LastName = AuthorLastName;
+                            existingAuthor.BirthDate = AuthorBirthDate;
+                            existingAuthor.DeathDate = AuthorDeathDate;
+                        }
+
+                        // Make sure the book is associated with this author
+                        if (!bookToWorkWith.Authors.Any(a => a.Id == SelectedAuthor.Id))
+                        {
+                            bookToWorkWith.Authors.Clear();
+                            bookToWorkWith.Authors.Add(existingAuthor);
+                        }
+                    }
+                    break;
+            }
+
+            if (IsPublisherEditEnabled && SelectedPublisher != null)
+            {
+                var existingPublisher = await db.Publishers.FindAsync(SelectedPublisher.Id);
+                if (existingPublisher != null)
+                {
+                    existingPublisher.Name = SelectedPublisher.Name;
+                    existingPublisher.Address = SelectedPublisher.Address;
+                    existingPublisher.Country = SelectedPublisher.Country;
+                    existingPublisher.Email = SelectedPublisher.Email;
+                }
+            }
+
+            await db.SaveChangesAsync();
+
+            StatusText = existingBook != null ? "Updated successfully!" : "Created successfully!";
+            HasChanges = false;
+
+            // _navigationService?.NavigateBack();
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error saving: {ex.Message}");
+            StatusText = $"Save failed: {ex.Message}";
+
+            // await _dialogService.ShowErrorDialogAsync($"Failed to save: {ex.Message}", "Save Error");
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    private void OnAuthorModeChanged()
+    {
+        switch (CurrentAuthorMode)
+        {
+            case AuthorMode.SelectExisting:
+                AuthorFirstName = SelectedAuthor?.FirstName ?? string.Empty;
+                AuthorLastName = SelectedAuthor?.LastName ?? string.Empty;
+                AuthorBirthDate = SelectedAuthor?.BirthDate;
+                AuthorDeathDate = SelectedAuthor?.DeathDate;
+                break;
+
+            case AuthorMode.CreateNew:
+                SelectedAuthor = null;
+                AuthorFirstName = string.Empty;
+                AuthorLastName = string.Empty;
+                AuthorBirthDate = null;
+                AuthorDeathDate = null;
+                break;
+
+            case AuthorMode.EditExisting:
+                if (SelectedAuthor != null)
+                {
+                    AuthorFirstName = SelectedAuthor.FirstName;
+                    AuthorLastName = SelectedAuthor.LastName;
+                    AuthorBirthDate = SelectedAuthor.BirthDate;
+                    AuthorDeathDate = SelectedAuthor.DeathDate;
+                }
+                break;
+        }
+
+        CheckForChanges();
     }
     public async void CancelChanges(object? parameter)
     {
@@ -474,7 +652,7 @@ public class BookAdministrationViewModel : ViewModelBase
     {
         if (HasChanges)
         {
-            bool shouldContinue = await _dialogService.ShowConfirmationDialogAsync("You have unsaved changes. Are you sure you want to go back without saving?", 
+            bool shouldContinue = await _dialogService.ShowConfirmationDialogAsync("You have unsaved changes. Are you sure you want to go back without saving?",
             "Unsaved Changes");
 
             if (!shouldContinue)
@@ -488,4 +666,11 @@ public class BookAdministrationViewModel : ViewModelBase
     {
         return !IsLoading;
     }
+}
+
+public enum AuthorMode
+{
+    SelectExisting,
+    CreateNew,
+    EditExisting
 }

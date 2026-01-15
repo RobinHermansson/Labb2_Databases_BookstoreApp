@@ -16,4 +16,7 @@ public partial class Author
     public DateOnly? DeathDate { get; set; }
 
     public virtual ICollection<Book> BookIsbn13s { get; set; } = new List<Book>();
+
+    // Computed property for use only in app:
+    public string FullName => $"{FirstName} {LastName}";
 }

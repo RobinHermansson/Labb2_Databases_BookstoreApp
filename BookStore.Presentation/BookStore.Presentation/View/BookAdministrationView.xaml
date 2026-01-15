@@ -67,43 +67,100 @@
             CornerRadius="5" Margin="5" Padding="10"
             Background="#14131C">
             <StackPanel>
-                <TextBlock Text="Book's author"
+        <TextBlock Text="Book's author"
                    HorizontalAlignment="Center"
                    Foreground="White"
-                   FontSize="24"/>
-                <CheckBox x:Name="AuthorCheckbox"
-                      Content="Edit toggle"
-                      FontSize="10"
-                      Foreground="White"
-                      Margin="0 10 0 0"/>
-            <Label Foreground="White" Content="Current author: "></Label>
-            <ComboBox x:Name="AuthorBox"
-                      ItemsSource="{Binding AvailableAuthors}"
-                      SelectedItem="{Binding SelectedAuthor}"
-                      DisplayMemberPath="FirstName"
-                      IsEnabled="{Binding ElementName=AuthorCheckbox, Path=IsChecked}"/>
-            <Label Content="Firstname"
-                   Foreground="White"/>
-            <TextBox 
-                Text="{Binding SelectedAuthor.FirstName}"
-                IsEnabled="{Binding ElementName=AuthorCheckbox, Path=IsChecked}"/>
-            <Label Content="Lastname"
-                   Foreground="White"/>
-            <TextBox 
-                Text="{Binding SelectedAuthor.LastName}"
-                IsEnabled="{Binding ElementName=AuthorCheckbox, Path=IsChecked}"/>
-            <Label Content="Birthdate"
-                   Foreground="White"/>
-            <TextBox 
-                Text="{Binding SelectedAuthor.BirthDate}"
-                IsEnabled="{Binding ElementName=AuthorCheckbox, Path=IsChecked}"/>
-            <Label Content="Deathdate"
-                   Foreground="White"/>
-            <TextBox 
-                Text="{Binding SelectedAuthor.DeathDate}"
-                IsEnabled="{Binding ElementName=AuthorCheckbox, Path=IsChecked}"/>
-        </StackPanel>
-        </Border>
+                   FontSize="24"
+                   Margin="0,0,0,15"/>
+
+        <!-- Author Mode Selection -->
+        <TextBlock Text="Author Options:"
+                   Foreground="White"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,8"/>
+        
+        <RadioButton x:Name="SelectExistingAuthorRadio"
+                     Content="Use existing author"
+                     GroupName="AuthorMode"
+                     Foreground="White"
+                     IsChecked="True"
+                     Margin="0,2"/>
+        
+        <RadioButton x:Name="CreateNewAuthorRadio"
+                     Content="Create new author"
+                     GroupName="AuthorMode"
+                     Foreground="White"
+                     Margin="0,2"/>
+        
+        <RadioButton x:Name="EditExistingAuthorRadio"
+                     Content="Edit existing author"
+                     GroupName="AuthorMode"
+                     Foreground="White"
+                     Margin="0,2,0,15"/>
+
+        <!-- Author Selection -->
+        <Label Foreground="White" Content="Select Author:"/>
+        <ComboBox x:Name="AuthorBox"
+                  ItemsSource="{Binding AvailableAuthors}"
+                  SelectedItem="{Binding SelectedAuthor}"
+                  DisplayMemberPath="FullName"
+                  Style="{StaticResource DarkComboBox}"
+                  ItemContainerStyle="{StaticResource DarkComboBoxItem}"
+                  Margin="0,0,0,10">
+            <ComboBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                    <Binding ElementName="SelectExistingAuthorRadio" Path="IsChecked"/>
+                    <Binding ElementName="EditExistingAuthorRadio" Path="IsChecked"/>
+                </MultiBinding>
+            </ComboBox.IsEnabled>
+        </ComboBox>
+
+        <!-- Author Details -->
+        <Label Content="First Name" Foreground="White"/>
+        <TextBox Text="{Binding AuthorFirstName}"
+                 Style="{StaticResource DarkTextBox}">
+            <TextBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                    <Binding ElementName="CreateNewAuthorRadio" Path="IsChecked"/>
+                    <Binding ElementName="EditExistingAuthorRadio" Path="IsChecked"/>
+                </MultiBinding>
+            </TextBox.IsEnabled>
+        </TextBox>
+
+        <Label Content="Last Name" Foreground="White"/>
+        <TextBox Text="{Binding AuthorLastName}"
+                 Style="{StaticResource DarkTextBox}">
+            <TextBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                    <Binding ElementName="CreateNewAuthorRadio" Path="IsChecked"/>
+                    <Binding ElementName="EditExistingAuthorRadio" Path="IsChecked"/>
+                </MultiBinding>
+            </TextBox.IsEnabled>
+        </TextBox>
+
+        <Label Content="Birth Date" Foreground="White"/>
+        <TextBox Text="{Binding AuthorBirthDate}"
+                 Style="{StaticResource DarkTextBox}">
+            <TextBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                    <Binding ElementName="CreateNewAuthorRadio" Path="IsChecked"/>
+                    <Binding ElementName="EditExistingAuthorRadio" Path="IsChecked"/>
+                </MultiBinding>
+            </TextBox.IsEnabled>
+        </TextBox>
+
+        <Label Content="Death Date" Foreground="White"/>
+        <TextBox Text="{Binding AuthorDeathDate}"
+                 Style="{StaticResource DarkTextBox}">
+            <TextBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                    <Binding ElementName="CreateNewAuthorRadio" Path="IsChecked"/>
+                    <Binding ElementName="EditExistingAuthorRadio" Path="IsChecked"/>
+                </MultiBinding>
+            </TextBox.IsEnabled>
+        </TextBox>
+    </StackPanel>        
+</Border>
         <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" 
             BorderBrush="LightGray" BorderThickness="1" 
             CornerRadius="5" Margin="5" Padding="10"

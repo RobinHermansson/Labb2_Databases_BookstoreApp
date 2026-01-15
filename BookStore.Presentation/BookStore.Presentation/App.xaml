@@ -16,10 +16,28 @@
 
             </DataTemplate>
 
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/> <!-- built in-->
-            <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/> <!-- custom -->
-        
-        <!-- General Button Styles -->
+            <!-- Built-in Converters -->
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>  
+            
+            <!-- Custom Converters -->
+            <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
+            <converters:BooleanOrConverter x:Key="BooleanOrConverter"/>
+            <!-- Dark textboxes -->
+            <Style x:Key="DarkTextBox" TargetType="TextBox">
+                <Setter Property="Background" Value="#2D2D30"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="#3F3F46"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="8,4"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Background" Value="#1A1A1A"/>
+                        <Setter Property="Foreground" Value="#666666"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style> 
+            <!-- General Button Styles -->
             <Style x:Key="DarkButton" TargetType="Button">
             <Setter Property="Background" Value="#2D2D30"/>
             <Setter Property="Foreground" Value="White"/>
