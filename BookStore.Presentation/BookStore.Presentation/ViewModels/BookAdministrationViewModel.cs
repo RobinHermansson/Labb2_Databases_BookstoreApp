@@ -640,6 +640,7 @@ public class BookAdministrationViewModel : ViewModelBase
             await db.SaveChangesAsync();
 
             StatusText = existingBook != null ? "Updated successfully!" : "Created successfully!";
+            await _dialogService.ShowMessageDialogAsync(StatusText);
             HasChanges = false;
 
             // _navigationService?.NavigateBack();
@@ -648,6 +649,7 @@ public class BookAdministrationViewModel : ViewModelBase
         {
             Debug.WriteLine($"Error saving: {ex.Message}");
             StatusText = $"Save failed: {ex.Message}";
+            await _dialogService.ShowMessageDialogAsync(StatusText, "ERROR!");
 
             // await _dialogService.ShowErrorDialogAsync($"Failed to save: {ex.Message}", "Save Error");
         }
@@ -694,6 +696,7 @@ public class BookAdministrationViewModel : ViewModelBase
         await LoadRelatedDataAsync();
         HasChanges = false;
         StatusText = "Cancelled whatever you were doing.";
+        await _dialogService.ShowMessageDialogAsync(StatusText);
     }
 
     public async void GoBack(object? sender)
