@@ -6,7 +6,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Windows.Controls;
 
 namespace BookStore.Presentation.ViewModels;
 
@@ -14,16 +13,15 @@ public class BooksViewModel : ViewModelBase
 {
     private readonly INavigationService _navigationService;
     private readonly IDialogService _dialogService;
-	private ObservableCollection<BookDetails> _books;
+    private ObservableCollection<BookDetails> _books;
     private ObservableCollection<Store> _stores;
     private Store _selectedStore;
     public List<Book> OriginalListOfBooks;
 
-    //private List<BookDetails> _newBooks = new List<BookDetails>();
     private List<BookDetails> _deletedBooks = new List<BookDetails>();
     private List<BookDetails> _changedBooks = new List<BookDetails>();
 
-    
+
 
     public AsyncDelegateCommand SaveChangesCommand { get; set; }
     public DelegateCommand EditBookCommand { get; set; }
@@ -37,8 +35,8 @@ public class BooksViewModel : ViewModelBase
     public BookDetails SelectedBook
     {
         get { return _selectedBook; }
-        set 
-        { 
+        set
+        {
             _selectedBook = value;
             RaisePropertyChanged();
             EditBookCommand?.RaiseCanExecuteChanged();
@@ -54,7 +52,7 @@ public class BooksViewModel : ViewModelBase
             _selectedStore = value;
             RaisePropertyChanged();
             if (value != null)
-                _ = LoadBooksForSelectedStore(value.Id); 
+                _ = LoadBooksForSelectedStore(value.Id);
         }
     }
 
@@ -74,8 +72,8 @@ public class BooksViewModel : ViewModelBase
     public bool HasChanges
     {
         get { return _hasChanges; }
-        set 
-        { 
+        set
+        {
             _hasChanges = value;
             RaisePropertyChanged();
             SaveChangesCommand?.RaiseCanExecuteChanged();
@@ -87,11 +85,11 @@ public class BooksViewModel : ViewModelBase
 
 
     public ObservableCollection<BookDetails> Books
-	{
-		get => _books; 
-		set 
-		{
-			// Unsubscribe from old collection
+    {
+        get => _books;
+        set
+        {
+            // Unsubscribe from old collection
             if (_books != null)
             {
                 _books.CollectionChanged -= Books_CollectionChanged;
@@ -113,16 +111,16 @@ public class BooksViewModel : ViewModelBase
                     book.PropertyChanged += Books_PropertyChanged;
                 }
             }
-		}
-	}
-	 private void Books_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        }
+    }
+    private void Books_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.OldItems != null)
         {
             foreach (BookDetails removedBook in e.OldItems)
             {
                 removedBook.PropertyChanged -= Books_PropertyChanged;
-                
+
                 _deletedBooks.Add(removedBook);
                 Debug.WriteLine($"Book marked for deletion: {removedBook.ISBN13} {removedBook.Title}");
             }
@@ -144,6 +142,7 @@ public class BooksViewModel : ViewModelBase
     private void CheckForChanges()
     {
         bool hasAnyChanges = false;
+        _changedBooks.Clear();
 
         if (_deletedBooks.Any())
         {
@@ -169,7 +168,7 @@ public class BooksViewModel : ViewModelBase
         HasChanges = hasAnyChanges;
     }
 
-	public string StoreAtInstantiation { get; set; }
+    public string StoreAtInstantiation { get; set; }
 
     public BooksViewModel(INavigationService navigationService, IDialogService dialogService)
     {
@@ -200,73 +199,103 @@ public class BooksViewModel : ViewModelBase
     }
     private async Task SaveChanges(object? sender)
     {
-        using var db = new BookstoreDBContext();
-        foreach (BookDetails deletedBook in _deletedBooks)
-        {
-            var bookToDelete = db.Books.FirstOrDefault(b => b.Isbn13 == deletedBook.ISBN13);
-            if (bookToDelete is not null)
-            {
-
-                var relatedInventoryBalance = db.InventoryBalances.FirstOrDefault(ib => ib.Isbn13 == bookToDelete.Isbn13);
-                if (relatedInventoryBalance is not null)
-                {
-                    db.InventoryBalances.Remove(relatedInventoryBalance);
-                }
-
-                var relatedOrderItems = db.OrderItems
-                    .Where(oi => oi.Isbn13 == bookToDelete.Isbn13);
-                if (relatedOrderItems != null)
-                {
-                    db.OrderItems.RemoveRange(relatedOrderItems);
-                }
-
-                var bookWithAuthors = db.Books
-                    .Include(b => b.Authors)
-                    .FirstOrDefault(b => b.Isbn13 == bookToDelete.Isbn13);
-                if (bookWithAuthors != null)
-                {
-                    bookWithAuthors.Authors.Clear();
-                }
-                db.Books.Remove(bookToDelete);
-            }
-        } 
-        
-        foreach (BookDetails changedBook in _changedBooks)
-        {
-            var bookToChange = db.Books.FirstOrDefault(b => b.Isbn13 == changedBook.ISBN13);
-            if (bookToChange is not null)
-            {
-                bookToChange.Isbn13 = changedBook.ISBN13;
-                bookToChange.Title = changedBook.Title;
-                bookToChange.PublicationDate = changedBook.PublicationDate;
-                bookToChange.PriceInSek = changedBook.PriceInSek;
-                bookToChange.Language = changedBook.Language;
-            }
-
-        }
-
-        await db.SaveChangesAsync();
-        _deletedBooks.Clear();
-        _changedBooks.Clear();
         try
         {
-            _ = LoadBooksForSelectedStore(SelectedStore.Id);
+            using var db = new BookstoreDBContext();
+            bool hasChangesToSave = false;
+
+            // Handle deletions with confirmation
+            if (_deletedBooks.Any())
+            {
+                bool proceedWithDeletion = await _dialogService.ShowConfirmationDialogAsync(
+                    "You are about to delete one or more books! Are you certain you want to delete these books and their relations?",
+                    "Confirm Deletion");
+
+                if (proceedWithDeletion)
+                {
+                    foreach (BookDetails deletedBook in _deletedBooks)
+                    {
+                        var bookToDelete = db.Books.FirstOrDefault(b => b.Isbn13 == deletedBook.ISBN13);
+                        if (bookToDelete is not null)
+                        {
+                            var relatedInventoryBalance = db.InventoryBalances.FirstOrDefault(ib => ib.Isbn13 == bookToDelete.Isbn13);
+                            if (relatedInventoryBalance is not null)
+                            {
+                                db.InventoryBalances.Remove(relatedInventoryBalance);
+                            }
+
+                            var relatedOrderItems = db.OrderItems
+                                .Where(oi => oi.Isbn13 == bookToDelete.Isbn13);
+                            db.OrderItems.RemoveRange(relatedOrderItems);
+
+                            var bookWithAuthors = db.Books
+                                .Include(b => b.Authors)
+                                .FirstOrDefault(b => b.Isbn13 == bookToDelete.Isbn13);
+                            if (bookWithAuthors != null)
+                            {
+                                bookWithAuthors.Authors.Clear();
+                            }
+
+                            db.Books.Remove(bookToDelete);
+                            hasChangesToSave = true;
+                        }
+                    }
+                }
+                else
+                {
+                    _deletedBooks.Clear();
+                }
+            }
+
+            if (_changedBooks.Any())
+            {
+                foreach (BookDetails changedBook in _changedBooks)
+                {
+                    var bookToChange = db.Books.FirstOrDefault(b => b.Isbn13 == changedBook.ISBN13);
+                    if (bookToChange is not null)
+                    {
+                        bookToChange.Isbn13 = changedBook.ISBN13;
+                        bookToChange.Title = changedBook.Title;
+                        bookToChange.PublicationDate = changedBook.PublicationDate;
+                        bookToChange.PriceInSek = changedBook.PriceInSek;
+                        bookToChange.Language = changedBook.Language;
+                        hasChangesToSave = true;
+                    }
+                }
+            }
+
+            if (hasChangesToSave)
+            {
+                await db.SaveChangesAsync();
+            }
+
+            _deletedBooks.Clear();
+            _changedBooks.Clear();
+
+            await LoadBooksForSelectedStore(SelectedStore.Id);
+
+            HasChanges = false;
+            await _dialogService.ShowMessageDialogAsync($"Successfully saved books.");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            Debug.WriteLine($"Error when trying to reload the books after saving. {ex.Message}");
+            await _dialogService.ShowMessageDialogAsync($"Error saving changes: {ex.Message}", "ERROR");
+            Debug.WriteLine($"Error in SaveChanges: {ex}");
         }
 
-        HasChanges = false;
     }
 
 
 
-    private async Task CancelChanges(object obj)
+    private async Task CancelChanges(object? obj)
     {
         try
         {
             Task result = LoadBooksForSelectedStore(SelectedStore.Id);
+            HasChanges = false;
+            _deletedBooks.Clear();
+            _changedBooks.Clear();
+            await _dialogService.ShowMessageDialogAsync("Reverted the pending changes.");
         }
         catch (Exception ex)
         {
@@ -276,7 +305,7 @@ public class BooksViewModel : ViewModelBase
 
     private void AddBook(object? sender)
     {
-        _navigationService.NavigateTo("BookAdministration", "BooksView", new BookDetails() { BookStoreId = SelectedStore.Id});
+        _navigationService.NavigateTo("BookAdministration", "BooksView", new BookDetails() { BookStoreId = SelectedStore.Id });
     }
 
     private bool CanAddBook(object? sender)
@@ -285,16 +314,16 @@ public class BooksViewModel : ViewModelBase
     }
 
 
-	public async Task LoadBooksForSelectedStore(int storeId = 1)
-	{
-		using var db = new BookstoreDBContext();
+    public async Task LoadBooksForSelectedStore(int storeId = 1)
+    {
+        using var db = new BookstoreDBContext();
 
         try
         {
 
             var bookDetailsList = await db.InventoryBalances
                 .Where(s => s.StoreId == storeId)
-                .Select(s => new BookDetails() { ISBN13 = s.Isbn13, BookStoreId=storeId, Title = s.Isbn13Navigation.Title, PriceInSek = s.Isbn13Navigation.PriceInSek, PublicationDate = s.Isbn13Navigation.PublicationDate, Quantity = s.Quantity, Language = s.Isbn13Navigation.Language })
+                .Select(s => new BookDetails() { ISBN13 = s.Isbn13, BookStoreId = storeId, Title = s.Isbn13Navigation.Title, PriceInSek = s.Isbn13Navigation.PriceInSek, PublicationDate = s.Isbn13Navigation.PublicationDate, Quantity = s.Quantity, Language = s.Isbn13Navigation.Language })
                 .ToListAsync();
             OriginalListOfBooks = await db.Books.ToListAsync();
             Books = new ObservableCollection<BookDetails>(bookDetailsList);
@@ -303,7 +332,7 @@ public class BooksViewModel : ViewModelBase
         {
             Debug.WriteLine($"Error when running LoadBooksForSelectedStore. {ex.Message}");
         }
-	}
+    }
 
     public async Task LoadStoresAsync()
     {
@@ -325,7 +354,7 @@ public class BooksViewModel : ViewModelBase
                 SelectedStore = Stores.FirstOrDefault();
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Debug.WriteLine($"Error when running 'LoadStoresAsync'. {ex.Message}");
         }
@@ -334,16 +363,16 @@ public class BooksViewModel : ViewModelBase
 
 public class BookDetails : INotifyPropertyChanged
 {
-	private string _isbn13;
-    public string ISBN13 
-	{ 
-		get => _isbn13;
-		set 
-		{
-			_isbn13 = value;
-			OnPropertyChanged();
-		}
-	}
+    private string _isbn13;
+    public string ISBN13
+    {
+        get => _isbn13;
+        set
+        {
+            _isbn13 = value;
+            OnPropertyChanged();
+        }
+    }
 
     private int _bookStoreId;
     public int BookStoreId
@@ -356,35 +385,36 @@ public class BookDetails : INotifyPropertyChanged
         }
     }
 
-	private string _title;
+    private string _title;
 
-	public string Title { 
+    public string Title
+    {
 
-		get { return _title; }
-		set 
-		{ 
-			_title = value;
-			OnPropertyChanged();
-		}
-	}
-	private decimal _priceInSek;
+        get { return _title; }
+        set
+        {
+            _title = value;
+            OnPropertyChanged();
+        }
+    }
+    private decimal _priceInSek;
 
-	public decimal PriceInSek
-	{
-		get { return _priceInSek; }
-		set 
-		{ 
-			_priceInSek = value;
-			OnPropertyChanged();
-		}
-	}
+    public decimal PriceInSek
+    {
+        get { return _priceInSek; }
+        set
+        {
+            _priceInSek = value;
+            OnPropertyChanged();
+        }
+    }
     private Language _language;
 
     public Language Language
     {
         get { return _language; }
-        set 
-        { 
+        set
+        {
             _language = value;
             OnPropertyChanged();
         }
@@ -393,30 +423,30 @@ public class BookDetails : INotifyPropertyChanged
 
     private DateOnly _publicationDate;
 
-	public DateOnly PublicationDate
-	{
-		get { return _publicationDate; }
-		set 
-		{ 
-			_publicationDate = value;
-			OnPropertyChanged();
-		}
-	}
+    public DateOnly PublicationDate
+    {
+        get { return _publicationDate; }
+        set
+        {
+            _publicationDate = value;
+            OnPropertyChanged();
+        }
+    }
 
-	private int _quantity;
+    private int _quantity;
 
-	public int Quantity
-	{
-		get { return _quantity; }
-		set
-		{ 
-			_quantity = value;
-			OnPropertyChanged();
-		}
-	}
+    public int Quantity
+    {
+        get { return _quantity; }
+        set
+        {
+            _quantity = value;
+            OnPropertyChanged();
+        }
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-	protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
