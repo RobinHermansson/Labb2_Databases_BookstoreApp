@@ -50,7 +50,6 @@ public class BookAdministrationViewModel : ViewModelBase
     private Publisher _originalPublisher;
 
 
-    private bool _isAuthorEditEnabled;
     private bool _isPublisherEditEnabled;
 
     public AsyncDelegateCommand SaveChangesCommand { get; set; }
@@ -711,7 +710,7 @@ public class BookAdministrationViewModel : ViewModelBase
                 return;
             }
         }
-        _navigationService.NavigateBack();
+        await _navigationService.NavigateBack();
     }
     public bool CanGoBack(object? sender)
     {
