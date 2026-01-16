@@ -816,6 +816,8 @@ public class BookAdministrationViewModel : ViewModelBase
         switch (CurrentAuthorMode)
         {
             case AuthorMode.SelectExisting:
+                SelectedAuthor = AvailableAuthors.FirstOrDefault(a => a.Id == _originalAuthor.Id);
+                
                 AuthorFirstName = SelectedAuthor?.FirstName ?? string.Empty;
                 AuthorLastName = SelectedAuthor?.LastName ?? string.Empty;
                 AuthorBirthDate = SelectedAuthor?.BirthDate;
@@ -848,6 +850,8 @@ public class BookAdministrationViewModel : ViewModelBase
         switch (CurrentPublisherMode)
         {
             case PublisherMode.SelectExisting:
+                SelectedPublisher = AvailablePublishers.FirstOrDefault(a => a.Id == _originalPublisher.Id);
+
                 PublisherName = SelectedPublisher?.Name ?? string.Empty;
                 PublisherAddress = SelectedPublisher?.Address ?? string.Empty;
                 PublisherCountry = SelectedPublisher?.Country ?? string.Empty;

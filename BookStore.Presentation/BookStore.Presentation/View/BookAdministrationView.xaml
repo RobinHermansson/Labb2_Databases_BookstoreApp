@@ -113,7 +113,7 @@
                      Margin="0,2"/>
 
         <RadioButton x:Name="EditExistingAuthorRadio"
-                     Content="Edit existing author"
+                     Content="Edit an existing author"
                      GroupName="AuthorMode"
                      Foreground="White"
                      IsChecked="{Binding CurrentAuthorMode, 
@@ -219,7 +219,7 @@
                              Margin="0,2"/>
 
                 <RadioButton x:Name="EditExistingPublisherRadio"
-                             Content="Edit existing publisher"
+                             Content="Edit an existing publisher"
                              GroupName="PublisherMode"
                              Foreground="White"
                              IsChecked="{Binding CurrentPublisherMode, 
