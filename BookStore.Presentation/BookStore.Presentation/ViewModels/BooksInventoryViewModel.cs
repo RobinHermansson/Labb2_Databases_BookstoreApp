@@ -27,6 +27,7 @@ public class BooksInventoryViewModel : ViewModelBase
     public DelegateCommand RemoveBookFromStoreListCommand { get; set; }
     public AsyncDelegateCommand SaveChangesCommand { get; set; }
     public DelegateCommand CancelChangesCommand { get; set; }
+    public AsyncDelegateCommand BackToBooksCommand { get; set; }
 
     public bool HasChanges
     {
@@ -73,6 +74,7 @@ public class BooksInventoryViewModel : ViewModelBase
         RemoveBookFromStoreListCommand = new DelegateCommand(RemoveBookFromStoreList, CanRemoveBookFromStoreList);
         CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
         SaveChangesCommand = new AsyncDelegateCommand(SaveInventoryChangesAsync, CanSaveChanges);
+        BackToBooksCommand = new AsyncDelegateCommand(GoBack, CanGoBack);
 
     }
 
@@ -245,6 +247,20 @@ public class BooksInventoryViewModel : ViewModelBase
                 "An error occurred while saving inventory changes.",
                 "ERROR");
         }
+    }
+
+    private bool CanGoBack(object? sender) => true; // Can always go back.
+    public async Task GoBack(object? sender)
+    {
+        ClearState();
+        await _navigationService.NavigateBack();
+    }
+
+    private void ClearState()
+    {
+        SelectedAvailable = null;
+        SelectedBookAtStore = null;
+        HasChanges = false;
     }
     public class InventoryBalanceDetail() : ViewModelBase
     {
