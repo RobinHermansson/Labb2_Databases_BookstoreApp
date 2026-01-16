@@ -262,6 +262,21 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+            
+        <!-- Add Button Warehouse (Green Warehouse) -->
+        <Style x:Key="WarehouseIconButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="AntiqueWhite"/>
+            <Setter Property="ToolTip" Value="Add new item"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#66BB6A"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Foreground" Value="#388E3C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
 
         <!-- Remove Button (Red Minus) -->
         <Style x:Key="RemoveIconButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
