@@ -188,6 +188,7 @@ public class BooksViewModel : ViewModelBase
     }
     private async Task ManageInventory(object? sender)
     {
+        ClearState();
         _navigationService.NavigateTo("BooksInventoryView", "BooksView");
     }
 
@@ -318,6 +319,15 @@ public class BooksViewModel : ViewModelBase
             _changedBooks.Clear();
             HasChanges = false;
         }
+    }
+    public void ClearState()
+    {
+        SelectedBook = null;
+        SelectedStore = null;
+        _changedBooks.Clear();
+        _deletedBooks.Clear();
+        HasChanges = false;
+
     }
 
 
