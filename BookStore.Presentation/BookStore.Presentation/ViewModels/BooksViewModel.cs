@@ -202,7 +202,7 @@ public class BooksViewModel : ViewModelBase
     }
     private void EditBook(object? sender)
     {
-        _navigationService.NavigateTo("BookAdministration", "BooksView", SelectedBook);
+        _navigationService.NavigateTo("EditBook", "BooksView", SelectedBook);
     }
 
     private bool CanSaveChanges(object? sender)
@@ -331,7 +331,7 @@ public class BooksViewModel : ViewModelBase
 
     private void AddBook(object? sender)
     {
-        _navigationService.NavigateTo("BookAdministration", "BooksView", new BookDetails() { BookStoreId = SelectedStore.Id });
+        _navigationService.NavigateTo("NewBook", "BooksView", new BookDetails() { BookStoreId = SelectedStore.Id });
     }
 
     private bool CanAddBook(object? sender)

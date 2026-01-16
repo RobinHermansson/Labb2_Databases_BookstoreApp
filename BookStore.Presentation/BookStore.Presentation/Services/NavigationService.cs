@@ -20,10 +20,15 @@ public class NavigationService : INavigationService
         _previousView = navigatedFrom;
         switch (viewName)
         {
-            case "BookAdministration":
-                var bookAdminView =  new BookAdministrationViewModel(parameter as BookDetails, this, _dialogService);
-                _mainWindowViewModel.CurrentView = bookAdminView;
-                _ = bookAdminView.InitializeAsync();
+            case "NewBook":
+                var newBookView = new NewBookViewModel(parameter as BookDetails, this, _dialogService);
+                _mainWindowViewModel.CurrentView = newBookView;
+                _ = newBookView.InitializeAsync();
+                break;
+            case "EditBook":
+                var editBookView = new EditBookViewModel(parameter as BookDetails, this, _dialogService);
+                _mainWindowViewModel.CurrentView = editBookView;
+                _ = editBookView.InitializeAsync();
                 break;
             case "BooksView":
                 _mainWindowViewModel.CurrentView = _mainWindowViewModel._booksViewModel;
