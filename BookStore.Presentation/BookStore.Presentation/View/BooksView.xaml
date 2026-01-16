@@ -45,7 +45,7 @@
                     Content="{fa:Icon warehouse}"
                     Margin="0 0 0 10"
                     Style="{StaticResource WarehouseIconButton}"
-                    Command="{Binding HandleBooksLibraryCommand}"
+                    Command="{Binding ManageBookInventoryCommand}"
                     CommandParameter="{Binding SelectedBook}"/>
 
             <Button VerticalAlignment="Center"

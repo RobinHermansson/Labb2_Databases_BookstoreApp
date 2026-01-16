@@ -33,6 +33,10 @@ public class NavigationService : INavigationService
             case "BooksView":
                 _mainWindowViewModel.CurrentView = _mainWindowViewModel._booksViewModel;
                 break;
+            case "BooksInventoryView":
+                var newBooksInventoryView = new BooksInventoryViewModel(this, _dialogService);
+                _mainWindowViewModel.CurrentView = newBooksInventoryView; 
+                break;
         }
     }
     

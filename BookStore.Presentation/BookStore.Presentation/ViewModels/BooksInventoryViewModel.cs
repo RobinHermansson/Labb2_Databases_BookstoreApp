@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using BookStore.Presentation.Services;
 
-namespace BookStore.Presentation.ViewModels
+namespace BookStore.Presentation.ViewModels;
+
+public class BooksInventoryViewModel : ViewModelBase
 {
-    internal class BooksInventoryViewModel
+
+    private readonly INavigationService _navigationService;
+    private readonly IDialogService _dialogService;
+    public BooksInventoryViewModel(INavigationService navigationService, IDialogService dialogService )
     {
+        _navigationService = navigationService;
+        _dialogService = dialogService;
     }
 }
