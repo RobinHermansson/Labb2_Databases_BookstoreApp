@@ -64,15 +64,16 @@
                     Content="+"
                     Margin="0 0 0 0"
                     Style="{StaticResource AddIconButton}"
-                    Command="{Binding AddBookCommand}"
-                    CommandParameter="{Binding SelectedBook}"/>
+                    Command="{Binding AddBookToStoreListCommand}"
+                    CommandParameter="{Binding SelectedAvailable}"
+                    IsEnabled="{Binding SelectedAvailable, Converter={StaticResource NullToBooleanConverter}}"/>
             <Button VerticalAlignment="Center"
                     Content="-"
                     Margin="0 0 0 0"
                     Style="{StaticResource RemoveIconButton}"
-                    Command="{Binding RemoveBookCommand}"
-                    CommandParameter="{Binding SelectedBook}"
-                    IsEnabled="{Binding SelectedBook, Converter={StaticResource NullToBooleanConverter}}"/>
+                    Command="{Binding RemoveBookFromStoreListCommand}"
+                    CommandParameter="{Binding SelectedBookAtStore}"
+                    IsEnabled="{Binding SelectedBookAtStore, Converter={StaticResource NullToBooleanConverter}}"/>
                                  
         </StackPanel>
         <StackPanel Grid.Row="2" 

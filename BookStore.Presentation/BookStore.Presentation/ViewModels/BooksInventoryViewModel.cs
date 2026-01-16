@@ -3,7 +3,6 @@ using Bookstore.Infrastructure.Data.Model;
 using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace BookStore.Presentation.ViewModels;
 
@@ -14,17 +13,24 @@ public class BooksInventoryViewModel : ViewModelBase
     private readonly IDialogService _dialogService;
 
     private ObservableCollection<InventoryBalanceDetail> _availableBooks;
-    private InventoryBalanceDetail _selectedAvailable;
+    private InventoryBalanceDetail? _selectedAvailable;
     private ObservableCollection<InventoryBalanceDetail> _booksAtStore;
-    private InventoryBalanceDetail _selectedBookAtStore;
+    private InventoryBalanceDetail? _selectedBookAtStore;
+
+    public DelegateCommand AddBookToStoreListCommand { get; set; }
+    public DelegateCommand RemoveBookFromStoreListCommand { get; set; }
 
 
     public ObservableCollection<InventoryBalanceDetail> AvailableBooks
     {
         get => _availableBooks;
-        set { _availableBooks = value; RaisePropertyChanged(); }
+        set
+        {
+            _availableBooks = value;
+            RaisePropertyChanged();
+        }
     }
-    public InventoryBalanceDetail SelectedAvailable
+    public InventoryBalanceDetail? SelectedAvailable
     {
         get => _selectedAvailable;
         set { _selectedAvailable = value; RaisePropertyChanged(); }
@@ -34,17 +40,19 @@ public class BooksInventoryViewModel : ViewModelBase
         get => _booksAtStore;
         set { _booksAtStore = value; RaisePropertyChanged(); }
     }
-    public InventoryBalanceDetail SelectedBookAtStore
+    public InventoryBalanceDetail? SelectedBookAtStore
     {
         get => _selectedBookAtStore;
         set { _selectedBookAtStore = value; RaisePropertyChanged(); }
     }
 
-    public BooksInventoryViewModel(INavigationService navigationService, IDialogService dialogService )
+    public BooksInventoryViewModel(INavigationService navigationService, IDialogService dialogService)
     {
         _navigationService = navigationService;
         _dialogService = dialogService;
         _ = LoadBookComparisonAtStore(2);
+        AddBookToStoreListCommand = new DelegateCommand(AddBookToStoreList, CanAddBookToStoreList);
+        RemoveBookFromStoreListCommand = new DelegateCommand(RemoveBookFromStoreList, CanRemoveBookFromStoreList);
     }
 
 
@@ -58,9 +66,10 @@ public class BooksInventoryViewModel : ViewModelBase
 
         var inventoryAvailableAtStore = inventoryBalances
             .Where(ib => ib.StoreId == storeId)
-            .Select(ib => new InventoryBalanceDetail() 
-            { 
-                BookISBN13 = ib.Isbn13, BookTitle = ib.Isbn13Navigation.Title
+            .Select(ib => new InventoryBalanceDetail()
+            {
+                BookISBN13 = ib.Isbn13,
+                BookTitle = ib.Isbn13Navigation.Title
             });
 
         BooksAtStore = new ObservableCollection<InventoryBalanceDetail>(inventoryAvailableAtStore);
@@ -72,7 +81,37 @@ public class BooksInventoryViewModel : ViewModelBase
             {
                 AvailableBooks.Add(new InventoryBalanceDetail() { BookISBN13 = book.Isbn13, BookTitle = book.Title });
             }
-        }    
+        }
+    }
+
+    private bool CanRemoveBookFromStoreList(object? sender)
+    {
+        return SelectedBookAtStore is not null;
+    }
+    private void RemoveBookFromStoreList(object? sender)
+    {
+        var bookToRemove = SelectedBookAtStore;
+
+        if (bookToRemove != null)
+        {
+            BooksAtStore.Remove(bookToRemove);
+            AvailableBooks.Add(bookToRemove);
+        }
+    }
+    private bool CanAddBookToStoreList(object? sender)
+    {
+        return SelectedAvailable is not null;
+    }
+    private void AddBookToStoreList(object? sender)
+    {
+
+        var bookToAdd = SelectedAvailable;
+
+        if (bookToAdd != null)
+        {
+            BooksAtStore.Add(bookToAdd);
+            AvailableBooks.Remove(bookToAdd);
+        }
     }
     public class InventoryBalanceDetail() : ViewModelBase
     {
