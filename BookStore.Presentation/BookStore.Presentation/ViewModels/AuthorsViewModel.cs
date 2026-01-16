@@ -1,4 +1,5 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
+using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -8,13 +9,15 @@ using System.Runtime.CompilerServices;
 
 namespace BookStore.Presentation.ViewModels;
 
-internal class AuthorsViewModel : ViewModelBase
+public class AuthorsViewModel : ViewModelBase
 {
+    private readonly IDialogService _dialogService;
+
     private ObservableCollection<AuthorDetails> _displayAuthorDetails;
     public List<Author> OriginalListOfAuthors;
     private AuthorDetails _selectedAuthor;
-    public DelegateCommand SaveChangesCommand { get; set; }
-    public DelegateCommand CancelChangesCommand { get; set; }
+    public AsyncDelegateCommand SaveChangesCommand { get; set; }
+    public AsyncDelegateCommand CancelChangesCommand { get; set; }
 
     private List<AuthorDetails> _newAuthors = new List<AuthorDetails>();
     private List<AuthorDetails> _deletedAuthors = new List<AuthorDetails>();
@@ -44,21 +47,34 @@ internal class AuthorsViewModel : ViewModelBase
     }
 
 
-    public AuthorsViewModel()
+    public AuthorsViewModel(IDialogService dialogService)
     {
-
-        SaveChangesCommand = new DelegateCommand(SaveChangesAsync, CanSaveChanges);
-        CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
+        _dialogService = dialogService;
+        SaveChangesCommand = new AsyncDelegateCommand(SaveChangesAsync, CanSaveChanges);
+        CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
     }
 
     private bool CanCancelChanges(object? sender)
     {
         return HasChanges;
     }
-    private void CancelChanges(object obj)
+    private async Task CancelChanges(object obj)
     {
-        Debug.WriteLine("Cancel.");
-        _ = LoadAuthorDetailsAsync();
+        try
+        {
+            await LoadAuthorDetailsAsync();
+            await _dialogService.ShowMessageDialogAsync("Successfully cancelled all changes.");
+        }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowMessageDialogAsync("Error when loading authors details after cancelling changes.", "ERROR");
+            Debug.WriteLine($"Error when loading authors details after cancelling changes. {ex.Message}");
+        }
+        finally
+        {
+            _deletedAuthors.Clear();
+            _newAuthors.Clear();
+        }
     }
 
     public ObservableCollection<AuthorDetails> DisplayAuthorDetails
@@ -102,7 +118,6 @@ internal class AuthorsViewModel : ViewModelBase
                 if (newAuthor.Id <= 0)
                 {
                     _newAuthors.Add(newAuthor);
-                    Debug.WriteLine($"New author added: {newAuthor.FirstName} {newAuthor.LastName}");
                 }
             }
         }
@@ -120,7 +135,6 @@ internal class AuthorsViewModel : ViewModelBase
                 else if (removedAuthor.Id > 0)
                 {
                     _deletedAuthors.Add(removedAuthor);
-                    Debug.WriteLine($"Author marked for deletion: {removedAuthor.FirstName} {removedAuthor.LastName}");
                 }
             }
         }
@@ -174,26 +188,34 @@ internal class AuthorsViewModel : ViewModelBase
 
     public async Task LoadAuthorDetailsAsync()
     {
-        using var db = new BookstoreDBContext();
+        try
+        {
+            using var db = new BookstoreDBContext();
 
-        var tempList = await db.Authors
-            .Include(b => b.BookIsbn13s)
-            .Select(a => new AuthorDetails()
-            {
-                Id = a.Id,
-                FirstName = a.FirstName,
-                LastName = a.LastName,
-                BirthDate = a.BirthDate ?? new DateOnly(),
-                DeathDate = a.DeathDate ?? new DateOnly(),
-                BooksIsbn13 = string.Join(", ", a.BookIsbn13s.Select(b => b.Isbn13)),
-                BookTitles = string.Join(", ", a.BookIsbn13s.Select(b => b.Title))
-            }
-            ).ToListAsync();
-        OriginalListOfAuthors = await db.Authors.ToListAsync();
-        DisplayAuthorDetails = new ObservableCollection<AuthorDetails>(tempList);
-        _newAuthors.Clear();
-        _deletedAuthors.Clear();
-        HasChanges = false;
+            var tempList = await db.Authors
+                .Include(b => b.BookIsbn13s)
+                .Select(a => new AuthorDetails()
+                {
+                    Id = a.Id,
+                    FirstName = a.FirstName,
+                    LastName = a.LastName,
+                    BirthDate = a.BirthDate ?? new DateOnly(),
+                    DeathDate = a.DeathDate ?? new DateOnly(),
+                    BooksIsbn13 = string.Join(", ", a.BookIsbn13s.Select(b => b.Isbn13)),
+                    BookTitles = string.Join(", ", a.BookIsbn13s.Select(b => b.Title))
+                }
+                ).ToListAsync();
+            OriginalListOfAuthors = await db.Authors.ToListAsync();
+            DisplayAuthorDetails = new ObservableCollection<AuthorDetails>(tempList);
+            _newAuthors.Clear();
+            _deletedAuthors.Clear();
+            HasChanges = false;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error when loading author details directly: {ex.Message}");
+            await _dialogService.ShowMessageDialogAsync("Error when loading authors details.", "ERROR");
+        }
     }
 
     private bool CanSaveChanges(object? sender)
@@ -201,7 +223,7 @@ internal class AuthorsViewModel : ViewModelBase
         return HasChanges;
     }
 
-    private async void SaveChangesAsync(object sender)
+    private async Task SaveChangesAsync(object sender)
     {
         try
         {
@@ -220,7 +242,6 @@ internal class AuthorsViewModel : ViewModelBase
                 };
                 
                 db.Authors.Add(dbAuthor);
-                Debug.WriteLine($"Adding new author: {newAuthor.FirstName} {newAuthor.LastName}");
             }
 
             // Handle deleted authors
@@ -232,9 +253,7 @@ internal class AuthorsViewModel : ViewModelBase
                 if (dbAuthor != null)
                 {
                     dbAuthor.BookIsbn13s.Clear();
-                    Debug.WriteLine($"Removing book authorships for author: {deletedAuthor.FirstName} {deletedAuthor.LastName}");
                     db.Authors.Remove(dbAuthor);
-                    Debug.WriteLine($"Deleting author: {deletedAuthor.FirstName} {deletedAuthor.LastName}");
                 }
             }
             
@@ -268,14 +287,15 @@ internal class AuthorsViewModel : ViewModelBase
             }
 
             await db.SaveChangesAsync();
-
+            await _dialogService.ShowMessageDialogAsync("Successfully saved changes.");
             // Refresh states and the list according to new changes.
             HasChanges = false;
-            _ = LoadAuthorDetailsAsync();
+            await LoadAuthorDetailsAsync();
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error saving changes {ex}");
+            await _dialogService.ShowMessageDialogAsync("Error saving saving changes.", "ERROR");
         }
     }
 
@@ -335,7 +355,7 @@ public class AuthorDetails : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

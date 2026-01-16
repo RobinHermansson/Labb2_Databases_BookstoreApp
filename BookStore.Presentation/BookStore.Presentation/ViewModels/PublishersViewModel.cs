@@ -1,4 +1,5 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
+using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -8,11 +9,13 @@ using System.Runtime.CompilerServices;
 
 namespace BookStore.Presentation.ViewModels;
 
-class PublishersViewModel: ViewModelBase
+public class PublishersViewModel: ViewModelBase
 {
+    private readonly IDialogService _dialogService;
+ 
 	private PublisherDetails _selectedPublisher;
-	public DelegateCommand SaveChangesCommand { get; set; }
-	public DelegateCommand CancelChangesCommand { get; set; }
+	public AsyncDelegateCommand SaveChangesCommand { get; set; }
+	public AsyncDelegateCommand CancelChangesCommand { get; set; }
 	private List<PublisherDetails> _deletedPublishers = new List<PublisherDetails>();
     private List<PublisherDetails> _newPublishers = new List<PublisherDetails>();
 	private List<PublisherDetails> _changedPublishers = new List<PublisherDetails>();
@@ -33,13 +36,14 @@ class PublishersViewModel: ViewModelBase
 		}
 	}
 		
-	public PublishersViewModel()
+	public PublishersViewModel(IDialogService dialogService)
     {
-		SaveChangesCommand = new DelegateCommand(SaveChangesAsync, CanSaveChanges);
-		CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
+        _dialogService = dialogService;
+		SaveChangesCommand = new AsyncDelegateCommand(SaveChangesAsync, CanSaveChanges);
+		CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
     }
 
-	private async void SaveChangesAsync(object? sender)
+	private async Task SaveChangesAsync(object? sender)
 	{
 		try
         {
@@ -58,7 +62,6 @@ class PublishersViewModel: ViewModelBase
                 };
                 
                 db.Publishers.Add(dbPublisher);
-                Debug.WriteLine($"Adding new publisher: {newPublisher.Name}");
             }
 
             // Handle deleted authors
@@ -69,7 +72,6 @@ class PublishersViewModel: ViewModelBase
                 if (dbPublisher != null)
                 {
                     db.Publishers.Remove(dbPublisher);
-                    Debug.WriteLine($"Deleting Publisher: {deletedPublisher.Name}");
                 }
             }
             
@@ -106,7 +108,15 @@ class PublishersViewModel: ViewModelBase
 
             // Refresh states and the list according to new changes.
             HasChanges = false;
-            _ = LoadPublishersAsync();
+            try
+            {
+                await LoadPublishersAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error when loading publishers after saving: {ex.Message}");
+            }
+
         }
         catch (Exception ex)
         {
@@ -120,10 +130,16 @@ class PublishersViewModel: ViewModelBase
 		return HasChanges;
 	}
 
-	private void CancelChanges(object? sender)
+	private async Task CancelChanges(object? sender)
 	{
-		Debug.WriteLine("Cancel changes.");
-		_ = LoadPublishersAsync();
+        try
+        {
+            await LoadPublishersAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error when loading publishers when cancelling: {ex.Message}");
+        }
 		_deletedPublishers.Clear();
 		_changedPublishers.Clear();
 		HasChanges = false;
@@ -199,7 +215,6 @@ class PublishersViewModel: ViewModelBase
                 else if (removedPublisher.PublisherId > 0)
                 {
                     _deletedPublishers.Add(removedPublisher);
-                    Debug.WriteLine($"Publisher marked for deletion: {removedPublisher.PublisherId}");
                 }
             }
         }
@@ -250,26 +265,32 @@ class PublishersViewModel: ViewModelBase
             }
         }
 
-		Debug.WriteLine($"Any changes? : {hasAnyChanges}");
         HasChanges = hasAnyChanges;
     }
 
 	public async Task LoadPublishersAsync()
 	{
-		using var db = new BookstoreDBContext();
+        try
+        {
+            using var db = new BookstoreDBContext();
 
-		var tempPublisherDetails = await db.Publishers
-			.Select(o => new PublisherDetails()
-			{
-				PublisherId = o.Id, 
-				Name = o.Name,
-				Email = o.Email,
-				Country = o.Country,
-                Address = o.Address
-            }).ToListAsync();
+            var tempPublisherDetails = await db.Publishers
+                .Select(o => new PublisherDetails()
+                {
+                    PublisherId = o.Id, 
+                    Name = o.Name,
+                    Email = o.Email,
+                    Country = o.Country,
+                    Address = o.Address
+                }).ToListAsync();
 
-        OriginalListOfPublishers = await db.Publishers.ToListAsync();
-		DisplayPublisherDetails = new ObservableCollection<PublisherDetails>(tempPublisherDetails);
+            OriginalListOfPublishers = await db.Publishers.ToListAsync();
+            DisplayPublisherDetails = new ObservableCollection<PublisherDetails>(tempPublisherDetails);
+        }
+        catch(Exception ex)
+        {
+            Debug.WriteLine($"Error when loading publishers directly: {ex.Message}");
+        }
 	}
 }
 

@@ -1,4 +1,5 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
+using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -8,10 +9,11 @@ using System.Runtime.CompilerServices;
 
 namespace BookStore.Presentation.ViewModels;
 
-class StoresViewModel: ViewModelBase
+public class StoresViewModel: ViewModelBase
 {
-	public DelegateCommand SaveChangesCommand { get; set; }
-	public DelegateCommand CancelChangesCommand { get; set; }
+    private readonly IDialogService _dialogService; 
+	public AsyncDelegateCommand SaveChangesCommand { get; set; }
+	public AsyncDelegateCommand CancelChangesCommand { get; set; }
 	private List<StoreDetails> _deletedStores = new List<StoreDetails>();
     private List<StoreDetails> _newStores = new List<StoreDetails>();
 	private List<StoreDetails> _changedStores = new List<StoreDetails>();
@@ -32,13 +34,14 @@ class StoresViewModel: ViewModelBase
 		}
 	}
 		
-	public StoresViewModel()
+	public StoresViewModel(IDialogService dialogService)
     {
-		SaveChangesCommand = new DelegateCommand(SaveChangesAsync, CanSaveChanges);
-		CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
+        _dialogService = dialogService;
+		SaveChangesCommand = new AsyncDelegateCommand(SaveChangesAsync, CanSaveChanges);
+		CancelChangesCommand = new AsyncDelegateCommand(CancelChanges, CanCancelChanges);
     }
 
-	private async void SaveChangesAsync(object? sender)
+	private async Task SaveChangesAsync(object? sender)
 	{
 		try
         {
@@ -60,7 +63,6 @@ class StoresViewModel: ViewModelBase
                 };
                 
                 db.Stores.Add(dbStore);
-                Debug.WriteLine($"Adding new publisher: {newStore.StoreName}");
             }
 
             // Handle deleted authors
@@ -71,7 +73,6 @@ class StoresViewModel: ViewModelBase
                 if (dbStore != null)
                 {
                     db.Stores.Remove(dbStore);
-                    Debug.WriteLine($"Deleting Store: {deletedStore.StoreName}");
                 }
             }
             
@@ -114,7 +115,14 @@ class StoresViewModel: ViewModelBase
 
             // Refresh states and the list according to new changes.
             HasChanges = false;
-            _ = LoadStoresAsync();
+            try
+            {
+                await LoadStoresAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error when loading stores after saving: {ex.Message}");
+            }
         }
         catch (Exception ex)
         {
@@ -128,10 +136,16 @@ class StoresViewModel: ViewModelBase
 		return HasChanges;
 	}
 
-	private void CancelChanges(object? sender)
+	private async Task CancelChanges(object? sender)
 	{
-		Debug.WriteLine("Cancel changes.");
-		_ = LoadStoresAsync();
+        try
+        {
+            await LoadStoresAsync();
+        }
+        catch(Exception ex)
+        {
+            Debug.WriteLine($"Error when loading Stores after cancelling. {ex.Message}");
+        }
 		_deletedStores.Clear();
 		_changedStores.Clear();
 		HasChanges = false;
@@ -260,23 +274,30 @@ class StoresViewModel: ViewModelBase
 
 	public async Task LoadStoresAsync()
 	{
-		using var db = new BookstoreDBContext();
+        try
+        {
+            using var db = new BookstoreDBContext();
 
-		var tempStoreDetails = await db.Stores
-			.Select(o => new StoreDetails()
-			{
-				StoreId = o.Id, 
-				StoreName = o.StoreName,
-				City = o.City,
-				Country = o.Country,
-                Address = o.Address,
-                WebpageUrl = o.WebpageUrl,
-                PostalCode = o.PostalCode,
-                PhoneNumber = o.PhoneNumber
-            }).ToListAsync();
+            var tempStoreDetails = await db.Stores
+                .Select(o => new StoreDetails()
+                {
+                    StoreId = o.Id, 
+                    StoreName = o.StoreName,
+                    City = o.City,
+                    Country = o.Country,
+                    Address = o.Address,
+                    WebpageUrl = o.WebpageUrl,
+                    PostalCode = o.PostalCode,
+                    PhoneNumber = o.PhoneNumber
+                }).ToListAsync();
 
-        OriginalListOfStores = await db.Stores.ToListAsync();
-		DisplayStoreDetails = new ObservableCollection<StoreDetails>(tempStoreDetails);
+            OriginalListOfStores = await db.Stores.ToListAsync();
+            DisplayStoreDetails = new ObservableCollection<StoreDetails>(tempStoreDetails);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error when loading stores directly: {ex.Message}");
+        }
 	}
 }
 

@@ -1,11 +1,16 @@
 ﻿using Bookstore.Infrastructure.Data.Model;
+using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
+using System.Windows.Controls;
+using System.Windows.Navigation;
+using NavigationService = BookStore.Presentation.Services.NavigationService;
 
 namespace BookStore.Presentation.ViewModels;
 
-internal class MainWindowViewModel : ViewModelBase
+public class MainWindowViewModel : ViewModelBase
 {
+    private INavigationService _navigationService;
 
 	public BooksViewModel _booksViewModel;
     public AuthorsViewModel _authorsViewModel;
@@ -14,6 +19,30 @@ internal class MainWindowViewModel : ViewModelBase
     public PublishersViewModel _publisherViewModel;
     public StoresViewModel _storesViewModel;
 	private object _currentView;
+
+    private readonly IDialogService _dialogService;
+    private bool _isDialogOpen;
+    private UserControl _dialogContent;
+
+    public bool IsDialogOpen
+    {
+        get => _isDialogOpen;
+        set
+        {
+            _isDialogOpen = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    public UserControl DialogContent
+    {
+        get => _dialogContent;
+        set
+        {
+            _dialogContent = value;
+            RaisePropertyChanged();
+        }
+    }
 
 	public object CurrentView
 	{
@@ -131,13 +160,15 @@ internal class MainWindowViewModel : ViewModelBase
     {
 
 		using var db = new BookstoreDBContext();
+        _dialogService = new DialogService(this);
+        _navigationService = new NavigationService(this, _dialogService);
 		
-		_booksViewModel = new BooksViewModel();
-        _authorsViewModel = new AuthorsViewModel();
-        _customersViewModel = new CustomersViewModel();
-        _ordersViewModel = new OrdersViewModel(this);
-        _publisherViewModel = new PublishersViewModel();
-        _storesViewModel = new StoresViewModel();
+		_booksViewModel = new BooksViewModel(_navigationService, _dialogService);
+        _authorsViewModel = new AuthorsViewModel(_dialogService);
+        _customersViewModel = new CustomersViewModel(_dialogService);
+        _ordersViewModel = new OrdersViewModel(_dialogService);
+        _publisherViewModel = new PublishersViewModel(_dialogService);
+        _storesViewModel = new StoresViewModel(_dialogService);
 
         // Books is selected by default
         IsBooksSelected = true;

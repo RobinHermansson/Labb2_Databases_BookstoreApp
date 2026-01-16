@@ -1,0 +1,313 @@
+<UserControl x:Class="BookStore.Presentation.View.NewBookView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BookStore.Presentation.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="650" d:DesignWidth="800">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2">
+            <Button Content="← Go back" 
+                    Grid.Row="0"
+                    Command="{Binding BackToBooksCommand}"
+                    HorizontalAlignment="Left"
+                    Margin="0 0 0 10"
+                    Style="{StaticResource DarkButton}"/>
+            <TextBlock Text="{Binding ValidationErrorText}" 
+                       Foreground="Red"
+                       Visibility="{Binding IsISBN13Valid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Margin="15 0 0 10"/>
+        </StackPanel>
+        <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" 
+            BorderBrush="LightGray" BorderThickness="1" 
+            CornerRadius="5" Margin="5" Padding="10"
+            Background="#14131C"> 
+        <StackPanel>
+            <TextBlock 
+                Text ="{Binding TitleText}" 
+                FontSize="24"
+                Foreground="White"
+                VerticalAlignment="Center"
+                Margin="0 0 0 15"/>
+            
+            <Label Content="Isbn13"
+                   Foreground="White"/>
+            <TextBox x:Name="Isn13Box"
+                     Text="{Binding ISBN13, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource DarkTextBox}"/>
+            <Label Content="Title"
+                   Foreground="White"></Label>
+            <TextBox x:Name="TitleBox"
+                     Text="{Binding Title}"
+                     Style="{StaticResource DarkTextBox}"/>
+            <Label Content="Language"
+                   Foreground="White"></Label>
+            <ComboBox x:Name="LanguageBox"
+                      ItemsSource="{Binding AvailableLanguages}"
+                      SelectedItem="{Binding SelectedLanguage}"
+                      Style="{StaticResource DarkComboBox}"/>
+            <Label Content="Price in Sek"
+                   Foreground="White"></Label>
+            <TextBox x:Name="PriceInSekBox"
+                     Text="{Binding PriceInSek}"
+                     Style="{StaticResource DarkTextBox}"/>
+            <Label Content="Publication date"
+                   Foreground="White"></Label>
+            <TextBox x:Name="PublicationDateBox"
+                     Text="{Binding PublicationDate}"
+                     Style="{StaticResource DarkTextBox}"/>
+            <Label Content="Quantity at store"
+                   Foreground="White"/>
+            <TextBox x:Name="InventoryBalanceBox"
+                     Text="{Binding Quantity}"
+                     Style="{StaticResource DarkTextBox}"/>
+        </StackPanel>
+        </Border>
+        <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" 
+            BorderBrush="LightGray" BorderThickness="1" 
+            CornerRadius="5" Margin="5" Padding="10"
+            Background="#14131C">
+            <StackPanel>
+        <TextBlock Text="Book's author"
+                   HorizontalAlignment="Center"
+                   Foreground="White"
+                   FontSize="24"
+                   Margin="0,0,0,15"/>
+
+        <!-- Author Mode Selection -->
+        <TextBlock Text="Author Options:"
+                   Foreground="White"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,8"/>
+        
+        <RadioButton x:Name="SelectExistingAuthorRadio"
+             Content="Keep or select an existing author"
+             GroupName="AuthorMode"
+             Foreground="White"
+             IsChecked="{Binding CurrentAuthorMode, 
+                         Converter={StaticResource EnumToBooleanConverter}, 
+                         ConverterParameter=SelectExisting}"
+             Margin="0,2"/>
+
+        <RadioButton x:Name="CreateNewAuthorRadio"
+                     Content="Create new author"
+                     GroupName="AuthorMode"
+                     Foreground="White"
+                     IsChecked="{Binding CurrentAuthorMode, 
+                                 Converter={StaticResource EnumToBooleanConverter}, 
+                                 ConverterParameter=CreateNew}"
+                     Margin="0,2"/>
+
+        <RadioButton x:Name="EditExistingAuthorRadio"
+                     Content="Edit an existing author"
+                     GroupName="AuthorMode"
+                     Foreground="White"
+                     IsChecked="{Binding CurrentAuthorMode, 
+                                 Converter={StaticResource EnumToBooleanConverter}, 
+                                 ConverterParameter=EditExisting}"
+                     Margin="0,2,0,15"/>
+     
+        <!-- Author Selection -->
+        <Label Foreground="White" Content="Select Author:"/>
+        <ComboBox x:Name="AuthorBox"
+                  ItemsSource="{Binding AvailableAuthors}"
+                  SelectedItem="{Binding SelectedAuthor}"
+                  DisplayMemberPath="FullName"
+                  Style="{StaticResource DarkComboBox}"
+                  ItemContainerStyle="{StaticResource DarkComboBoxItem}"
+                  Margin="0,0,0,10">
+            <ComboBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                    <Binding ElementName="SelectExistingAuthorRadio" Path="IsChecked"/>
+                    <Binding ElementName="EditExistingAuthorRadio" Path="IsChecked"/>
+                </MultiBinding>
+            </ComboBox.IsEnabled>
+        </ComboBox>
+
+        <!-- Author Details -->
+        <Label Content="First Name" Foreground="White"/>
+        <TextBox Text="{Binding AuthorFirstName}"
+                 Style="{StaticResource DarkTextBox}">
+            <TextBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                    <Binding ElementName="CreateNewAuthorRadio" Path="IsChecked"/>
+                    <Binding ElementName="EditExistingAuthorRadio" Path="IsChecked"/>
+                </MultiBinding>
+            </TextBox.IsEnabled>
+        </TextBox>
+
+        <Label Content="Last Name" Foreground="White"/>
+        <TextBox Text="{Binding AuthorLastName}"
+                 Style="{StaticResource DarkTextBox}">
+            <TextBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                    <Binding ElementName="CreateNewAuthorRadio" Path="IsChecked"/>
+                    <Binding ElementName="EditExistingAuthorRadio" Path="IsChecked"/>
+                </MultiBinding>
+            </TextBox.IsEnabled>
+        </TextBox>
+
+        <Label Content="Birth Date" Foreground="White"/>
+        <TextBox Text="{Binding AuthorBirthDate}"
+                 Style="{StaticResource DarkTextBox}">
+            <TextBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                    <Binding ElementName="CreateNewAuthorRadio" Path="IsChecked"/>
+                    <Binding ElementName="EditExistingAuthorRadio" Path="IsChecked"/>
+                </MultiBinding>
+            </TextBox.IsEnabled>
+        </TextBox>
+
+        <Label Content="Death Date" Foreground="White"/>
+        <TextBox Text="{Binding AuthorDeathDate}"
+                 Style="{StaticResource DarkTextBox}">
+            <TextBox.IsEnabled>
+                <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                    <Binding ElementName="CreateNewAuthorRadio" Path="IsChecked"/>
+                    <Binding ElementName="EditExistingAuthorRadio" Path="IsChecked"/>
+                </MultiBinding>
+            </TextBox.IsEnabled>
+        </TextBox>
+    </StackPanel>        
+</Border>
+        <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" 
+            BorderBrush="LightGray" BorderThickness="1" 
+            CornerRadius="5" Margin="5" Padding="10"
+            Background="#14131C">
+            <StackPanel>
+                <TextBlock Text="Book's publisher"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontSize="24"
+                           Margin="0 0 0 15"
+                           />
+                   <!-- Publisher Mode Selection -->
+                <TextBlock Text="Publisher Options:"
+                   Foreground="White"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,8"/>
+                <RadioButton x:Name="SelectExistingPublisherRadio"
+                     Content="Keep or select an existing publisher"
+                     GroupName="PublisherMode"
+                     Foreground="White"
+                     IsChecked="{Binding CurrentPublisherMode, 
+                                 Converter={StaticResource EnumToBooleanConverter}, 
+                                 ConverterParameter=SelectExisting}"
+                     Margin="0,2"/>
+
+                <RadioButton x:Name="CreateNewPublisherRadio"
+                             Content="Create new publisher"
+                             GroupName="PublisherMode"
+                             Foreground="White"
+                             IsChecked="{Binding CurrentPublisherMode, 
+                                         Converter={StaticResource EnumToBooleanConverter}, 
+                                         ConverterParameter=CreateNew}"
+                             Margin="0,2"/>
+
+                <RadioButton x:Name="EditExistingPublisherRadio"
+                             Content="Edit an existing publisher"
+                             GroupName="PublisherMode"
+                             Foreground="White"
+                             IsChecked="{Binding CurrentPublisherMode, 
+                                         Converter={StaticResource EnumToBooleanConverter}, 
+                                         ConverterParameter=EditExisting}"
+                             Margin="0,2,0,15"/>                
+                <Label Foreground="White" Content="Current publisher: "></Label>
+                <ComboBox x:Name="PublisherBox"
+                      ItemsSource="{Binding AvailablePublishers}"
+                      SelectedItem="{Binding SelectedPublisher}"
+                      DisplayMemberPath="Name"
+                      Style="{StaticResource DarkComboBox}">
+                    <ComboBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                            <Binding ElementName="SelectExistingPublisherRadio" Path="IsChecked"/>
+                            <Binding ElementName="EditExistingPublisherRadio" Path="IsChecked"/>
+                        </MultiBinding>
+                    </ComboBox.IsEnabled>
+                </ComboBox>
+                <Label Content="Name"
+                   Foreground="White"/>
+                <TextBox 
+                    Text="{Binding PublisherName}"
+                    Style="{StaticResource DarkTextBox}">
+                    <TextBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                            <Binding ElementName="CreateNewPublisherRadio" Path="IsChecked"/>
+                            <Binding ElementName="EditExistingPublisherRadio" Path="IsChecked"/>
+                        </MultiBinding>
+                    </TextBox.IsEnabled>
+                </TextBox>
+                <Label Content="Address"
+                   Foreground="White"/>
+                <TextBox 
+                    Text="{Binding PublisherAddress}"
+                    Style="{StaticResource DarkTextBox}">
+                    <TextBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                            <Binding ElementName="CreateNewPublisherRadio" Path="IsChecked"/>
+                            <Binding ElementName="EditExistingPublisherRadio" Path="IsChecked"/>
+                        </MultiBinding>
+                    </TextBox.IsEnabled>
+                </TextBox>
+                <Label Content="Country"
+                   Foreground="White"/>
+                <TextBox 
+                    Text="{Binding PublisherCountry}"
+                    Style="{StaticResource DarkTextBox}">
+                    <TextBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                            <Binding ElementName="CreateNewPublisherRadio" Path="IsChecked"/>
+                            <Binding ElementName="EditExistingPublisherRadio" Path="IsChecked"/>
+                        </MultiBinding>
+                    </TextBox.IsEnabled>
+                </TextBox>
+                <Label Content="Email"
+                   Foreground="White"/>
+                <TextBox 
+                    Text="{Binding PublisherEmail}"
+                    Style="{StaticResource DarkTextBox}">
+                    <TextBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                            <Binding ElementName="CreateNewPublisherRadio" Path="IsChecked"/>
+                            <Binding ElementName="EditExistingPublisherRadio" Path="IsChecked"/>
+                        </MultiBinding>
+                    </TextBox.IsEnabled>
+                </TextBox>
+            </StackPanel>
+        </Border>
+         
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,10,0,0">
+            <Button Content="Save" 
+                    Command="{Binding SaveChangesCommand}"
+                    IsEnabled="{Binding HasChanges}"
+                    Margin="0,0,10,0"
+                    Padding="10,5"
+                    Style="{StaticResource PrimaryDarkButton}"
+                    />
+            <Button Content="Cancel" 
+                    Command="{Binding CancelChangesCommand}"
+                    IsEnabled="{Binding HasChanges}"
+                    Padding="10,5"
+                    Style="{StaticResource DarkButton}"
+                    />
+            <Label Content="{Binding StatusText}"
+                   Foreground="Green"
+                   FontWeight="Bold"
+                   Margin="5 0 0 0"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
