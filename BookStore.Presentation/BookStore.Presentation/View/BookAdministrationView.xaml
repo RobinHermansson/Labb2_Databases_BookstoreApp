@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:BookStore.Presentation.View"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="650" d:DesignWidth="800">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -190,46 +190,103 @@
             Background="#14131C">
             <StackPanel>
                 <TextBlock Text="Book's publisher"
-                   VerticalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontSize="24"
+                           Margin="0 0 0 15"
+                           />
+                   <!-- Publisher Mode Selection -->
+                <TextBlock Text="Publisher Options:"
                    Foreground="White"
-                   FontSize="24"/>
-                <CheckBox x:Name="PublisherCheckbox"
-                      Content="Edit toggle"
-                      FontSize="10"
-                      Foreground="White"
-                      Margin="0 10 0 0"
-                      IsChecked="{Binding IsPublisherEditEnabled}"/>
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,8"/>
+                <RadioButton x:Name="SelectExistingPublisherRadio"
+                     Content="Keep or select an existing publisher"
+                     GroupName="PublisherMode"
+                     Foreground="White"
+                     IsChecked="{Binding CurrentPublisherMode, 
+                                 Converter={StaticResource EnumToBooleanConverter}, 
+                                 ConverterParameter=SelectExisting}"
+                     Margin="0,2"/>
+
+                <RadioButton x:Name="CreateNewPublisherRadio"
+                             Content="Create new publisher"
+                             GroupName="PublisherMode"
+                             Foreground="White"
+                             IsChecked="{Binding CurrentPublisherMode, 
+                                         Converter={StaticResource EnumToBooleanConverter}, 
+                                         ConverterParameter=CreateNew}"
+                             Margin="0,2"/>
+
+                <RadioButton x:Name="EditExistingPublisherRadio"
+                             Content="Edit existing publisher"
+                             GroupName="PublisherMode"
+                             Foreground="White"
+                             IsChecked="{Binding CurrentPublisherMode, 
+                                         Converter={StaticResource EnumToBooleanConverter}, 
+                                         ConverterParameter=EditExisting}"
+                             Margin="0,2,0,15"/>                
                 <Label Foreground="White" Content="Current publisher: "></Label>
                 <ComboBox x:Name="PublisherBox"
                       ItemsSource="{Binding AvailablePublishers}"
                       SelectedItem="{Binding SelectedPublisher}"
                       DisplayMemberPath="Name"
-                      IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"
-                      Style="{StaticResource DarkComboBox}"/>
+                      Style="{StaticResource DarkComboBox}">
+                    <ComboBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                            <Binding ElementName="SelectExistingPublisherRadio" Path="IsChecked"/>
+                            <Binding ElementName="EditExistingPublisherRadio" Path="IsChecked"/>
+                        </MultiBinding>
+                    </ComboBox.IsEnabled>
+                </ComboBox>
                 <Label Content="Name"
                    Foreground="White"/>
                 <TextBox 
-                    Text="{Binding SelectedPublisher.Name}"
-                    IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"
-                    Style="{StaticResource DarkTextBox}"/>
+                    Text="{Binding PublisherName}"
+                    Style="{StaticResource DarkTextBox}">
+                    <TextBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                            <Binding ElementName="CreateNewPublisherRadio" Path="IsChecked"/>
+                            <Binding ElementName="EditExistingPublisherRadio" Path="IsChecked"/>
+                        </MultiBinding>
+                    </TextBox.IsEnabled>
+                </TextBox>
                 <Label Content="Address"
                    Foreground="White"/>
                 <TextBox 
-                    Text="{Binding SelectedPublisher.Address}"
-                    IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"
-                    Style="{StaticResource DarkTextBox}"/>
+                    Text="{Binding PublisherAddress}"
+                    Style="{StaticResource DarkTextBox}">
+                    <TextBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                            <Binding ElementName="CreateNewPublisherRadio" Path="IsChecked"/>
+                            <Binding ElementName="EditExistingPublisherRadio" Path="IsChecked"/>
+                        </MultiBinding>
+                    </TextBox.IsEnabled>
+                </TextBox>
                 <Label Content="Country"
                    Foreground="White"/>
                 <TextBox 
-                    Text="{Binding SelectedPublisher.Country}"
-                    IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"
-                    Style="{StaticResource DarkTextBox}"/>
+                    Text="{Binding PublisherCountry}"
+                    Style="{StaticResource DarkTextBox}">
+                    <TextBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                            <Binding ElementName="CreateNewPublisherRadio" Path="IsChecked"/>
+                            <Binding ElementName="EditExistingPublisherRadio" Path="IsChecked"/>
+                        </MultiBinding>
+                    </TextBox.IsEnabled>
+                </TextBox>
                 <Label Content="Email"
                    Foreground="White"/>
                 <TextBox 
-                    Text="{Binding SelectedPublisher.Email}"
-                    IsEnabled="{Binding ElementName=PublisherCheckbox, Path=IsChecked}"
-                    Style="{StaticResource DarkTextBox}"/>
+                    Text="{Binding PublisherEmail}"
+                    Style="{StaticResource DarkTextBox}">
+                    <TextBox.IsEnabled>
+                        <MultiBinding Converter="{StaticResource BooleanOrConverter}">
+                            <Binding ElementName="CreateNewPublisherRadio" Path="IsChecked"/>
+                            <Binding ElementName="EditExistingPublisherRadio" Path="IsChecked"/>
+                        </MultiBinding>
+                    </TextBox.IsEnabled>
+                </TextBox>
             </StackPanel>
         </Border>
          

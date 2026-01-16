@@ -27,6 +27,13 @@ public class BookAdministrationViewModel : ViewModelBase
     private DateOnly? _authorBirthDate;
     private DateOnly? _authorDeathDate;
 
+
+    private PublisherMode _currentPublisherMode = PublisherMode.SelectExisting;
+    private string _publisherName;
+    private string _publisherAddress;
+    private string _publisherCountry;
+    private string _publisherEmail;
+
     public string TitleText { get; set; } = "Edit book:";
 
     private bool _hasChanges;
@@ -80,6 +87,18 @@ public class BookAdministrationViewModel : ViewModelBase
         }
     }
 
+    public PublisherMode CurrentPublisherMode
+    {
+        get => _currentPublisherMode;
+        set
+        {
+            _currentPublisherMode = value;
+            RaisePropertyChanged();
+            OnPublisherModeChanged();
+        }
+    }
+
+    /*
     public bool IsPublisherEditEnabled
     {
         get => _isPublisherEditEnabled;
@@ -90,6 +109,7 @@ public class BookAdministrationViewModel : ViewModelBase
             CheckForChanges();
         }
     }
+    */
     public bool HasChanges
     {
         get => _hasChanges;
@@ -241,6 +261,50 @@ public class BookAdministrationViewModel : ViewModelBase
         set
         {
             _authorDeathDate = value;
+            RaisePropertyChanged();
+            CheckForChanges();
+        }
+    }
+
+    public string PublisherName
+    {
+        get => _publisherName;
+        set
+        {
+            _publisherName = value;
+            RaisePropertyChanged();
+            CheckForChanges();
+        }
+    }
+
+    public string PublisherAddress
+    {
+        get => _publisherAddress;
+        set
+        {
+            _publisherAddress = value;
+            RaisePropertyChanged();
+            CheckForChanges();
+        }
+    }
+
+    public string PublisherCountry
+    {
+        get => _publisherCountry;
+        set
+        {
+            _publisherCountry = value;
+            RaisePropertyChanged();
+            CheckForChanges();
+        }
+    }
+
+    public string PublisherEmail
+    {
+        get => _publisherEmail;
+        set
+        {
+            _publisherEmail = value;
             RaisePropertyChanged();
             CheckForChanges();
         }
@@ -445,7 +509,7 @@ public class BookAdministrationViewModel : ViewModelBase
         catch(Exception ex)
         {
             Debug.WriteLine($"Error when loading Related data: {ex.Message}");
-            _dialogService.ShowMessageDialogAsync("Error when loading the Book's related data", "ERROR");
+            await _dialogService.ShowMessageDialogAsync("Error when loading the Book's related data", "ERROR");
         }
 
     }
@@ -506,7 +570,43 @@ public class BookAdministrationViewModel : ViewModelBase
                 }
                 break;
         }
-
+        switch (CurrentPublisherMode)
+        {
+            case PublisherMode.SelectExisting:
+                // Check if selected Publisher changed from original
+                int? currentPublisherId = SelectedPublisher?.Id;
+                int? originalPublisherId = _originalPublisher?.Id;
+                if (currentPublisherId != originalPublisherId)
+                {
+                    hasAnyChanges = true;
+                }
+                break;
+                
+            case PublisherMode.CreateNew:
+                // Any data in Publisher fields indicates a change
+                if (!string.IsNullOrEmpty(PublisherName) || 
+                    !string.IsNullOrEmpty(PublisherAddress) || 
+                    !string.IsNullOrEmpty(PublisherCountry) ||
+                    !string.IsNullOrEmpty(PublisherEmail)
+                    )
+                {
+                    hasAnyChanges = true;
+                }
+                break;
+                
+            case PublisherMode.EditExisting:
+                // Check if the Publisher's properties have been modified
+                if (_originalPublisher != null && SelectedPublisher != null &&
+                    (_originalPublisher.Name != PublisherName ||
+                     _originalPublisher.Address != PublisherAddress ||
+                     _originalPublisher.Country != PublisherCountry ||
+                     _originalPublisher.Email != PublisherEmail))
+                {
+                    hasAnyChanges = true;
+                }
+                break;
+        }
+        /*
         if (IsPublisherEditEnabled && _originalPublisher != null && SelectedPublisher != null)
         {
             if (_originalPublisher.Name != SelectedPublisher.Name ||
@@ -517,6 +617,7 @@ public class BookAdministrationViewModel : ViewModelBase
                 hasAnyChanges = true;
             }
         }
+        */
 
         HasChanges = hasAnyChanges;
     }
@@ -632,7 +733,54 @@ public class BookAdministrationViewModel : ViewModelBase
                     }
                     break;
             }
+            switch (CurrentPublisherMode)
+            {
+                case PublisherMode.SelectExisting:
+                    if (SelectedPublisher != null)
+                    {
+                        bookToWorkWith.Publisher = null;
 
+                        var publisherToSwitch = await db.Publishers.FindAsync(SelectedPublisher.Id);
+                        if (publisherToSwitch != null)
+                        {
+                            bookToWorkWith.Publisher = publisherToSwitch;
+                        }
+                    }
+                    break;
+
+                case PublisherMode.CreateNew:
+                    if (!string.IsNullOrEmpty(PublisherName))
+                    {
+                        var newPublisher = new Publisher
+                        {
+                            Name = PublisherName,
+                            Address = PublisherAddress,
+                            Country = PublisherCountry,
+                            Email = PublisherEmail
+                        };
+
+                        db.Publishers.Add(newPublisher);
+
+                        bookToWorkWith.Publisher = newPublisher;
+                    }
+                    break;
+
+                case PublisherMode.EditExisting:
+                    if (SelectedPublisher != null)
+                    {
+                        var existingPublisher = await db.Publishers.FindAsync(SelectedPublisher.Id);
+                        if (existingPublisher != null)
+                        {
+                            existingPublisher.Name = PublisherName;
+                            existingPublisher.Address = PublisherAddress;
+                            existingPublisher.Country = PublisherCountry;
+                            existingPublisher.Email = PublisherEmail;
+                        }
+                       //Might need to also update the actual publisher with db.Publishers...? 
+                    }
+                    break;
+                }
+            /*
             if (IsPublisherEditEnabled && SelectedPublisher != null)
             {
                 var existingPublisher = await db.Publishers.FindAsync(SelectedPublisher.Id);
@@ -644,7 +792,7 @@ public class BookAdministrationViewModel : ViewModelBase
                     existingPublisher.Email = SelectedPublisher.Email;
                 }
             }
-
+            */
             await db.SaveChangesAsync();
 
             StatusText = existingBook != null ? "Updated successfully!" : "Created successfully!";
@@ -695,6 +843,38 @@ public class BookAdministrationViewModel : ViewModelBase
 
         CheckForChanges();
     }
+    private void OnPublisherModeChanged()
+    {
+        switch (CurrentPublisherMode)
+        {
+            case PublisherMode.SelectExisting:
+                PublisherName = SelectedPublisher?.Name ?? string.Empty;
+                PublisherAddress = SelectedPublisher?.Address ?? string.Empty;
+                PublisherCountry = SelectedPublisher?.Country ?? string.Empty;
+                PublisherEmail = SelectedPublisher?.Email ?? string.Empty;
+                break;
+
+            case PublisherMode.CreateNew:
+                SelectedPublisher = null;
+                PublisherName = string.Empty;
+                PublisherAddress = string.Empty;
+                PublisherCountry = string.Empty;
+                PublisherEmail = string.Empty;
+                break;
+
+            case PublisherMode.EditExisting:
+                if (SelectedPublisher != null)
+                {
+                    PublisherName = SelectedPublisher.Name;
+                    PublisherAddress = SelectedPublisher.Address;
+                    PublisherCountry = SelectedPublisher.Country;
+                    PublisherEmail = SelectedPublisher.Email;
+                }
+                break;
+        }
+
+        CheckForChanges();
+    }
     public async Task CancelChanges(object? parameter)
     {
         try
@@ -735,6 +915,13 @@ public class BookAdministrationViewModel : ViewModelBase
 }
 
 public enum AuthorMode
+{
+    SelectExisting,
+    CreateNew,
+    EditExisting
+}
+
+public enum PublisherMode
 {
     SelectExisting,
     CreateNew,
