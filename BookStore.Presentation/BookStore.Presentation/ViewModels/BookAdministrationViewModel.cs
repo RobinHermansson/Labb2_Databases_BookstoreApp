@@ -57,8 +57,6 @@ public class BookAdministrationViewModel : ViewModelBase
     private Publisher _originalPublisher;
 
 
-    private bool _isPublisherEditEnabled;
-
     public AsyncDelegateCommand SaveChangesCommand { get; set; }
     public AsyncDelegateCommand CancelChangesCommand { get; set; }
     public AsyncDelegateCommand BackToBooksCommand { get; set; }
