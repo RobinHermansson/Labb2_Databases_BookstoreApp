@@ -16,7 +16,7 @@ public class BooksViewModel : ViewModelBase
     private ObservableCollection<BookDetails> _books;
     private ObservableCollection<Store> _stores;
     private Store _selectedStore;
-    public List<Book> OriginalListOfBooks;
+    public List<BookDetails> OriginalListOfBooks;
 
     private List<BookDetails> _deletedBooks = new List<BookDetails>();
     private List<BookDetails> _changedBooks = new List<BookDetails>();
@@ -133,29 +133,28 @@ public class BooksViewModel : ViewModelBase
         if (e.PropertyName == nameof(BookDetails.ISBN13) ||
             e.PropertyName == nameof(BookDetails.Title) ||
             e.PropertyName == nameof(BookDetails.PublicationDate) ||
-            e.PropertyName == nameof(BookDetails.PriceInSek))
+            e.PropertyName == nameof(BookDetails.PriceInSek) ||
+            e.PropertyName == nameof(BookDetails.Quantity))
         {
             CheckForChanges();
         }
     }
     private void CheckForChanges()
     {
-        bool hasAnyChanges = false;
+        bool hasAnyChanges = _deletedBooks.Any();
 
-        if (_deletedBooks.Any())
-        {
-            hasAnyChanges = true;
-        }
+        _changedBooks.Clear();
 
         foreach (var book in Books)
         {
-            var originalBook = OriginalListOfBooks.FirstOrDefault(b => b.Isbn13 == book.ISBN13);
+            var originalBook = OriginalListOfBooks.FirstOrDefault(b => b.ISBN13 == book.ISBN13);
             if (originalBook != null)
             {
-                if (originalBook.Isbn13 != book.ISBN13 ||
+                if (originalBook.ISBN13 != book.ISBN13 ||
                     originalBook.Title != book.Title ||
                     originalBook.PublicationDate != book.PublicationDate ||
-                    originalBook.PriceInSek != book.PriceInSek)
+                    originalBook.PriceInSek != book.PriceInSek ||
+                    originalBook.Quantity != book.Quantity)
                 {
                     _changedBooks.Add(book);
                     hasAnyChanges = true;
@@ -275,6 +274,12 @@ public class BooksViewModel : ViewModelBase
                         bookToChange.Language = changedBook.Language;
                         hasChangesToSave = true;
                     }
+                    var inventoryBalanceToChange = await db.InventoryBalances.FirstOrDefaultAsync(ib => ib.Isbn13 == changedBook.ISBN13 && changedBook.BookStoreId == ib.StoreId);
+                    if (inventoryBalanceToChange is not null)
+                    {
+                        inventoryBalanceToChange.Quantity = changedBook.Quantity;
+                        hasChangesToSave = true;
+                    }
                 }
             }
 
@@ -346,7 +351,16 @@ public class BooksViewModel : ViewModelBase
                 .Where(s => s.StoreId == storeId)
                 .Select(s => new BookDetails() { ISBN13 = s.Isbn13, BookStoreId = storeId, Title = s.Isbn13Navigation.Title, PriceInSek = s.Isbn13Navigation.PriceInSek, PublicationDate = s.Isbn13Navigation.PublicationDate, Quantity = s.Quantity, Language = s.Isbn13Navigation.Language })
                 .ToListAsync();
-            OriginalListOfBooks = await db.Books.ToListAsync();
+            OriginalListOfBooks = bookDetailsList.Select(b => new BookDetails
+            {
+                ISBN13 = b.ISBN13,
+                BookStoreId = b.BookStoreId,
+                Title = b.Title,
+                PriceInSek = b.PriceInSek,
+                PublicationDate = b.PublicationDate,
+                Language = b.Language,
+                Quantity = b.Quantity
+            }).ToList();
             Books = new ObservableCollection<BookDetails>(bookDetailsList);
         }
         catch (Exception ex)
