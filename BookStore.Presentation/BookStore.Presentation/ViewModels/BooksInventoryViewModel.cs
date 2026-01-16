@@ -14,7 +14,9 @@ public class BooksInventoryViewModel : ViewModelBase
     private readonly IDialogService _dialogService;
 
     private ObservableCollection<InventoryBalanceDetail> _availableBooks;
-    private Book _selectedAvailable;
+    private InventoryBalanceDetail _selectedAvailable;
+    private ObservableCollection<InventoryBalanceDetail> _booksAtStore;
+    private InventoryBalanceDetail _selectedBookAtStore;
 
 
     public ObservableCollection<InventoryBalanceDetail> AvailableBooks
@@ -22,21 +24,31 @@ public class BooksInventoryViewModel : ViewModelBase
         get => _availableBooks;
         set { _availableBooks = value; RaisePropertyChanged(); }
     }
-    public Book SelectedAvailable
+    public InventoryBalanceDetail SelectedAvailable
     {
         get => _selectedAvailable;
         set { _selectedAvailable = value; RaisePropertyChanged(); }
+    }
+    public ObservableCollection<InventoryBalanceDetail> BooksAtStore
+    {
+        get => _booksAtStore;
+        set { _booksAtStore = value; RaisePropertyChanged(); }
+    }
+    public InventoryBalanceDetail SelectedBookAtStore
+    {
+        get => _selectedBookAtStore;
+        set { _selectedBookAtStore = value; RaisePropertyChanged(); }
     }
 
     public BooksInventoryViewModel(INavigationService navigationService, IDialogService dialogService )
     {
         _navigationService = navigationService;
         _dialogService = dialogService;
-        _ = LoadAvailableBooksAtStore(2);
+        _ = LoadBookComparisonAtStore(2);
     }
 
 
-    private async Task LoadAvailableBooksAtStore(int storeId)
+    private async Task LoadBookComparisonAtStore(int storeId)
     {
         using var db = new BookstoreDBContext();
 
@@ -51,7 +63,16 @@ public class BooksInventoryViewModel : ViewModelBase
                 BookISBN13 = ib.Isbn13, BookTitle = ib.Isbn13Navigation.Title
             });
 
-        AvailableBooks = new ObservableCollection<InventoryBalanceDetail>(inventoryAvailableAtStore);
+        BooksAtStore = new ObservableCollection<InventoryBalanceDetail>(inventoryAvailableAtStore);
+        AvailableBooks = new ObservableCollection<InventoryBalanceDetail>();
+        foreach (Book book in books)
+        {
+            var bookExists = BooksAtStore.FirstOrDefault(b => b.BookISBN13 == book.Isbn13);
+            if (bookExists is null)
+            {
+                AvailableBooks.Add(new InventoryBalanceDetail() { BookISBN13 = book.Isbn13, BookTitle = book.Title });
+            }
+        }    
     }
     public class InventoryBalanceDetail() : ViewModelBase
     {
