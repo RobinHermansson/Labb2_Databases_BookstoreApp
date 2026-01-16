@@ -172,17 +172,7 @@ public class BooksInventoryViewModel : ViewModelBase
     }
     private void CancelChanges(object? sender)
     {
-        AvailableBooks.Clear();
-        foreach (InventoryBalanceDetail ib in _originalListWithAvailable)
-        {
-            AvailableBooks.Add(ib);
-        }
-        BooksAtStore.Clear();
-        
-        foreach (InventoryBalanceDetail ib in _originalListAtStore)
-        {
-            BooksAtStore.Add(ib);
-        }
+        _ = LoadBookComparisonAtStore();
         HasChanges = false;
     }
 
@@ -279,7 +269,13 @@ public class BooksInventoryViewModel : ViewModelBase
     private bool CanGoBack(object? sender) => true; // Can always go back.
     public async Task GoBack(object? sender)
     {
-        bool shouldStillGoBack = false;
+        if (!HasChanges)
+        {
+            ClearState();
+            await _navigationService.NavigateBack();
+        }
+        
+            bool shouldStillGoBack = false;
         if (HasChanges)
         {
             shouldStillGoBack = await _dialogService.ShowConfirmationDialogAsync("You have unsaved changes, do you still want to go back without saving?", "Proceed without saving?");
