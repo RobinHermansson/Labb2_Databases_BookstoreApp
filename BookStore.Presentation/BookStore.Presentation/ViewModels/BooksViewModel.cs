@@ -366,6 +366,7 @@ public class BooksViewModel : ViewModelBase
         catch (Exception ex)
         {
             Debug.WriteLine($"Error when running LoadBooksForSelectedStore. {ex.Message}");
+            await _dialogService.ShowMessageDialogAsync("Error when loading books for selected store.", "ERROR");
         }
     }
 
@@ -392,6 +393,7 @@ public class BooksViewModel : ViewModelBase
         catch (Exception ex)
         {
             Debug.WriteLine($"Error when running 'LoadStoresAsync'. {ex.Message}");
+            await _dialogService.ShowMessageDialogAsync("Error when loading stores.", "ERROR");
         }
     }
 }
