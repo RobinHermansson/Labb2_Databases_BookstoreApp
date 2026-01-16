@@ -256,7 +256,7 @@ public class BooksInventoryViewModel : ViewModelBase
         await _navigationService.NavigateBack();
     }
 
-    private void ClearState()
+    public void ClearState()
     {
         SelectedAvailable = null;
         SelectedBookAtStore = null;
