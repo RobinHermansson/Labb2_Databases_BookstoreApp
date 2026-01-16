@@ -42,16 +42,16 @@
                   AutoGenerateColumns="False"
                   SelectionMode="Single"
                   CanUserAddRows="False"
-                  CanUserDeleteRows="True"
-                  SelectedItem="{Binding SelectedBookAtStore}"
-                  ItemsSource="{Binding BooksAtStore}"
+                  CanUserDeleteRows="False"
+                  SelectedItem="{Binding SelectedAvailable}"
+                  ItemsSource="{Binding AvailableBooks}"
                   Style="{StaticResource DarkDataGrid}"
                   ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeader}"
                   RowStyle="{StaticResource DarkDataGridRow}"
                   CellStyle="{StaticResource DarkDataGridCell}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ISBN13" Binding="{Binding ISBN13}" Width="100" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="270"/>
+                <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="270" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
     
@@ -105,7 +105,7 @@
                   AutoGenerateColumns="False"
                   SelectionMode="Single"
                   CanUserAddRows="False"
-                  CanUserDeleteRows="True"
+                  CanUserDeleteRows="False"
                   SelectedItem="{Binding SelectedBookAtStore}"
                   ItemsSource="{Binding BooksAtStore}"
                   Style="{StaticResource DarkDataGrid}"
@@ -114,7 +114,7 @@
                   CellStyle="{StaticResource DarkDataGridCell}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ISBN13" Binding="{Binding ISBN13}" Width="100" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="270"/>
+                <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="270" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
         <StackPanel Grid.Row="2"
