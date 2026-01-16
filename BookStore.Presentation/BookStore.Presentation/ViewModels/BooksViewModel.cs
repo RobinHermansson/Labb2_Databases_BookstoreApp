@@ -122,7 +122,6 @@ public class BooksViewModel : ViewModelBase
                 removedBook.PropertyChanged -= Books_PropertyChanged;
 
                 _deletedBooks.Add(removedBook);
-                Debug.WriteLine($"Book marked for deletion: {removedBook.ISBN13} {removedBook.Title}");
             }
         }
 
@@ -229,10 +228,10 @@ public class BooksViewModel : ViewModelBase
                 {
                     foreach (BookDetails deletedBook in _deletedBooks)
                     {
-                        var bookToDelete = db.Books.FirstOrDefault(b => b.Isbn13 == deletedBook.ISBN13);
+                        var bookToDelete = await db.Books.FirstOrDefaultAsync(b => b.Isbn13 == deletedBook.ISBN13);
                         if (bookToDelete is not null)
                         {
-                            var relatedInventoryBalance = db.InventoryBalances.FirstOrDefault(ib => ib.Isbn13 == bookToDelete.Isbn13);
+                            var relatedInventoryBalance = await db.InventoryBalances.FirstOrDefaultAsync(ib => ib.Isbn13 == bookToDelete.Isbn13);
                             if (relatedInventoryBalance is not null)
                             {
                                 db.InventoryBalances.Remove(relatedInventoryBalance);
@@ -242,9 +241,9 @@ public class BooksViewModel : ViewModelBase
                                 .Where(oi => oi.Isbn13 == bookToDelete.Isbn13);
                             db.OrderItems.RemoveRange(relatedOrderItems);
 
-                            var bookWithAuthors = db.Books
+                            var bookWithAuthors = await db.Books
                                 .Include(b => b.Authors)
-                                .FirstOrDefault(b => b.Isbn13 == bookToDelete.Isbn13);
+                                .FirstOrDefaultAsync(b => b.Isbn13 == bookToDelete.Isbn13);
                             if (bookWithAuthors != null)
                             {
                                 bookWithAuthors.Authors.Clear();
@@ -266,7 +265,7 @@ public class BooksViewModel : ViewModelBase
             {
                 foreach (BookDetails changedBook in _changedBooks)
                 {
-                    var bookToChange = db.Books.FirstOrDefault(b => b.Isbn13 == changedBook.ISBN13);
+                    var bookToChange = await db.Books.FirstOrDefaultAsync(b => b.Isbn13 == changedBook.ISBN13);
                     if (bookToChange is not null)
                     {
                         bookToChange.Isbn13 = changedBook.ISBN13;
@@ -285,18 +284,21 @@ public class BooksViewModel : ViewModelBase
                 await _dialogService.ShowMessageDialogAsync($"Successfully saved books.");
             }
 
-            _deletedBooks.Clear();
-            _changedBooks.Clear();
 
             await LoadBooksForSelectedStore(SelectedStore.Id);
 
-            HasChanges = false;
             
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowMessageDialogAsync($"Error saving changes: {ex.Message}", "ERROR");
-            Debug.WriteLine($"Error in SaveChanges: {ex}");
+            await _dialogService.ShowMessageDialogAsync($"Error saving changes.", "ERROR");
+            Debug.WriteLine($"Error in SaveChanges: {ex.Message}");
+        }
+        finally
+        {
+            _deletedBooks.Clear();
+            _changedBooks.Clear();
+            HasChanges = false;
         }
     }
 
@@ -308,13 +310,17 @@ public class BooksViewModel : ViewModelBase
         {
             Task result = LoadBooksForSelectedStore(SelectedStore.Id);
             HasChanges = false;
-            _deletedBooks.Clear();
-            _changedBooks.Clear();
             await _dialogService.ShowMessageDialogAsync("Reverted the pending changes.");
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error when cancelling changes and reloading. {ex.Message}");
+            await _dialogService.ShowMessageDialogAsync("Error when cancelling changes and reloading.", "ERROR");
+        }
+        finally
+        {
+            _deletedBooks.Clear();
+            _changedBooks.Clear();
         }
     }
 
