@@ -1,0 +1,145 @@
+﻿<UserControl x:Class="BookStore.Presentation.View.BooksInventoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BookStore.Presentation.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="650" d:DesignWidth="800">
+<Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0"
+                Grid.Column="0"
+                Margin="0 0 0 0"
+                Orientation="Horizontal">
+                <Button Content="← Go back" 
+                    Grid.Row="0"
+                    Command="{Binding BackToBooksCommand}"
+                    HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                    Margin="0 0 0 0"
+                    Style="{StaticResource DarkButton}"/>
+
+                <TextBlock Text="Available Books: " 
+                           FontSize="24"
+                           Foreground="White"
+                           VerticalAlignment="Center"
+                           Margin="15 0 0 0"/>
+            </StackPanel>
+        <DataGrid Grid.Row="1"
+                  Grid.Column="0"
+                  Margin="0 20 0 20"
+                  AutoGenerateColumns="False"
+                  SelectionMode="Single"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  SelectedItem="{Binding SelectedAvailable}"
+                  ItemsSource="{Binding AvailableBooks}"
+                  Style="{StaticResource DarkDataGrid}"
+                  ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeader}"
+                  RowStyle="{StaticResource DarkDataGridRow}"
+                  CellStyle="{StaticResource DarkDataGridCell}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ISBN13" Binding="{Binding BookISBN13}" Width="120" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Title" Binding="{Binding BookTitle}" Width="270" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    
+        <StackPanel Grid.Row="1"
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Margin="0 0 0 0">
+            <Button VerticalAlignment="Center"
+                    Content="+"
+                    Margin="0 0 0 0"
+                    Style="{StaticResource AddIconButton}"
+                    Command="{Binding AddBookToStoreListCommand}"
+                    CommandParameter="{Binding SelectedAvailable}"
+                    IsEnabled="{Binding SelectedAvailable, Converter={StaticResource NullToBooleanConverter}}"/>
+            <Button VerticalAlignment="Center"
+                    Content="-"
+                    Margin="0 0 0 0"
+                    Style="{StaticResource RemoveIconButton}"
+                    Command="{Binding RemoveBookFromStoreListCommand}"
+                    CommandParameter="{Binding SelectedBookAtStore}"
+                    IsEnabled="{Binding SelectedBookAtStore, Converter={StaticResource NullToBooleanConverter}}"/>
+                                 
+        </StackPanel>
+        <StackPanel Grid.Row="2" 
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    Margin="0,10,0,0">
+          </StackPanel>
+          <StackPanel Grid.Row="0"
+                Grid.Column="3"
+                Margin="0 0 0 0"
+                Orientation="Horizontal"
+                      HorizontalAlignment="Center">
+                <TextBlock Text="Books at: " 
+                           FontSize="24"
+                           Foreground="White"
+                           VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding Stores}"
+                          DisplayMemberPath="StoreName" 
+                          Height="20"
+                          Width="180"
+                          Margin="10 0 0 0"
+                          VerticalAlignment="Center"
+                          Style="{StaticResource DarkComboBox}"
+                          ItemContainerStyle="{StaticResource DarkComboBoxItem}"
+                          SelectedItem="{Binding SelectedStore}"/>
+            </StackPanel>
+        <DataGrid Grid.Row="1"
+                  Grid.Column="3"
+                  Margin="0 20 20 20"
+                  AutoGenerateColumns="False"
+                  SelectionMode="Single"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  SelectedItem="{Binding SelectedBookAtStore}"
+                  ItemsSource="{Binding BooksAtStore}"
+                  Style="{StaticResource DarkDataGrid}"
+                  ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeader}"
+                  RowStyle="{StaticResource DarkDataGridRow}"
+                  CellStyle="{StaticResource DarkDataGridCell}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ISBN13" Binding="{Binding BookISBN13}" Width="120" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Title" Binding="{Binding BookTitle}" Width="270" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    Margin="0 10 0 0">
+            
+        <Button Content="Save Changes" 
+                    Command="{Binding SaveChangesCommand}"
+                    IsEnabled="{Binding HasChanges}"
+                    Style="{StaticResource PrimaryDarkButton}"
+                    Margin="0,0,10,0"
+                    Padding="10,5"
+                    />
+            <Button Content="Cancel Changes" 
+                    Command="{Binding CancelChangesCommand}"
+                    IsEnabled="{Binding HasChanges}"
+                    Style="{StaticResource DarkButton}"
+                    Padding="10,5"
+                    />
+        </StackPanel>
+
+
+
+
+    </Grid>
+
+</UserControl>

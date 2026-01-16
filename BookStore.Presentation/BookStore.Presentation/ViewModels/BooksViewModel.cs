@@ -29,6 +29,8 @@ public class BooksViewModel : ViewModelBase
     public DelegateCommand RemoveBookCommand { get; set; }
     public DelegateCommand AddBookCommand { get; set; }
 
+    public AsyncDelegateCommand ManageBookInventoryCommand { get; set; }
+
 
     private BookDetails _selectedBook;
 
@@ -176,6 +178,19 @@ public class BooksViewModel : ViewModelBase
         EditBookCommand = new DelegateCommand(EditBook, CanEditBook);
         AddBookCommand = new DelegateCommand(AddBook, CanAddBook);
         RemoveBookCommand = new DelegateCommand(RemoveBook, CanRemoveBook);
+        ManageBookInventoryCommand = new AsyncDelegateCommand(ManageInventory, CanManageInventory);
+
+    }
+
+    private bool CanManageInventory(object? sender)
+    {
+        return true; // should always be able to manage.
+    }
+    private async Task ManageInventory(object? sender)
+    {
+        var storeToManage = SelectedStore;
+        ClearState();
+        _navigationService.NavigateTo("BooksInventoryView", "BooksView", storeToManage);
     }
 
     private bool CanRemoveBook(object? sender)
@@ -305,6 +320,15 @@ public class BooksViewModel : ViewModelBase
             _changedBooks.Clear();
             HasChanges = false;
         }
+    }
+    public void ClearState()
+    {
+        SelectedBook = null;
+        SelectedStore = null;
+        _changedBooks.Clear();
+        _deletedBooks.Clear();
+        HasChanges = false;
+
     }
 
 

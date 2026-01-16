@@ -21,6 +21,9 @@
         <DataTemplate DataType="{x:Type viewModels:EditBookViewModel}">
             <views:EditBookView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:BooksInventoryViewModel}">
+            <views:BooksInventoryView/>
+        </DataTemplate>
         
         <DataTemplate DataType="{x:Type viewModels:AuthorsViewModel}">
             <views:AuthorsView />

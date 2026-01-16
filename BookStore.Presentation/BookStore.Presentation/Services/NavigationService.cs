@@ -1,4 +1,5 @@
 ﻿
+using Bookstore.Infrastructure.Data.Model;
 using BookStore.Presentation.ViewModels;
 
 namespace BookStore.Presentation.Services;
@@ -32,6 +33,10 @@ public class NavigationService : INavigationService
                 break;
             case "BooksView":
                 _mainWindowViewModel.CurrentView = _mainWindowViewModel._booksViewModel;
+                break;
+            case "BooksInventoryView":
+                var newBooksInventoryView = new BooksInventoryViewModel(parameter as Store, this, _dialogService);
+                _mainWindowViewModel.CurrentView = newBooksInventoryView; 
                 break;
         }
     }

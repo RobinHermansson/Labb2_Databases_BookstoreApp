@@ -12,6 +12,7 @@ public class MainWindowViewModel : ViewModelBase
 {
     private INavigationService _navigationService;
 
+    public BooksInventoryViewModel _booksInventoryViewModel;
 	public BooksViewModel _booksViewModel;
     public AuthorsViewModel _authorsViewModel;
     public CustomersViewModel _customersViewModel;
