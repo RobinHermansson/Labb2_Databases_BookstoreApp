@@ -291,7 +291,17 @@ public class NewBookViewModel : ViewModelBase
         }
     }
 
-    public ObservableCollection<Publisher> AvailablePublishers { get; set; }
+    private ObservableCollection<Publisher> _availablePublishers;
+
+    public ObservableCollection<Publisher> AvailablePublishers
+    {
+        get { return _availablePublishers; }
+        set
+        {
+            _availablePublishers = value;
+            RaisePropertyChanged();
+         }
+    } 
 
     public Author SelectedAuthor
     {
@@ -311,7 +321,17 @@ public class NewBookViewModel : ViewModelBase
         }
     }
 
-    public ObservableCollection<Author> AvailableAuthors { get; set; }
+    private ObservableCollection<Author> _availableAuthors;
+
+    public ObservableCollection<Author> AvailableAuthors
+    {
+        get { return _availableAuthors; }
+        set
+        {
+            _availableAuthors = value;
+            RaisePropertyChanged();
+        }
+    }
 
     public BookDetails BookToAdmin
     {
