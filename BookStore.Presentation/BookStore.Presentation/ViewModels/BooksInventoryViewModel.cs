@@ -252,8 +252,20 @@ public class BooksInventoryViewModel : ViewModelBase
     private bool CanGoBack(object? sender) => true; // Can always go back.
     public async Task GoBack(object? sender)
     {
-        ClearState();
-        await _navigationService.NavigateBack();
+        bool shouldStillGoBack = false;
+        if (HasChanges)
+        {
+            shouldStillGoBack = await _dialogService.ShowConfirmationDialogAsync("You have unsaved changes, do you still want to go back without saving?", "Proceed without saving?");
+        }
+        if (shouldStillGoBack)
+        {
+            ClearState();
+            await _navigationService.NavigateBack();
+        }
+        else
+        {
+            return;
+        }
     }
 
     public void ClearState()
