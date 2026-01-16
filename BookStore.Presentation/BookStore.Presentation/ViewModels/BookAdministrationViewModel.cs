@@ -98,18 +98,6 @@ public class BookAdministrationViewModel : ViewModelBase
         }
     }
 
-    /*
-    public bool IsPublisherEditEnabled
-    {
-        get => _isPublisherEditEnabled;
-        set
-        {
-            _isPublisherEditEnabled = value;
-            RaisePropertyChanged();
-            CheckForChanges();
-        }
-    }
-    */
     public bool HasChanges
     {
         get => _hasChanges;
@@ -524,7 +512,6 @@ public class BookAdministrationViewModel : ViewModelBase
 
         if (_originalBookDetails != null)
         {
-            // Compare against individual ViewModel properties, not BookToAdmin
             if (_originalBookDetails.ISBN13 != ISBN13 ||
                 _originalBookDetails.Title != Title ||
                 _originalBookDetails.Language != SelectedLanguage ||
@@ -538,7 +525,6 @@ public class BookAdministrationViewModel : ViewModelBase
         switch (CurrentAuthorMode)
         {
             case AuthorMode.SelectExisting:
-                // Check if selected author changed from original
                 int? currentAuthorId = SelectedAuthor?.Id;
                 int? originalAuthorId = _originalAuthor?.Id;
                 if (currentAuthorId != originalAuthorId)
@@ -548,7 +534,6 @@ public class BookAdministrationViewModel : ViewModelBase
                 break;
                 
             case AuthorMode.CreateNew:
-                // Any data in author fields indicates a change
                 if (!string.IsNullOrEmpty(AuthorFirstName) || 
                     !string.IsNullOrEmpty(AuthorLastName) ||
                     AuthorBirthDate.HasValue ||
@@ -559,7 +544,6 @@ public class BookAdministrationViewModel : ViewModelBase
                 break;
                 
             case AuthorMode.EditExisting:
-                // Check if the author's properties have been modified
                 if (_originalAuthor != null && SelectedAuthor != null &&
                     (_originalAuthor.FirstName != AuthorFirstName ||
                      _originalAuthor.LastName != AuthorLastName ||
@@ -573,7 +557,6 @@ public class BookAdministrationViewModel : ViewModelBase
         switch (CurrentPublisherMode)
         {
             case PublisherMode.SelectExisting:
-                // Check if selected Publisher changed from original
                 int? currentPublisherId = SelectedPublisher?.Id;
                 int? originalPublisherId = _originalPublisher?.Id;
                 if (currentPublisherId != originalPublisherId)
@@ -583,7 +566,6 @@ public class BookAdministrationViewModel : ViewModelBase
                 break;
                 
             case PublisherMode.CreateNew:
-                // Any data in Publisher fields indicates a change
                 if (!string.IsNullOrEmpty(PublisherName) || 
                     !string.IsNullOrEmpty(PublisherAddress) || 
                     !string.IsNullOrEmpty(PublisherCountry) ||
@@ -595,7 +577,6 @@ public class BookAdministrationViewModel : ViewModelBase
                 break;
                 
             case PublisherMode.EditExisting:
-                // Check if the Publisher's properties have been modified
                 if (_originalPublisher != null && SelectedPublisher != null &&
                     (_originalPublisher.Name != PublisherName ||
                      _originalPublisher.Address != PublisherAddress ||
@@ -606,18 +587,6 @@ public class BookAdministrationViewModel : ViewModelBase
                 }
                 break;
         }
-        /*
-        if (IsPublisherEditEnabled && _originalPublisher != null && SelectedPublisher != null)
-        {
-            if (_originalPublisher.Name != SelectedPublisher.Name ||
-                _originalPublisher.Address != SelectedPublisher.Address ||
-                _originalPublisher.Country != SelectedPublisher.Country ||
-                _originalPublisher.Email != SelectedPublisher.Email)
-            {
-                hasAnyChanges = true;
-            }
-        }
-        */
 
         HasChanges = hasAnyChanges;
     }
@@ -724,7 +693,6 @@ public class BookAdministrationViewModel : ViewModelBase
                             existingAuthor.DeathDate = AuthorDeathDate;
                         }
 
-                        // Make sure the book is associated with this author
                         if (!bookToWorkWith.Authors.Any(a => a.Id == SelectedAuthor.Id))
                         {
                             bookToWorkWith.Authors.Clear();
@@ -776,23 +744,9 @@ public class BookAdministrationViewModel : ViewModelBase
                             existingPublisher.Country = PublisherCountry;
                             existingPublisher.Email = PublisherEmail;
                         }
-                       //Might need to also update the actual publisher with db.Publishers...? 
                     }
                     break;
                 }
-            /*
-            if (IsPublisherEditEnabled && SelectedPublisher != null)
-            {
-                var existingPublisher = await db.Publishers.FindAsync(SelectedPublisher.Id);
-                if (existingPublisher != null)
-                {
-                    existingPublisher.Name = SelectedPublisher.Name;
-                    existingPublisher.Address = SelectedPublisher.Address;
-                    existingPublisher.Country = SelectedPublisher.Country;
-                    existingPublisher.Email = SelectedPublisher.Email;
-                }
-            }
-            */
             await db.SaveChangesAsync();
 
             StatusText = existingBook != null ? "Updated successfully!" : "Created successfully!";
