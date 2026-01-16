@@ -14,7 +14,6 @@ public class BooksInventoryViewModel : ViewModelBase
     private readonly IDialogService _dialogService;
 
     private bool _hasChanges;
-    private ObservableCollection<InventoryBalanceDetail> _changedInventory;
     private ObservableCollection<InventoryBalanceDetail> _originalListAtStore = new();
     private ObservableCollection<InventoryBalanceDetail> _originalListWithAvailable = new();
 
@@ -23,11 +22,30 @@ public class BooksInventoryViewModel : ViewModelBase
     private ObservableCollection<InventoryBalanceDetail> _booksAtStore;
     private InventoryBalanceDetail? _selectedBookAtStore;
 
+    private ObservableCollection<Store> _stores;
+    private Store _selectedStore;
+
     public DelegateCommand AddBookToStoreListCommand { get; set; }
     public DelegateCommand RemoveBookFromStoreListCommand { get; set; }
     public AsyncDelegateCommand SaveChangesCommand { get; set; }
     public DelegateCommand CancelChangesCommand { get; set; }
     public AsyncDelegateCommand BackToBooksCommand { get; set; }
+
+    public ObservableCollection<Store> Stores
+    {
+        get => _stores;
+        set { _stores = value; RaisePropertyChanged(); }
+
+    }
+    public Store SelectedStore
+    {
+        get => _selectedStore;
+        set 
+        { 
+            _selectedStore = value; RaisePropertyChanged();
+            _ = LoadBookComparisonAtStore();
+        }
+    }
 
     public bool HasChanges
     {
@@ -65,11 +83,14 @@ public class BooksInventoryViewModel : ViewModelBase
         set { _selectedBookAtStore = value; RaisePropertyChanged(); }
     }
 
-    public BooksInventoryViewModel(INavigationService navigationService, IDialogService dialogService)
+    public BooksInventoryViewModel(Store incomingStore, INavigationService navigationService, IDialogService dialogService)
     {
         _navigationService = navigationService;
         _dialogService = dialogService;
-        _ = LoadBookComparisonAtStore(2);
+        _ = LoadStores(incomingStore);
+
+        _ = LoadBookComparisonAtStore();
+
         AddBookToStoreListCommand = new DelegateCommand(AddBookToStoreList, CanAddBookToStoreList);
         RemoveBookFromStoreListCommand = new DelegateCommand(RemoveBookFromStoreList, CanRemoveBookFromStoreList);
         CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
@@ -79,16 +100,22 @@ public class BooksInventoryViewModel : ViewModelBase
     }
 
 
-    private async Task LoadBookComparisonAtStore(int storeId)
+    private async Task LoadStores(Store storeFromConstructor)
+    {
+        using var db = new BookstoreDBContext();
+        var stores = await db.Stores.ToListAsync();
+        Stores = new ObservableCollection<Store>(stores);
+        SelectedStore = Stores.FirstOrDefault(s => s.Id == storeFromConstructor.Id);
+    }
+    private async Task LoadBookComparisonAtStore()
     {
         using var db = new BookstoreDBContext();
 
         var inventoryBalances = await db.InventoryBalances.Include(ib => ib.Isbn13Navigation).ToListAsync();
         var books = await db.Books.ToListAsync();
-        var stores = await db.Stores.ToListAsync();
 
         var inventoryAvailableAtStore = inventoryBalances
-            .Where(ib => ib.StoreId == storeId)
+            .Where(ib => ib.StoreId == SelectedStore.Id)
             .Select(ib => new InventoryBalanceDetail()
             {
                 BookISBN13 = ib.Isbn13,
@@ -201,7 +228,7 @@ public class BooksInventoryViewModel : ViewModelBase
             using var db = new BookstoreDBContext();
 
             var currentStoreInventory = await db.InventoryBalances
-                .Where(ib => ib.StoreId == 2)
+                .Where(ib => ib.StoreId == SelectedStore.Id)
                 .ToListAsync();
 
             var updatedIsbn13Set = BooksAtStore.Select(b => b.BookISBN13).ToHashSet();

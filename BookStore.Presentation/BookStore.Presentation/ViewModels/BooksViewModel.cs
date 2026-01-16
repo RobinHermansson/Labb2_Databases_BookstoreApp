@@ -188,8 +188,9 @@ public class BooksViewModel : ViewModelBase
     }
     private async Task ManageInventory(object? sender)
     {
+        var storeToManage = SelectedStore;
         ClearState();
-        _navigationService.NavigateTo("BooksInventoryView", "BooksView");
+        _navigationService.NavigateTo("BooksInventoryView", "BooksView", storeToManage);
     }
 
     private bool CanRemoveBook(object? sender)
