@@ -360,84 +360,93 @@ public class BookAdministrationViewModel : ViewModelBase
     }
     private async Task LoadRelatedDataAsync()
     {
-        using var db = new BookstoreDBContext();
-
-        var publishers = await db.Publishers.ToListAsync();
-        var authors = await db.Authors.ToListAsync();
-
-        AvailablePublishers = new ObservableCollection<Publisher>(publishers);
-        AvailableAuthors = new ObservableCollection<Author>(authors);
-
-        if (!string.IsNullOrEmpty(_bookToAdmin.ISBN13))
+        try
         {
 
-            var existingBook = await db.Books
-                .Include(b => b.Publisher)
-                .Include(b => b.Authors)
-                .Include(b => b.InventoryBalances)
-                .FirstOrDefaultAsync(b => b.Isbn13 == _bookToAdmin.ISBN13);
+            using var db = new BookstoreDBContext();
 
-            if (existingBook != null)
+            var publishers = await db.Publishers.ToListAsync();
+            var authors = await db.Authors.ToListAsync();
+
+            AvailablePublishers = new ObservableCollection<Publisher>(publishers);
+            AvailableAuthors = new ObservableCollection<Author>(authors);
+
+            if (!string.IsNullOrEmpty(_bookToAdmin.ISBN13))
             {
-                SelectedPublisher = AvailablePublishers.FirstOrDefault(p => p.Id == existingBook.PublisherId);
 
-                var bookAuthor = existingBook.Authors.FirstOrDefault();
-                if (bookAuthor != null)
-                {
-                    SelectedAuthor = AvailableAuthors.FirstOrDefault(a => a.Id == bookAuthor.Id);
-                }
+                var existingBook = await db.Books
+                    .Include(b => b.Publisher)
+                    .Include(b => b.Authors)
+                    .Include(b => b.InventoryBalances)
+                    .FirstOrDefaultAsync(b => b.Isbn13 == _bookToAdmin.ISBN13);
 
-                var bookQuantity = existingBook.InventoryBalances.FirstOrDefault();
-                if (bookQuantity != null)
+                if (existingBook != null)
                 {
-                    var existingBooksInventoryBalance = existingBook.InventoryBalances.FirstOrDefault(ib => ib.StoreId == BookToAdmin.BookStoreId);
-                    if (existingBooksInventoryBalance is not null)
+                    SelectedPublisher = AvailablePublishers.FirstOrDefault(p => p.Id == existingBook.PublisherId);
+
+                    var bookAuthor = existingBook.Authors.FirstOrDefault();
+                    if (bookAuthor != null)
                     {
-                        Quantity = existingBooksInventoryBalance.Quantity;
+                        SelectedAuthor = AvailableAuthors.FirstOrDefault(a => a.Id == bookAuthor.Id);
+                    }
+
+                    var bookQuantity = existingBook.InventoryBalances.FirstOrDefault();
+                    if (bookQuantity != null)
+                    {
+                        var existingBooksInventoryBalance = existingBook.InventoryBalances.FirstOrDefault(ib => ib.StoreId == BookToAdmin.BookStoreId);
+                        if (existingBooksInventoryBalance is not null)
+                        {
+                            Quantity = existingBooksInventoryBalance.Quantity;
+                        }
                     }
                 }
             }
-        }
-        _originalBookDetails = new BookDetails
-        {
-            ISBN13 = BookToAdmin.ISBN13,
-            Title = BookToAdmin.Title,
-            Language = BookToAdmin.Language,
-            PriceInSek = BookToAdmin.PriceInSek,
-            PublicationDate = BookToAdmin.PublicationDate,
-            Quantity = BookToAdmin.Quantity
-        };
-
-        if (SelectedAuthor != null)
-        {
-            _originalAuthor = new Author
+            _originalBookDetails = new BookDetails
             {
-                Id = SelectedAuthor.Id,
-                FirstName = SelectedAuthor.FirstName,
-                LastName = SelectedAuthor.LastName,
-                BirthDate = SelectedAuthor.BirthDate,
-                DeathDate = SelectedAuthor.DeathDate
+                ISBN13 = BookToAdmin.ISBN13,
+                Title = BookToAdmin.Title,
+                Language = BookToAdmin.Language,
+                PriceInSek = BookToAdmin.PriceInSek,
+                PublicationDate = BookToAdmin.PublicationDate,
+                Quantity = BookToAdmin.Quantity
             };
-        }
 
-        if (SelectedPublisher != null)
-        {
-            _originalPublisher = new Publisher
+            if (SelectedAuthor != null)
             {
-                Id = SelectedPublisher.Id,
-                Name = SelectedPublisher.Name,
-                Address = SelectedPublisher.Address,
-                Country = SelectedPublisher.Country,
-                Email = SelectedPublisher.Email
-            };
-        }
+                _originalAuthor = new Author
+                {
+                    Id = SelectedAuthor.Id,
+                    FirstName = SelectedAuthor.FirstName,
+                    LastName = SelectedAuthor.LastName,
+                    BirthDate = SelectedAuthor.BirthDate,
+                    DeathDate = SelectedAuthor.DeathDate
+                };
+            }
 
-        ISBN13 = BookToAdmin.ISBN13;
-        Title = BookToAdmin.Title;
-        PriceInSek = BookToAdmin.PriceInSek;
-        SelectedLanguage = BookToAdmin.Language;
-        PublicationDate = BookToAdmin.PublicationDate;
-        Quantity = BookToAdmin.Quantity;
+            if (SelectedPublisher != null)
+            {
+                _originalPublisher = new Publisher
+                {
+                    Id = SelectedPublisher.Id,
+                    Name = SelectedPublisher.Name,
+                    Address = SelectedPublisher.Address,
+                    Country = SelectedPublisher.Country,
+                    Email = SelectedPublisher.Email
+                };
+            }
+
+            ISBN13 = BookToAdmin.ISBN13;
+            Title = BookToAdmin.Title;
+            PriceInSek = BookToAdmin.PriceInSek;
+            SelectedLanguage = BookToAdmin.Language;
+            PublicationDate = BookToAdmin.PublicationDate;
+            Quantity = BookToAdmin.Quantity;
+        }
+        catch(Exception ex)
+        {
+            Debug.WriteLine($"Error when loading Related data: {ex.Message}");
+            _dialogService.ShowMessageDialogAsync("Error when loading the Book's related data", "ERROR");
+        }
 
     }
     private void BookToAdmin_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -641,16 +650,12 @@ public class BookAdministrationViewModel : ViewModelBase
             StatusText = existingBook != null ? "Updated successfully!" : "Created successfully!";
             await _dialogService.ShowMessageDialogAsync(StatusText);
             HasChanges = false;
-
-            // _navigationService?.NavigateBack();
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error saving: {ex.Message}");
             StatusText = $"Save failed: {ex.Message}";
             await _dialogService.ShowMessageDialogAsync(StatusText, "ERROR!");
-
-            // await _dialogService.ShowErrorDialogAsync($"Failed to save: {ex.Message}", "Save Error");
         }
         finally
         {
@@ -692,10 +697,21 @@ public class BookAdministrationViewModel : ViewModelBase
     }
     public async Task CancelChanges(object? parameter)
     {
-        await LoadRelatedDataAsync();
-        HasChanges = false;
-        StatusText = "Cancelled whatever you were doing.";
-        await _dialogService.ShowMessageDialogAsync(StatusText);
+        try
+        {
+            await LoadRelatedDataAsync();
+            StatusText = "Cancelled whatever you were doing.";
+            await _dialogService.ShowMessageDialogAsync(StatusText);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error when loading related data after cancelling changes: {ex.Message}");
+            await _dialogService.ShowMessageDialogAsync("Error when loading the book's related data after cancelling changes.", "ERROR");
+        }
+        finally
+        {
+            HasChanges = false;
+        }
     }
 
     public async Task GoBack(object? sender)
