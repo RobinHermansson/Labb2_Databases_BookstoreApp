@@ -25,12 +25,6 @@
                     HorizontalAlignment="Left"
                     Margin="0 0 0 10"
                     Style="{StaticResource DarkButton}"/>
-            <TextBlock Text="{Binding ValidationErrorText}" 
-                       Foreground="Red"
-                       Visibility="{Binding IsISBN13Valid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Center"
-                       Margin="15 0 0 10"/>
         </StackPanel>
         <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" 
             BorderBrush="LightGray" BorderThickness="1" 
@@ -46,11 +40,19 @@
             
             <Label Content="Isbn13"
                    Foreground="White"/>
+             <TextBlock Text="ISBN13 must be exactly 13 characters" 
+             Foreground="Red"
+             Visibility="{Binding IsISBN13Valid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+             Margin="0,2,0,5"/>
             <TextBox x:Name="Isn13Box"
                      Text="{Binding ISBN13, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource DarkTextBox}"/>
             <Label Content="Title"
                    Foreground="White"></Label>
+            <TextBlock Text="Title is required" 
+         Foreground="Red"
+         Visibility="{Binding IsTitleValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+         Margin="0,2,0,5"/>
             <TextBox x:Name="TitleBox"
                      Text="{Binding Title}"
                      Style="{StaticResource DarkTextBox}"/>
@@ -62,6 +64,11 @@
                       Style="{StaticResource DarkComboBox}"/>
             <Label Content="Price in Sek"
                    Foreground="White"></Label>
+                   <TextBlock Text="Price needs to be above 0" 
+         Foreground="Red"
+         Visibility="{Binding IsPriceValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+         Margin="0,2,0,5"/>
+
             <TextBox x:Name="PriceInSekBox"
                      Text="{Binding PriceInSek}"
                      Style="{StaticResource DarkTextBox}"/>
@@ -140,6 +147,11 @@
 
         <!-- Author Details -->
         <Label Content="First Name" Foreground="White"/>
+         <TextBlock Text="Firstname needs to be longer than 0" 
+             Foreground="Red"
+             Visibility="{Binding IsAuthorFirstNameValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+             Margin="0,2,0,5"/>
+
         <TextBox Text="{Binding AuthorFirstName}"
                  Style="{StaticResource DarkTextBox}">
             <TextBox.IsEnabled>
@@ -151,6 +163,11 @@
         </TextBox>
 
         <Label Content="Last Name" Foreground="White"/>
+                <TextBlock Text="Lastname needs to be longer than 0" 
+             Foreground="Red"
+             Visibility="{Binding IsAuthorLastNameValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+             Margin="0,2,0,5"/>
+
         <TextBox Text="{Binding AuthorLastName}"
                  Style="{StaticResource DarkTextBox}">
             <TextBox.IsEnabled>
@@ -241,6 +258,10 @@
                 </ComboBox>
                 <Label Content="Name"
                    Foreground="White"/>
+                   <TextBlock Text="Name needs to be longer than 0" 
+             Foreground="Red"
+             Visibility="{Binding IsPublisherNameValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+             Margin="0,2,0,5"/>
                 <TextBox 
                     Text="{Binding PublisherName}"
                     Style="{StaticResource DarkTextBox}">
@@ -253,6 +274,10 @@
                 </TextBox>
                 <Label Content="Address"
                    Foreground="White"/>
+                <TextBlock Text="Address needs to be longer than 0" 
+             Foreground="Red"
+             Visibility="{Binding IsPublisherAddressValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+             Margin="0,2,0,5"/>
                 <TextBox 
                     Text="{Binding PublisherAddress}"
                     Style="{StaticResource DarkTextBox}">
@@ -265,6 +290,11 @@
                 </TextBox>
                 <Label Content="Country"
                    Foreground="White"/>
+                <TextBlock Text="Country needs to be longer than 0" 
+             Foreground="Red"
+             Visibility="{Binding IsPublisherCountryValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+             Margin="0,2,0,5"/>
+
                 <TextBox 
                     Text="{Binding PublisherCountry}"
                     Style="{StaticResource DarkTextBox}">
@@ -277,6 +307,11 @@
                 </TextBox>
                 <Label Content="Email"
                    Foreground="White"/>
+                <TextBlock Text="Email needs to be longer than 0" 
+             Foreground="Red"
+             Visibility="{Binding IsPublisherEmailValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
+             Margin="0,2,0,5"/>
+
                 <TextBox 
                     Text="{Binding PublisherEmail}"
                     Style="{StaticResource DarkTextBox}">

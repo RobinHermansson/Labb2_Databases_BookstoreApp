@@ -24,7 +24,6 @@
             <converters:BooleanOrConverter x:Key="BooleanOrConverter"/>
             <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
             <converters:BooleanToVisibilityInverseConverter x:Key="BooleanToVisibilityInverseConverter"/>
-            
             <!-- Dark ScrollBar Styles -->
             <Style x:Key="DarkScrollBarThumb" TargetType="Thumb">
                 <Setter Property="SnapsToDevicePixels" Value="True"/>

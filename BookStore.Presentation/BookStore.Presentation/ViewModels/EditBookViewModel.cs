@@ -51,7 +51,8 @@ public class EditBookViewModel : ViewModelBase
     public AsyncDelegateCommand SaveChangesCommand { get; set; }
     public AsyncDelegateCommand CancelChangesCommand { get; set; }
     public AsyncDelegateCommand BackToBooksCommand { get; set; }
-    private bool CanSaveChanges(object parameter) => HasChanges && !IsLoading && IsISBN13Valid;
+    private bool CanSaveChanges(object parameter) => HasChanges && !IsLoading && IsISBN13Valid && IsPriceValid && IsTitleValid && IsAuthorFirstNameValid && IsAuthorLastNameValid && IsPublisherNameValid && IsPublisherAddressValid && IsPublisherCountryValid && IsPublisherEmailValid;
+
     private bool CanCancel(object parameter) => HasChanges && !IsLoading;
 
     private string _validationErrorText = string.Empty;
@@ -109,6 +110,7 @@ public class EditBookViewModel : ViewModelBase
             RaisePropertyChanged("IsISBN13Valid");
         }
     }
+    public bool IsTitleValid { get; private set; } = true;
 
     public string Title
     {
@@ -116,6 +118,13 @@ public class EditBookViewModel : ViewModelBase
         set
         {
             _title = value;
+            IsTitleValid = !string.IsNullOrEmpty(value);
+            if (!IsTitleValid)
+            {
+                ValidationErrorText = "Title can't be empty.";
+            }
+            RaisePropertyChanged(nameof(IsTitleValid));
+
             RaisePropertyChanged();
             CheckForChanges();
         }
@@ -137,17 +146,24 @@ public class EditBookViewModel : ViewModelBase
         }
     }
 
+    public bool IsPriceValid { get; private set; } = true;
+
     public decimal PriceInSek
     {
         get { return _priceInSek; }
         set
         {
             _priceInSek = value;
+            IsPriceValid = value > 0;
+            if (!IsPriceValid)
+            {
+                ValidationErrorText = "Price must be higher than 0.";
+            }
+            RaisePropertyChanged(nameof(IsPriceValid));
             RaisePropertyChanged();
             CheckForChanges();
         }
     }
-
     public int Quantity
     {
         get { return _quantity; }
@@ -184,28 +200,47 @@ public class EditBookViewModel : ViewModelBase
         }
     }
 
+    public bool IsAuthorFirstNameValid { get; set; } = true;
     public string AuthorFirstName
     {
         get => _authorFirstName;
         set
         {
             _authorFirstName = value;
+            if (CurrentAuthorMode == AuthorMode.CreateNew || CurrentAuthorMode == AuthorMode.EditExisting)
+            {
+                IsAuthorFirstNameValid = !string.IsNullOrEmpty(value);
+            }
+            else
+            {
+                IsAuthorFirstNameValid = true;
+            }
+            RaisePropertyChanged(nameof(IsAuthorFirstNameValid));
             RaisePropertyChanged();
             CheckForChanges();
         }
     }
-
+    public bool IsAuthorLastNameValid { get; set; } = true;
     public string AuthorLastName
     {
         get => _authorLastName;
         set
         {
             _authorLastName = value;
+            if (CurrentAuthorMode == AuthorMode.CreateNew || CurrentAuthorMode == AuthorMode.EditExisting)
+            {
+                IsAuthorLastNameValid = !string.IsNullOrEmpty(value);
+            }
+            else
+            {
+                IsAuthorLastNameValid = true;
+            }
+            RaisePropertyChanged(nameof(IsAuthorLastNameValid));
+
             RaisePropertyChanged();
             CheckForChanges();
         }
     }
-
     public DateOnly? AuthorBirthDate
     {
         get => _authorBirthDate;
@@ -240,50 +275,91 @@ public class EditBookViewModel : ViewModelBase
         }
     }
 
+    public bool IsPublisherNameValid { get; set; } = true;
     public string PublisherName
     {
         get => _publisherName;
         set
         {
             _publisherName = value;
+            if (CurrentPublisherMode == PublisherMode.CreateNew || CurrentPublisherMode == PublisherMode.EditExisting)
+            {
+                IsPublisherNameValid = !string.IsNullOrEmpty(value);
+            }
+            else
+            {
+                IsPublisherNameValid = true;
+            }
+            RaisePropertyChanged(nameof(IsPublisherNameValid));
             RaisePropertyChanged();
             CheckForChanges();
         }
     }
-
+    public bool IsPublisherAddressValid { get; set; } = true;
     public string PublisherAddress
     {
         get => _publisherAddress;
         set
         {
             _publisherAddress = value;
+            if (CurrentPublisherMode == PublisherMode.CreateNew || CurrentPublisherMode == PublisherMode.EditExisting)
+            {
+                IsPublisherAddressValid = !string.IsNullOrEmpty(value);
+            }
+            else
+            {
+                IsPublisherAddressValid = true;
+            }
+            RaisePropertyChanged(nameof(IsPublisherAddressValid));
+
             RaisePropertyChanged();
             CheckForChanges();
         }
     }
 
+    public bool IsPublisherCountryValid { get; set; } = true;
     public string PublisherCountry
     {
         get => _publisherCountry;
         set
         {
             _publisherCountry = value;
+            if (CurrentPublisherMode == PublisherMode.CreateNew || CurrentPublisherMode == PublisherMode.EditExisting)
+            {
+                IsPublisherCountryValid = !string.IsNullOrEmpty(value);
+            }
+            else
+            {
+                IsPublisherCountryValid = true;
+            }
+            RaisePropertyChanged(nameof(IsPublisherCountryValid));
+
             RaisePropertyChanged();
             CheckForChanges();
         }
     }
 
+    public bool IsPublisherEmailValid { get; set; } = true;
     public string PublisherEmail
     {
         get => _publisherEmail;
         set
         {
             _publisherEmail = value;
+            if (CurrentPublisherMode == PublisherMode.CreateNew || CurrentPublisherMode == PublisherMode.EditExisting)
+            {
+                IsPublisherEmailValid = !string.IsNullOrEmpty(value);
+            }
+            else
+            {
+                IsPublisherEmailValid = true;
+            }
+            RaisePropertyChanged(nameof(IsPublisherEmailValid));
+
             RaisePropertyChanged();
             CheckForChanges();
         }
     }
-
     public Publisher SelectedPublisher
     {
         get { return _selectedPublisher; }
@@ -302,8 +378,8 @@ public class EditBookViewModel : ViewModelBase
         {
             _availablePublishers = value;
             RaisePropertyChanged();
-         }
-    } 
+        }
+    }
     public Author SelectedAuthor
     {
         get { return _selectedAuthor; }
@@ -436,7 +512,7 @@ public class EditBookViewModel : ViewModelBase
                     };
 
                     await LoadBookDataAsync(existingBook);
-                    
+
                     if (SelectedAuthor != null)
                     {
                         _originalAuthor = new Author
