@@ -206,7 +206,7 @@ public class MainWindowViewModel : ViewModelBase
 
         if (_booksViewModel?.HasChanges == true)
             hasChanges = true;
-        
+
         if (_booksInventoryViewModel?.HasChanges == true)
             hasChanges = true;
 
@@ -239,7 +239,12 @@ public class MainWindowViewModel : ViewModelBase
         {
             _customersViewModel.ClearState();
         }
+        if (_booksInventoryViewModel != null)
+        {
+           _booksInventoryViewModel.ClearState();
+        }
     }
+    
     private async Task<bool> ConfirmSwitchAsync()
     {
         bool hasChanges = HasChangesCheck();

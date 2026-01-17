@@ -310,6 +310,7 @@ public class BooksInventoryViewModel : ViewModelBase
 
     public void ClearState()
     {
+        _ = LoadBookComparisonAtStore();
         SelectedAvailable = null;
         SelectedBookAtStore = null;
         HasChanges = false;

@@ -36,6 +36,7 @@ public class NavigationService : INavigationService
                 break;
             case "BooksInventoryView":
                 var newBooksInventoryView = new BooksInventoryViewModel(parameter as Store, this, _dialogService);
+                _mainWindowViewModel._booksInventoryViewModel = newBooksInventoryView;
                 _mainWindowViewModel.CurrentView = newBooksInventoryView; 
                 break;
         }
