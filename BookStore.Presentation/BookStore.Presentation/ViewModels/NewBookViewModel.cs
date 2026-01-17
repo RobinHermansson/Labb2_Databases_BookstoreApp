@@ -780,6 +780,16 @@ public class NewBookViewModel : ViewModelBase
                     AuthorBirthDate = SelectedAuthor.BirthDate;
                     AuthorDeathDate = SelectedAuthor.DeathDate;
                 }
+                if (SelectedAuthor is null && AvailableAuthors.Count >= 1 && _originalAuthor is null)
+                {
+                    SelectedAuthor = AvailableAuthors[0];
+                    AuthorFirstName = SelectedAuthor.FirstName;
+                    AuthorLastName = SelectedAuthor.LastName;
+                    AuthorBirthDate = SelectedAuthor.BirthDate;
+                    AuthorDeathDate = SelectedAuthor.DeathDate;
+
+                   
+                }
                 break;
         }
 
@@ -817,6 +827,15 @@ public class NewBookViewModel : ViewModelBase
                     PublisherCountry = SelectedPublisher.Country;
                     PublisherEmail = SelectedPublisher.Email;
                 }
+                if (SelectedPublisher is null && AvailablePublishers.Count >= 1 && _originalPublisher is null)
+                {
+                    SelectedPublisher = AvailablePublishers[0];
+                    PublisherName = SelectedPublisher.Name;
+                    PublisherAddress = SelectedPublisher.Address;
+                    PublisherCountry = SelectedPublisher.Country;
+                    PublisherEmail = SelectedPublisher.Email;
+                }
+
                 break;
         }
 
