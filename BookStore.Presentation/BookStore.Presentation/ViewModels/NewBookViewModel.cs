@@ -366,6 +366,15 @@ public class NewBookViewModel : ViewModelBase
         set
         {
             _selectedPublisher = value;
+            if (value != null && CurrentPublisherMode == PublisherMode.EditExisting)
+            {
+                PublisherName = value.Name;
+                PublisherAddress = value.Address;
+                PublisherCountry = value.Country;
+                PublisherEmail = value.Email;
+            }
+            CheckForChanges();
+
             RaisePropertyChanged();
             CheckForChanges();
         }
