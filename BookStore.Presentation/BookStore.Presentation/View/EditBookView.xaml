@@ -60,7 +60,7 @@
          Visibility="{Binding IsTitleValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
          Margin="0,2,0,5"/>
             <TextBox x:Name="TitleBox"
-                     Text="{Binding Title}"
+                     Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource DarkTextBox}"/>
             <Label Content="Language"
                    Foreground="White"></Label>
@@ -76,7 +76,7 @@
          Margin="0,2,0,5"/>
 
             <TextBox x:Name="PriceInSekBox"
-                     Text="{Binding PriceInSek}"
+                     Text="{Binding PriceInSek, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource DarkTextBox}"/>
             <Label Content="Publication date"
                    Foreground="White"></Label>
@@ -158,7 +158,7 @@
              Visibility="{Binding IsAuthorFirstNameValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
              Margin="0,2,0,5"/>
 
-        <TextBox Text="{Binding AuthorFirstName}"
+        <TextBox Text="{Binding AuthorFirstName, UpdateSourceTrigger=PropertyChanged}"
                  Style="{StaticResource DarkTextBox}">
             <TextBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource BooleanOrConverter}">
@@ -174,7 +174,7 @@
              Visibility="{Binding IsAuthorLastNameValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
              Margin="0,2,0,5"/>
 
-        <TextBox Text="{Binding AuthorLastName}"
+        <TextBox Text="{Binding AuthorLastName, UpdateSourceTrigger=PropertyChanged}"
                  Style="{StaticResource DarkTextBox}">
             <TextBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource BooleanOrConverter}">
@@ -269,7 +269,7 @@
              Visibility="{Binding IsPublisherNameValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
              Margin="0,2,0,5"/>
                 <TextBox 
-                    Text="{Binding PublisherName}"
+                    Text="{Binding PublisherName, UpdateSourceTrigger=PropertyChanged}"
                     Style="{StaticResource DarkTextBox}">
                     <TextBox.IsEnabled>
                         <MultiBinding Converter="{StaticResource BooleanOrConverter}">
@@ -285,7 +285,7 @@
              Visibility="{Binding IsPublisherAddressValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
              Margin="0,2,0,5"/>
                 <TextBox 
-                    Text="{Binding PublisherAddress}"
+                    Text="{Binding PublisherAddress, UpdateSourceTrigger=PropertyChanged}"
                     Style="{StaticResource DarkTextBox}">
                     <TextBox.IsEnabled>
                         <MultiBinding Converter="{StaticResource BooleanOrConverter}">
@@ -302,7 +302,7 @@
              Margin="0,2,0,5"/>
 
                 <TextBox 
-                    Text="{Binding PublisherCountry}"
+                    Text="{Binding PublisherCountry, UpdateSourceTrigger=PropertyChanged}"
                     Style="{StaticResource DarkTextBox}">
                     <TextBox.IsEnabled>
                         <MultiBinding Converter="{StaticResource BooleanOrConverter}">
@@ -313,13 +313,13 @@
                 </TextBox>
                 <Label Content="Email"
                    Foreground="White"/>
-                <TextBlock Text="Email needs to be longer than 0" 
+                <TextBlock Text="Email needs to be longer than 5" 
              Foreground="Red"
              Visibility="{Binding IsPublisherEmailValid, Converter={StaticResource BooleanToVisibilityInverseConverter}}"
              Margin="0,2,0,5"/>
 
                 <TextBox 
-                    Text="{Binding PublisherEmail}"
+                    Text="{Binding PublisherEmail, UpdateSourceTrigger=PropertyChanged}"
                     Style="{StaticResource DarkTextBox}">
                     <TextBox.IsEnabled>
                         <MultiBinding Converter="{StaticResource BooleanOrConverter}">

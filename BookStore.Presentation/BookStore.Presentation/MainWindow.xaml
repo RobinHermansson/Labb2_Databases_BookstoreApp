@@ -44,7 +44,7 @@
     </Window.Resources>
     <Border Background="#272537"
             CornerRadius="20"
-            MouseLeftButtonDown="Border_MouseLeftButtonDown">
+            >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
@@ -55,66 +55,79 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="70"/>
             </Grid.ColumnDefinitions>
-            
-            <TextBlock Text="BookStore"
+           
+            <!-- Draggable Title Bar Area -->
+            <Grid Grid.Row="0" 
+                  Grid.ColumnSpan="3" 
+                  Background="Transparent"
+                  MouseLeftButtonDown="Border_MouseLeftButtonDown">
+                <TextBlock Text="BookStore"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Left"
                        Margin="20,0,0,0"
                        Foreground="White"
                        FontSize="22"/>
-            <Button Content="✕" 
-                    Grid.Column="2"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Width="15" 
-                    BorderThickness="0"
-                    Background="Transparent"
-                    Foreground="IndianRed"
-                    Click="CloseButton_Click"/>
+                <Button Content="✕" 
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Width="15" 
+                        BorderThickness="0"
+                        Background="Transparent"
+                        Foreground="IndianRed"
+                        Click="CloseButton_Click"
+                        Margin="0 0 27 0"
+                        />
+            </Grid>
             <StackPanel Grid.Row="1">
-                <RadioButton Content="Books"
-                     IsChecked="{Binding IsBooksSelected}"
-                     Height="50"
-                     Foreground="White"
-                     FontSize="14"
-                     Style="{StaticResource MenuButtonTheme}" 
-                     GroupName="MenuNavigation"/>
-                <RadioButton Content="Authors"
-                     IsChecked="{Binding IsAuthorsSelected}"
-                     Height="50"
-                     Foreground="White"
-                     FontSize="14"
-                     Style="{StaticResource MenuButtonTheme}"
-                     GroupName="MenuNavigation"/>
-                <RadioButton Content="Customers"
-                     IsChecked="{Binding IsCustomersSelected}"
-                     Height="50"
-                     Foreground="White"
-                     FontSize="14"
-                     Style="{StaticResource MenuButtonTheme}"
-                     GroupName="MenuNavigation"/>
-                <RadioButton Content="Orders"
-                     IsChecked="{Binding IsOrdersSelected}"
-                     Height="50"
-                     Foreground="White"
-                     FontSize="14"
-                     Style="{StaticResource MenuButtonTheme}"
-                     GroupName="MenuNavigation"/>
-                <RadioButton Content="Publishers"
-                     IsChecked="{Binding IsPublishersSelected}"
-                     Height="50"
-                     Foreground="White"
-                     FontSize="14"
-                     Style="{StaticResource MenuButtonTheme}"
-                     GroupName="MenuNavigation"/>
-                <RadioButton Content="Stores"
-                     IsChecked="{Binding IsStoresSelected}"
-                     Height="50"
-                     Foreground="White"
-                     FontSize="14"
-                     Style="{StaticResource MenuButtonTheme}"
-                     GroupName="MenuNavigation"/> 
-            </StackPanel>
+            <RadioButton Content="Books"
+                 IsChecked="{Binding IsBooksSelected}"
+                 Command="{Binding SwitchToBooksViewCommand}"
+                 Height="50"
+                 Foreground="White"
+                 FontSize="14"
+                 Style="{StaticResource MenuButtonTheme}" 
+                 GroupName="MenuNavigation"/>
+            <RadioButton Content="Authors"
+                 IsChecked="{Binding IsAuthorsSelected}"
+                 Command="{Binding SwitchToAuthorsViewCommand}"
+                 Height="50"
+                 Foreground="White"
+                 FontSize="14"
+                 Style="{StaticResource MenuButtonTheme}"
+                 GroupName="MenuNavigation"/>
+            <RadioButton Content="Customers"
+                 IsChecked="{Binding IsCustomersSelected}"
+                 Command="{Binding SwitchToCustomersViewCommand}"
+                 Height="50"
+                 Foreground="White"
+                 FontSize="14"
+                 Style="{StaticResource MenuButtonTheme}"
+                 GroupName="MenuNavigation"/>
+            <RadioButton Content="Orders"
+                 IsChecked="{Binding IsOrdersSelected}"
+                 Command="{Binding SwitchToOrdersViewCommand}"
+                 Height="50"
+                 Foreground="White"
+                 FontSize="14"
+                 Style="{StaticResource MenuButtonTheme}"
+                 GroupName="MenuNavigation"/>
+            <RadioButton Content="Publishers"
+                 IsChecked="{Binding IsPublishersSelected}"
+                 Command="{Binding SwitchToPublishersViewCommand}"
+                 Height="50"
+                 Foreground="White"
+                 FontSize="14"
+                 Style="{StaticResource MenuButtonTheme}"
+                 GroupName="MenuNavigation"/>
+            <RadioButton Content="Stores"
+                 IsChecked="{Binding IsStoresSelected}"
+                 Command="{Binding SwitchToStoresViewCommand}"
+                 Height="50"
+                 Foreground="White"
+                 FontSize="14"
+                 Style="{StaticResource MenuButtonTheme}"
+                 GroupName="MenuNavigation"/> 
+        </StackPanel>
             <ContentControl Grid.Row="1" 
                 Grid.Column="1"
                 Content="{Binding CurrentView}"></ContentControl>

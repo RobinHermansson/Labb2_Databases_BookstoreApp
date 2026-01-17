@@ -31,9 +31,6 @@ public class CustomersViewModel : ViewModelBase
         }
     }
 
-
-
-
     public AsyncDelegateCommand CancelChangesCommand { get; set; }
     public AsyncDelegateCommand SaveChangesCommand { get; set; }
 
@@ -263,6 +260,13 @@ public class CustomersViewModel : ViewModelBase
         {
             Debug.WriteLine($"Error when loading customers after saving: {ex.Message}");
         }
+    }
+    public void ClearState()
+    {
+        _newCustomers.Clear();
+        _deletedCustomers.Clear();
+        _changedCustomers.Clear();
+        HasChanges = false;
     }
 
 

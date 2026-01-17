@@ -99,7 +99,6 @@ public class EditBookViewModel : ViewModelBase
         set
         {
             _isbn13 = value;
-            RaisePropertyChanged();
             CheckForChanges();
 
             IsISBN13Valid = !string.IsNullOrEmpty(value) && value.Length == 13;
@@ -108,6 +107,7 @@ public class EditBookViewModel : ViewModelBase
                 ValidationErrorText = "ISBN13 must be exactly 13 characters.";
             }
             RaisePropertyChanged("IsISBN13Valid");
+            RaisePropertyChanged();
         }
     }
     public bool IsTitleValid { get; private set; } = true;
@@ -348,7 +348,7 @@ public class EditBookViewModel : ViewModelBase
             _publisherEmail = value;
             if (CurrentPublisherMode == PublisherMode.CreateNew || CurrentPublisherMode == PublisherMode.EditExisting)
             {
-                IsPublisherEmailValid = !string.IsNullOrEmpty(value);
+                IsPublisherEmailValid = !string.IsNullOrEmpty(value) && value.Length > 5;
             }
             else
             {
@@ -366,6 +366,15 @@ public class EditBookViewModel : ViewModelBase
         set
         {
             _selectedPublisher = value;
+            if (value != null && CurrentPublisherMode == PublisherMode.EditExisting)
+            {
+                PublisherName = value.Name;
+                PublisherAddress = value.Address;
+                PublisherCountry = value.Country;
+                PublisherEmail = value.Email;
+            }
+            CheckForChanges();
+
             RaisePropertyChanged();
             CheckForChanges();
         }

@@ -299,6 +299,13 @@ public class StoresViewModel: ViewModelBase
             Debug.WriteLine($"Error when loading stores directly: {ex.Message}");
         }
 	}
+    public void ClearState()
+    {
+        _changedStores.Clear();
+        _deletedStores.Clear();
+        _newStores.Clear();
+        HasChanges = false;
+    }
 }
 
 public class StoreDetails : INotifyPropertyChanged

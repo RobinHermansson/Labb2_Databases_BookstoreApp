@@ -2,6 +2,7 @@
 using BookStore.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using NavigationService = BookStore.Presentation.Services.NavigationService;
@@ -24,6 +25,13 @@ public class MainWindowViewModel : ViewModelBase
     private readonly IDialogService _dialogService;
     private bool _isDialogOpen;
     private UserControl _dialogContent;
+
+    public AsyncDelegateCommand SwitchToBooksViewCommand { get; set; }
+    public AsyncDelegateCommand SwitchToAuthorsViewCommand { get; set; }
+    public AsyncDelegateCommand SwitchToCustomersViewCommand { get; set; }
+    public AsyncDelegateCommand SwitchToOrdersViewCommand { get; set; }
+    public AsyncDelegateCommand SwitchToPublishersViewCommand { get; set; }
+    public AsyncDelegateCommand SwitchToStoresViewCommand { get; set; }
 
     public bool IsDialogOpen
     {
@@ -59,13 +67,62 @@ public class MainWindowViewModel : ViewModelBase
         set
         {
             _isBooksSelected = value;
-            if (value) CurrentView = _booksViewModel;
-            _ = _booksViewModel.LoadStoresAsync();
             RaisePropertyChanged();
-            //_booksViewModel?.RaisePropertyChanged("Stores");
+        }
+    }
+    private async Task SwitchToBooksAsync(object? sender)
+    {
+        if (await ConfirmSwitchAsync())
+        {
+            CurrentView = _booksViewModel;
+            await _booksViewModel.LoadStoresAsync();
         }
     }
 
+    private async Task SwitchToAuthorsAsync(object? sender)
+    {
+        if (await ConfirmSwitchAsync())
+        {
+            CurrentView = _authorsViewModel;
+            await _authorsViewModel.LoadAuthorDetailsAsync();
+        }
+    }
+
+    private async Task SwitchToCustomersAsync(object? sender)
+    {
+        if (await ConfirmSwitchAsync())
+        {
+            CurrentView = _customersViewModel;
+            await _customersViewModel.LoadAllCustomersAsync();
+        }
+    }
+
+    private async Task SwitchToOrdersAsync(object? sender)
+    {
+        if (await ConfirmSwitchAsync())
+        {
+            CurrentView = _ordersViewModel;
+            await _ordersViewModel.LoadOrdersAsync();
+        }
+    }
+
+    private async Task SwitchToPublishersAsync(object? sender)
+    {
+        if (await ConfirmSwitchAsync())
+        {
+             CurrentView = _publisherViewModel;
+            await _publisherViewModel.LoadPublishersAsync();
+        }
+    }
+
+    private async Task SwitchToStoresAsync(object? sender)
+    {
+        if (await ConfirmSwitchAsync())
+        {
+            CurrentView = _storesViewModel;
+            await _storesViewModel.LoadStoresAsync();
+        }
+    }
     private bool _isAuthorsSelected;
     public bool IsAuthorsSelected
     {
@@ -73,8 +130,6 @@ public class MainWindowViewModel : ViewModelBase
         set
         {
             _isAuthorsSelected = value;
-            if (value) CurrentView = _authorsViewModel;
-            _ = _authorsViewModel.LoadAuthorDetailsAsync();
             RaisePropertyChanged();
 
         }
@@ -87,8 +142,6 @@ public class MainWindowViewModel : ViewModelBase
         set
         {
             _isCustomersSelected = value;
-            _ = _customersViewModel.LoadAllCustomersAsync();
-            if (value) CurrentView = _customersViewModel;
             RaisePropertyChanged();
             
         }
@@ -102,11 +155,6 @@ public class MainWindowViewModel : ViewModelBase
         {
             _isOrdersSelected = value;
             RaisePropertyChanged();
-            if (value)
-            {
-                CurrentView = _ordersViewModel;
-                _ = _ordersViewModel.LoadOrdersAsync();
-            }
         }
     }
 
@@ -118,8 +166,6 @@ public class MainWindowViewModel : ViewModelBase
         {
             _isPublishersSelected = value;
             RaisePropertyChanged();
-            if (value) CurrentView = _publisherViewModel;
-            _ = _publisherViewModel.LoadPublishersAsync();
         }
     }
 
@@ -131,8 +177,6 @@ public class MainWindowViewModel : ViewModelBase
         {
             _isStoresSelected = value;
             RaisePropertyChanged();
-            if (value) CurrentView = _storesViewModel;
-            _ = _storesViewModel.LoadStoresAsync();
         }
     }
 
@@ -156,7 +200,83 @@ public class MainWindowViewModel : ViewModelBase
             RaisePropertyChanged();
         }
     }
+    public bool HasChangesCheck()
+    {
+        bool hasChanges = false;
 
+        if (_booksViewModel?.HasChanges == true)
+            hasChanges = true;
+
+        if (_booksInventoryViewModel?.HasChanges == true)
+            hasChanges = true;
+
+        if (_customersViewModel?.HasChanges == true)
+            hasChanges = true;
+        
+        if (_authorsViewModel?.HasChanges == true)
+            hasChanges = true;
+        
+        if (_publisherViewModel?.HasChanges == true)
+            hasChanges = true;
+        
+        if (_ordersViewModel?.HasChanges == true)
+            hasChanges = true;
+        
+        if (_storesViewModel?.HasChanges == true)
+            hasChanges = true;
+
+        return hasChanges;
+    }
+
+    public void ResetAllViewStates()
+    {
+        if (_booksViewModel != null)
+        {
+            _booksViewModel.ClearState();
+        }
+        if (_booksInventoryViewModel != null)
+        {
+           _booksInventoryViewModel.ClearState();
+        }
+        if (_authorsViewModel != null)
+        {
+            _authorsViewModel.ClearState();
+        }
+        if (_customersViewModel != null)
+        {
+            _customersViewModel.ClearState();
+        }
+        if (_ordersViewModel != null)
+        {
+           _ordersViewModel.ClearState();
+        }
+        if (_publisherViewModel != null)
+        {
+           _publisherViewModel.ClearState();
+        }
+        if (_storesViewModel != null)
+        {
+           _storesViewModel.ClearState();
+        }
+    }
+    
+    private async Task<bool> ConfirmSwitchAsync()
+    {
+        bool hasChanges = HasChangesCheck();
+        if (hasChanges)
+        {
+            bool proceed = await _dialogService.ShowConfirmationDialogAsync(
+                "There are unsaved changes, do you still want to proceed?", 
+                "Proceed without saving?");
+            if (proceed)
+            {
+                ResetAllViewStates();
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
 	public MainWindowViewModel()
     {
 
@@ -170,10 +290,18 @@ public class MainWindowViewModel : ViewModelBase
         _ordersViewModel = new OrdersViewModel(_dialogService);
         _publisherViewModel = new PublishersViewModel(_dialogService);
         _storesViewModel = new StoresViewModel(_dialogService);
+        
+        SwitchToBooksViewCommand = new AsyncDelegateCommand(SwitchToBooksAsync);
+        SwitchToAuthorsViewCommand = new AsyncDelegateCommand(SwitchToAuthorsAsync);
+        SwitchToCustomersViewCommand = new AsyncDelegateCommand(SwitchToCustomersAsync);
+        SwitchToOrdersViewCommand = new AsyncDelegateCommand(SwitchToOrdersAsync);
+        SwitchToPublishersViewCommand = new AsyncDelegateCommand(SwitchToPublishersAsync);
+        SwitchToStoresViewCommand = new AsyncDelegateCommand(SwitchToStoresAsync);
 
         // Books is selected by default
+        CurrentView = _booksViewModel;
         IsBooksSelected = true;
-        
+        _ = _booksViewModel.LoadStoresAsync(); 
     }
 }
 

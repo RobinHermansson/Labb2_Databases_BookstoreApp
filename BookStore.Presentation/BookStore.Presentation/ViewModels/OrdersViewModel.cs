@@ -211,6 +211,12 @@ public class OrdersViewModel: ViewModelBase
 			Debug.WriteLine($"Error when loading orders: {ex.Message}");
 		}
 	}
+	public void ClearState()
+	{
+		_changedOrders.Clear();
+		_deletedOrders.Clear();
+		HasChanges = false;
+	}
 }
 
 public class OrderDetails : INotifyPropertyChanged

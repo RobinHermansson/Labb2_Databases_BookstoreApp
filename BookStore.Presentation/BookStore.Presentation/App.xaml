@@ -262,16 +262,30 @@
             </Style.Triggers>
         </Style>
             
-        <!-- Add Button Warehouse (Green Warehouse) -->
+        <!-- Add Button (Warehouse) -->
         <Style x:Key="WarehouseIconButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
-            <Setter Property="Foreground" Value="AntiqueWhite"/>
+            <Setter Property="Foreground" Value="FloralWhite"/>
             <Setter Property="ToolTip" Value="Add new item"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="#66BB6A"/>
+                    <Setter Property="Foreground" Value="#C4C4C4"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Foreground" Value="#388E3C"/>
+                    <Setter Property="Foreground" Value="#7D7D7D"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Edit Button (Pen & Square) -->
+        <Style x:Key="EditIconButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Foreground" Value="#488A8C"/>
+            <Setter Property="ToolTip" Value="Add new item"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#2D5859"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Foreground" Value="#7D7D7D"/>
                 </Trigger>
             </Style.Triggers>
         </Style>

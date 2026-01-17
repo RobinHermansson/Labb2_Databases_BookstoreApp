@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="40"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="650"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
     <StackPanel Grid.Row="0"
@@ -39,18 +39,25 @@
             </StackPanel>
         <StackPanel Grid.Row="1"
                     Grid.Column="0"
-                    VerticalAlignment="Center"
-                    Margin="0 0 5 0">
+                    VerticalAlignment="Top"
+                    Margin="0 20 5 0">
             <Button VerticalAlignment="Center"
                     Content="{fa:Icon warehouse}"
                     Margin="0 0 0 10"
                     Style="{StaticResource WarehouseIconButton}"
                     Command="{Binding ManageBookInventoryCommand}"
                     CommandParameter="{Binding SelectedBook}"/>
-
+             <Button VerticalAlignment="Center" 
+                    Content="{fa:Icon pentosquare}" 
+                    Command="{Binding EditBookCommand}"
+                    IsEnabled="{Binding SelectedBook, Converter={StaticResource NullToBooleanConverter}}"
+                    Style="{StaticResource EditIconButton}"
+                    Margin="0 10 0 0"
+                    Padding="10,5"
+                    />
             <Button VerticalAlignment="Center"
                     Content="+"
-                    Margin="0 10 0 10"
+                    Margin="0 10 0 0"
                     Style="{StaticResource AddIconButton}"
                     Command="{Binding AddBookCommand}"
                     CommandParameter="{Binding SelectedBook}"/>
@@ -66,7 +73,7 @@
         <DataGrid Grid.Row="1"
                   Grid.Column="1"
                   Grid.ColumnSpan="2"
-                  Margin="0 20 20 20"
+                  Margin="0 20 20 10"
                   AutoGenerateColumns="False"
                   SelectionMode="Single"
                   CanUserAddRows="False"
@@ -103,14 +110,7 @@
                     Style="{StaticResource DarkButton}"
                     Padding="10,5"
                     />
-            <Button Content="Deep Edit" 
-                    Command="{Binding EditBookCommand}"
-                    IsEnabled="{Binding SelectedBook, Converter={StaticResource NullToBooleanConverter}}"
-                    Style="{StaticResource DarkButton}"
-                    Margin="10 0 0 0"
-                    Padding="10,5"
-                    />
-        </StackPanel>
+                   </StackPanel>
 
         
             

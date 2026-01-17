@@ -347,7 +347,7 @@ public class NewBookViewModel : ViewModelBase
             _publisherEmail = value;
             if (CurrentPublisherMode == PublisherMode.CreateNew || CurrentPublisherMode == PublisherMode.EditExisting)
             {
-                IsPublisherEmailValid = !string.IsNullOrEmpty(value);
+                IsPublisherEmailValid = !string.IsNullOrEmpty(value) && value.Length > 5;
             }
             else
             {
@@ -366,6 +366,15 @@ public class NewBookViewModel : ViewModelBase
         set
         {
             _selectedPublisher = value;
+            if (value != null && CurrentPublisherMode == PublisherMode.EditExisting)
+            {
+                PublisherName = value.Name;
+                PublisherAddress = value.Address;
+                PublisherCountry = value.Country;
+                PublisherEmail = value.Email;
+            }
+            CheckForChanges();
+
             RaisePropertyChanged();
             CheckForChanges();
         }
@@ -780,6 +789,16 @@ public class NewBookViewModel : ViewModelBase
                     AuthorBirthDate = SelectedAuthor.BirthDate;
                     AuthorDeathDate = SelectedAuthor.DeathDate;
                 }
+                if (SelectedAuthor is null && AvailableAuthors.Count >= 1 && _originalAuthor is null)
+                {
+                    SelectedAuthor = AvailableAuthors[0];
+                    AuthorFirstName = SelectedAuthor.FirstName;
+                    AuthorLastName = SelectedAuthor.LastName;
+                    AuthorBirthDate = SelectedAuthor.BirthDate;
+                    AuthorDeathDate = SelectedAuthor.DeathDate;
+
+                   
+                }
                 break;
         }
 
@@ -817,6 +836,15 @@ public class NewBookViewModel : ViewModelBase
                     PublisherCountry = SelectedPublisher.Country;
                     PublisherEmail = SelectedPublisher.Email;
                 }
+                if (SelectedPublisher is null && AvailablePublishers.Count >= 1 && _originalPublisher is null)
+                {
+                    SelectedPublisher = AvailablePublishers[0];
+                    PublisherName = SelectedPublisher.Name;
+                    PublisherAddress = SelectedPublisher.Address;
+                    PublisherCountry = SelectedPublisher.Country;
+                    PublisherEmail = SelectedPublisher.Email;
+                }
+
                 break;
         }
 
