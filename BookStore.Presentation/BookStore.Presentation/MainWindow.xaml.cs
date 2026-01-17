@@ -23,6 +23,7 @@ namespace BookStore.Presentation
         {
             InitializeComponent();
             DataContext = _mainWindowViewModel = new MainWindowViewModel();
+            Loaded += MainWindowViewModel_Loaded;
         }
 
         private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -34,6 +35,14 @@ namespace BookStore.Presentation
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
+        }
+
+        private async void MainWindowViewModel_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainWindowViewModel mwvm)
+            {
+                await mwvm.InitializeAsync();
+            }
         }
     }
 }

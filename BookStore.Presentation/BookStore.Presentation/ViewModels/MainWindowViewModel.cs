@@ -277,6 +277,10 @@ public class MainWindowViewModel : ViewModelBase
         }
         return true;
     }
+    public async Task InitializeAsync()
+    {
+        await _booksViewModel.LoadStoresAsync();
+    }
 	public MainWindowViewModel()
     {
 
@@ -300,8 +304,7 @@ public class MainWindowViewModel : ViewModelBase
 
         // Books is selected by default
         CurrentView = _booksViewModel;
-        IsBooksSelected = true;
-        _ = _booksViewModel.LoadStoresAsync(); 
+        IsBooksSelected = true; 
     }
 }
 
