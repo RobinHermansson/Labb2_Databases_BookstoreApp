@@ -21,6 +21,7 @@ public class AuthorsViewModel : ViewModelBase
 
     private List<AuthorDetails> _newAuthors = new List<AuthorDetails>();
     private List<AuthorDetails> _deletedAuthors = new List<AuthorDetails>();
+    private List<AuthorDetails> _changedAuthors = new();
 
     private bool _hasChanges = false;
 
@@ -177,6 +178,7 @@ public class AuthorsViewModel : ViewModelBase
                     originalAuthor.BirthDate != displayAuthor.BirthDate ||
                     originalAuthor.DeathDate != displayAuthor.DeathDate)
                 {
+                    _changedAuthors.Add(displayAuthor); // For clear state tracking...
                     hasAnyChanges = true;
                     break;
                 }
@@ -257,23 +259,7 @@ public class AuthorsViewModel : ViewModelBase
                 }
             }
             
-            //Handling modified existing authors
-            var changedAuthors = new List<AuthorDetails>();
-            foreach (var displayAuthor in DisplayAuthorDetails)
-            {
-                var originalAuthor = OriginalListOfAuthors.FirstOrDefault(a => a.Id == displayAuthor.Id);
-                if (originalAuthor != null)
-                {
-                    if (originalAuthor.FirstName != displayAuthor.FirstName ||
-                        originalAuthor.LastName != displayAuthor.LastName ||
-                        originalAuthor.BirthDate != displayAuthor.BirthDate ||
-                        originalAuthor.DeathDate != displayAuthor.DeathDate)
-                    {
-                        changedAuthors.Add(displayAuthor);
-                    }
-                }
-            }
-            foreach (var changedAuthor in changedAuthors)
+            foreach (var changedAuthor in _changedAuthors)
             {
                 var dbAuthor = await db.Authors.FindAsync(changedAuthor.Id);
 
@@ -298,7 +284,6 @@ public class AuthorsViewModel : ViewModelBase
             await _dialogService.ShowMessageDialogAsync("Error saving saving changes.", "ERROR");
         }
     }
-
 }
 
 public class AuthorDetails : INotifyPropertyChanged
