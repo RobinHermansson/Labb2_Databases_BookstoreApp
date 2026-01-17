@@ -284,6 +284,15 @@ public class AuthorsViewModel : ViewModelBase
             await _dialogService.ShowMessageDialogAsync("Error saving saving changes.", "ERROR");
         }
     }
+
+    public void ClearState()
+    {
+        SelectedAuthor = null;
+        _changedAuthors.Clear();
+        _newAuthors.Clear();
+        _deletedAuthors.Clear();
+        HasChanges = false;
+    }
 }
 
 public class AuthorDetails : INotifyPropertyChanged

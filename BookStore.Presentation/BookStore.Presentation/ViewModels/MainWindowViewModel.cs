@@ -227,7 +227,10 @@ public class MainWindowViewModel : ViewModelBase
         if (_booksViewModel != null)
         {
             _booksViewModel.ClearState();
-            _booksViewModel.HasChanges = false;
+        }
+        if (_authorsViewModel != null)
+        {
+            _authorsViewModel.ClearState();
         }
     }
     private async Task<bool> ConfirmSwitchAsync()
