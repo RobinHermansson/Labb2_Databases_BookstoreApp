@@ -231,6 +231,10 @@ public class MainWindowViewModel : ViewModelBase
         {
             _booksViewModel.ClearState();
         }
+        if (_booksInventoryViewModel != null)
+        {
+           _booksInventoryViewModel.ClearState();
+        }
         if (_authorsViewModel != null)
         {
             _authorsViewModel.ClearState();
@@ -239,9 +243,9 @@ public class MainWindowViewModel : ViewModelBase
         {
             _customersViewModel.ClearState();
         }
-        if (_booksInventoryViewModel != null)
+        if (_ordersViewModel != null)
         {
-           _booksInventoryViewModel.ClearState();
+           _ordersViewModel.ClearState();
         }
     }
     
