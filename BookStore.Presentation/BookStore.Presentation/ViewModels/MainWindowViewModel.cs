@@ -221,6 +221,9 @@ public class MainWindowViewModel : ViewModelBase
         
         if (_ordersViewModel?.HasChanges == true)
             hasChanges = true;
+        
+        if (_storesViewModel?.HasChanges == true)
+            hasChanges = true;
 
         return hasChanges;
     }
@@ -250,6 +253,10 @@ public class MainWindowViewModel : ViewModelBase
         if (_publisherViewModel != null)
         {
            _publisherViewModel.ClearState();
+        }
+        if (_storesViewModel != null)
+        {
+           _storesViewModel.ClearState();
         }
     }
     
