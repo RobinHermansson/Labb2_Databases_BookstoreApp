@@ -70,7 +70,15 @@ public class BooksInventoryViewModel : ViewModelBase
     public InventoryBalanceDetail? SelectedAvailable
     {
         get => _selectedAvailable;
-        set { _selectedAvailable = value; RaisePropertyChanged(); }
+        set 
+        {
+            if (SelectedBookAtStore is not null)
+            {
+                SelectedBookAtStore = null;
+            }
+            _selectedAvailable = value; 
+            RaisePropertyChanged();
+        }
     }
     public ObservableCollection<InventoryBalanceDetail> BooksAtStore
     {
@@ -80,7 +88,16 @@ public class BooksInventoryViewModel : ViewModelBase
     public InventoryBalanceDetail? SelectedBookAtStore
     {
         get => _selectedBookAtStore;
-        set { _selectedBookAtStore = value; RaisePropertyChanged(); }
+        set 
+        { 
+            if (SelectedAvailable is not null)
+            {
+                SelectedAvailable = null;
+            }
+            _selectedBookAtStore = value;
+            RaisePropertyChanged(); 
+
+        }
     }
 
     public BooksInventoryViewModel(Store incomingStore, INavigationService navigationService, IDialogService dialogService)
