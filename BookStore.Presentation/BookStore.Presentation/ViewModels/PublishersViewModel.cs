@@ -292,6 +292,12 @@ public class PublishersViewModel: ViewModelBase
             Debug.WriteLine($"Error when loading publishers directly: {ex.Message}");
         }
 	}
+    	public void ClearState()
+	{
+		_changedPublishers.Clear();
+		_newPublishers.Clear();
+		HasChanges = false;
+	}
 }
 
 public class PublisherDetails : INotifyPropertyChanged

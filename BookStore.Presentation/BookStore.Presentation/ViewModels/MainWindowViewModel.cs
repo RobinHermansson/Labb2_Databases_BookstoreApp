@@ -247,6 +247,10 @@ public class MainWindowViewModel : ViewModelBase
         {
            _ordersViewModel.ClearState();
         }
+        if (_publisherViewModel != null)
+        {
+           _publisherViewModel.ClearState();
+        }
     }
     
     private async Task<bool> ConfirmSwitchAsync()
