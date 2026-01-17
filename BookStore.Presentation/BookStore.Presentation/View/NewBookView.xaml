@@ -153,7 +153,7 @@
              Margin="0,2,0,5"/>
 
         <TextBox Text="{Binding AuthorFirstName, UpdateSourceTrigger=PropertyChanged}"
-                 Style="{StaticResource DarkTextBox}" TextChanged="TextBox_TextChanged">
+                 Style="{StaticResource DarkTextBox}">
             <TextBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource BooleanOrConverter}">
                     <Binding ElementName="CreateNewAuthorRadio" Path="IsChecked"/>
