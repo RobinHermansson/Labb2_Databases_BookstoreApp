@@ -347,7 +347,7 @@ public class NewBookViewModel : ViewModelBase
             _publisherEmail = value;
             if (CurrentPublisherMode == PublisherMode.CreateNew || CurrentPublisherMode == PublisherMode.EditExisting)
             {
-                IsPublisherEmailValid = !string.IsNullOrEmpty(value);
+                IsPublisherEmailValid = !string.IsNullOrEmpty(value) && value.Length > 5;
             }
             else
             {
