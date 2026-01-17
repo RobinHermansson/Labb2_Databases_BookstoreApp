@@ -51,7 +51,7 @@
                   CellStyle="{StaticResource DarkDataGridCell}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ISBN13" Binding="{Binding BookISBN13}" Width="120" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Title" Binding="{Binding BookTitle}" Width="270" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Title" Binding="{Binding BookTitle}" Width="242" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
     
@@ -102,7 +102,7 @@
             </StackPanel>
         <DataGrid Grid.Row="1"
                   Grid.Column="3"
-                  Margin="0 20 20 20"
+                  Margin="0 20 0 20"
                   AutoGenerateColumns="False"
                   SelectionMode="Single"
                   CanUserAddRows="False"
@@ -115,7 +115,7 @@
                   CellStyle="{StaticResource DarkDataGridCell}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ISBN13" Binding="{Binding BookISBN13}" Width="120" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Title" Binding="{Binding BookTitle}" Width="270" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Title" Binding="{Binding BookTitle}" Width="242" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
         <StackPanel Grid.Row="2"
