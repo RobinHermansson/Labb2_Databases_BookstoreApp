@@ -24,6 +24,7 @@ public class BooksInventoryViewModel : ViewModelBase
 
     private ObservableCollection<Store> _stores;
     private Store _selectedStore;
+    private Store _storeAtInstantiation;
 
     public DelegateCommand AddBookToStoreListCommand { get; set; }
     public DelegateCommand RemoveBookFromStoreListCommand { get; set; }
@@ -104,15 +105,21 @@ public class BooksInventoryViewModel : ViewModelBase
     {
         _navigationService = navigationService;
         _dialogService = dialogService;
-        _ = LoadStores(incomingStore);
-
-        _ = LoadBookComparisonAtStore();
+        _storeAtInstantiation = incomingStore;
 
         AddBookToStoreListCommand = new DelegateCommand(AddBookToStoreList, CanAddBookToStoreList);
         RemoveBookFromStoreListCommand = new DelegateCommand(RemoveBookFromStoreList, CanRemoveBookFromStoreList);
         CancelChangesCommand = new DelegateCommand(CancelChanges, CanCancelChanges);
         SaveChangesCommand = new AsyncDelegateCommand(SaveInventoryChangesAsync, CanSaveChanges);
         BackToBooksCommand = new AsyncDelegateCommand(GoBack, CanGoBack);
+
+    }
+
+    public async Task InitializeAsync()
+    {
+
+        await LoadStores(_storeAtInstantiation);
+        await LoadBookComparisonAtStore();
 
     }
 

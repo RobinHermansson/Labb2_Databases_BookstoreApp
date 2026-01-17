@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BookStore.Presentation.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,13 @@ namespace BookStore.Presentation.View
         public BooksInventoryView()
         {
             InitializeComponent();
+            Loaded += BooksInventoryViewModel_Loaded;
+        }
+
+        private async void BooksInventoryViewModel_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is BooksInventoryViewModel bivm)
+                await bivm.InitializeAsync();
         }
     }
 }
