@@ -12,11 +12,19 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="650"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
     <TextBlock Text="All publishers (change/add only)" 
+               Grid.Column="1"
                Foreground="White"
                FontSize="24"/>
         <DataGrid Grid.Row="1"
-                  Margin="0 20 20 20"
+                  Grid.Column="1"
+                  Margin="0 20 20 10"
                   AutoGenerateColumns="False"
                   SelectionMode="Single"
                   CanUserAddRows="True"
@@ -35,7 +43,10 @@
                 <DataGridTextColumn Header="Email" Binding="{Binding Email}"/>
             </DataGrid.Columns>
         </DataGrid>    
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    Margin="0,10,0,0"
+                    Grid.Column="1">
             <Button Content="Save Changes" 
                     Command="{Binding SaveChangesCommand}"
                     IsEnabled="{Binding HasChanges}"
