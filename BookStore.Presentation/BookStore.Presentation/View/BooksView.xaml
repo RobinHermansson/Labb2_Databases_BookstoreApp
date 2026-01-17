@@ -47,6 +47,14 @@
                     Style="{StaticResource WarehouseIconButton}"
                     Command="{Binding ManageBookInventoryCommand}"
                     CommandParameter="{Binding SelectedBook}"/>
+             <Button VerticalAlignment="Center" 
+                    Content="{fa:Icon pentosquare}" 
+                    Command="{Binding EditBookCommand}"
+                    IsEnabled="{Binding SelectedBook, Converter={StaticResource NullToBooleanConverter}}"
+                    Style="{StaticResource WarehouseIconButton}"
+                    Margin="0 10 0 0"
+                    Padding="10,5"
+                    />
 
             <Button VerticalAlignment="Center"
                     Content="+"
@@ -103,14 +111,7 @@
                     Style="{StaticResource DarkButton}"
                     Padding="10,5"
                     />
-            <Button Content="Deep Edit" 
-                    Command="{Binding EditBookCommand}"
-                    IsEnabled="{Binding SelectedBook, Converter={StaticResource NullToBooleanConverter}}"
-                    Style="{StaticResource DarkButton}"
-                    Margin="10 0 0 0"
-                    Padding="10,5"
-                    />
-        </StackPanel>
+                   </StackPanel>
 
         
             
