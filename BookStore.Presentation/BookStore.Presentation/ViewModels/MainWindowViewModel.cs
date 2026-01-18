@@ -20,7 +20,7 @@ public class MainWindowViewModel : ViewModelBase
     public OrdersViewModel _ordersViewModel;
     public PublishersViewModel _publisherViewModel;
     public StoresViewModel _storesViewModel;
-	private object _currentView;
+	private ViewModelBase _currentViewModel;
 
     private readonly IDialogService _dialogService;
     private bool _isDialogOpen;
@@ -53,10 +53,10 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-	public object CurrentView
+	public ViewModelBase CurrentViewModel
 	{
-		get { return _currentView; }
-		set { _currentView = value;
+		get { return _currentViewModel; }
+		set { _currentViewModel = value;
 			RaisePropertyChanged();
 		}
 	}
@@ -74,7 +74,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (await ConfirmSwitchAsync())
         {
-            CurrentView = _booksViewModel;
+            CurrentViewModel = _booksViewModel;
             await _booksViewModel.LoadStoresAsync();
         }
     }
@@ -83,7 +83,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (await ConfirmSwitchAsync())
         {
-            CurrentView = _authorsViewModel;
+            CurrentViewModel = _authorsViewModel;
             await _authorsViewModel.LoadAuthorDetailsAsync();
         }
     }
@@ -92,7 +92,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (await ConfirmSwitchAsync())
         {
-            CurrentView = _customersViewModel;
+            CurrentViewModel = _customersViewModel;
             await _customersViewModel.LoadAllCustomersAsync();
         }
     }
@@ -101,7 +101,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (await ConfirmSwitchAsync())
         {
-            CurrentView = _ordersViewModel;
+            CurrentViewModel = _ordersViewModel;
             await _ordersViewModel.LoadOrdersAsync();
         }
     }
@@ -110,7 +110,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (await ConfirmSwitchAsync())
         {
-             CurrentView = _publisherViewModel;
+             CurrentViewModel = _publisherViewModel;
             await _publisherViewModel.LoadPublishersAsync();
         }
     }
@@ -119,7 +119,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (await ConfirmSwitchAsync())
         {
-            CurrentView = _storesViewModel;
+            CurrentViewModel = _storesViewModel;
             await _storesViewModel.LoadStoresAsync();
         }
     }
@@ -303,7 +303,7 @@ public class MainWindowViewModel : ViewModelBase
         SwitchToStoresViewCommand = new AsyncDelegateCommand(SwitchToStoresAsync);
 
         // Books is selected by default
-        CurrentView = _booksViewModel;
+        CurrentViewModel = _booksViewModel;
         IsBooksSelected = true; 
     }
 }

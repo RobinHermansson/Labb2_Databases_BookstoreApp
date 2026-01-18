@@ -23,21 +23,21 @@ public class NavigationService : INavigationService
         {
             case "NewBook":
                 var newBookView = new NewBookViewModel(parameter as BookDetails, this, _dialogService);
-                _mainWindowViewModel.CurrentView = newBookView;
+                _mainWindowViewModel.CurrentViewModel = newBookView;
                 _ = newBookView.InitializeAsync();
                 break;
             case "EditBook":
                 var editBookView = new EditBookViewModel(parameter as BookDetails, this, _dialogService);
-                _mainWindowViewModel.CurrentView = editBookView;
+                _mainWindowViewModel.CurrentViewModel = editBookView;
                 _ = editBookView.InitializeAsync();
                 break;
             case "BooksView":
-                _mainWindowViewModel.CurrentView = _mainWindowViewModel._booksViewModel;
+                _mainWindowViewModel.CurrentViewModel = _mainWindowViewModel._booksViewModel;
                 break;
             case "BooksInventoryView":
                 var newBooksInventoryView = new BooksInventoryViewModel(parameter as Store, this, _dialogService);
                 _mainWindowViewModel._booksInventoryViewModel = newBooksInventoryView;
-                _mainWindowViewModel.CurrentView = newBooksInventoryView; 
+                _mainWindowViewModel.CurrentViewModel = newBooksInventoryView; 
                 break;
         }
     }
@@ -47,7 +47,7 @@ public class NavigationService : INavigationService
         switch (_previousView)
         {
             case "BooksView":
-                _mainWindowViewModel.CurrentView = _mainWindowViewModel._booksViewModel;
+                _mainWindowViewModel.CurrentViewModel = _mainWindowViewModel._booksViewModel;
                 try
                 {
                     await _mainWindowViewModel._booksViewModel.LoadStoresAsync();
